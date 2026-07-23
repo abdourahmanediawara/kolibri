@@ -164,6 +164,7 @@
       const progressHref = computed(() => `${portalBase.value}#/progress`);
       const portalHelpHref = computed(() => `${portalBase.value}#/help`);
       const trainerSessionsHref = computed(() => `${portalBase.value}#/trainer/sessions`);
+      const trainerDashHref = computed(() => `${portalBase.value}#/trainer`);
 
       const isStaff = computed(
         () => isCoach.value || isAdmin.value || isSuperuser.value,
@@ -240,10 +241,10 @@
         if (isStaff.value) {
           items.unshift({
             id: 'trainer',
-            icon: 'classes',
+            icon: 'dashboard',
             title: shortcutTrainer$(),
             description: shortcutTrainerDesc$(),
-            href: trainerSessionsHref.value,
+            href: trainerDashHref.value,
           });
         }
         return items;

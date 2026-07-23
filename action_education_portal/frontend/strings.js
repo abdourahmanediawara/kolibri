@@ -342,11 +342,51 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     context: 'Error message after failed enrollment.',
   },
   shortcutTrainer: {
-    message: 'Sessions',
+    message: 'Trainer',
     context: 'Home shortcut for trainers.',
   },
   shortcutTrainerDesc: {
-    message: 'Create sessions and take attendance',
+    message: 'Dashboard, sessions and attendance',
     context: 'Home shortcut description for trainers.',
+  },
+  trainerDashTitle: {
+    message: 'Trainer dashboard',
+    context: 'Trainer dashboard page title.',
+  },
+  trainerDashIntro: {
+    message: 'Overview of AE trainings, sessions, and attendance on this device.',
+    context: 'Trainer dashboard intro.',
+  },
+  openSessionsAction: {
+    message: 'Manage sessions',
+    context: 'Button to open sessions list from dashboard.',
+  },
+  openCoachAction: {
+    message: 'Open Coach (Kolibri)',
+    context: 'Button linking to advanced Kolibri Coach plugin.',
+  },
+  todaySessionsTitle: {
+    message: 'Sessions today',
+    context: 'Heading for today session list on trainer dashboard.',
+  },
+  todaySessionsEmpty: {
+    message: 'No sessions scheduled for today.',
+    context: 'Empty state for today sessions on trainer dashboard.',
+  },
+  dashTrainingsLabel: {
+    message: 'Trainings',
+    context: 'Dashboard summary card label.',
+  },
+  dashSessionsLabel: {
+    message: 'Sessions',
+    context: 'Dashboard summary card label.',
+  },
+  dashEnrollmentsLabel: {
+    message: 'Enrollments',
+    context: 'Dashboard summary card label.',
+  },
+  dashAttendanceLabel: {
+    message: 'Attendance records',
+    context: 'Dashboard summary card label.',
   },
 });

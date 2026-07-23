@@ -10,7 +10,7 @@
 | Phase | Objectif | Statut |
 |------|----------|--------|
 | 0 | Corriger splash Learn | Validé (2026-07-23) |
-| 1 | Finaliser thème AE | À faire |
+| 1 | Finaliser thème AE | Validé (2026-07-23) |
 | 2 | Accueil apprenant + navigation | À faire |
 | 3 | Catalogue, vidéos, quiz, progression | À faire |
 | 4 | Plugin `action_education_training` | À faire |

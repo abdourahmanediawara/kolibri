@@ -44,3 +44,30 @@ Les URLs des bundles et la CSP sont générées par le build / settings Django d
 2. Vérifier que `kolibri/deployment/default/settings/dev.py` autorise `127.0.0.1:{WEBPACK_DEV_SERVER_PORT}` dans `CSP_*`.
 3. Relancer les deux tests ci-dessus.
 4. Sur Windows/WSL : ouvrir `http://127.0.0.1:8000/fr-fr/learn/` et confirmer que le splash disparaît.
+
+## Patch 002 — siteTitle sur Auth (onglet + pied de page)
+
+**Date :** 2026-07-23  
+**Symptôme :** l’écran Auth affichait encore « Kolibri {version} » et des titres d’onglet « … - Kolibri » malgré le thème AE.
+
+### Cause
+
+`siteTitle` du ThemeHook était utilisé côté serveur (`{% site_title %}`) mais n’était pas exposé dans `themeConfig` / `themeSpec` côté Vue. AuthBase et UserAuthLayout hardcodent « Kolibri ».
+
+### Fichiers
+
+| Fichier | Changement |
+|---------|------------|
+| `packages/kolibri/styles/internal/themeSpec.js` | Ajoute `siteTitle`. |
+| `packages/kolibri/styles/themeConfig.js` | Expose `siteTitle` au client. |
+| `kolibri/plugins/user_auth/frontend/views/AuthBase.vue` | Pied de page version utilise `siteTitle` si défini. |
+| `kolibri/plugins/user_auth/frontend/views/UserAuthLayout.vue` | Titre d’onglet utilise `siteTitle` / libellé Kolibri. |
+
+### Pourquoi pas un plugin seul
+
+Les chaînes de titre et de version sont dans les vues `user_auth` du cœur ; ThemeHook ne fournit pas de clé pour les remplacer sans ce bridge `siteTitle`.
+
+### Tests
+
+- `pnpm test-jest` sur les specs Auth existantes.
+- Vérification manuelle `/fr-fr/auth/` : pied de page « AE Apprendre … », onglet sans suffixe Kolibri forcé.

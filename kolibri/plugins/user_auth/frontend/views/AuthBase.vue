@@ -348,6 +348,10 @@
         return plugin_data.allowGuestAccess && !this.oidcProviderFlow;
       },
       versionMsg() {
+        // Prefer themed product name (e.g. AE Apprendre) over hardcoded "Kolibri".
+        if (this.themeConfig.siteTitle) {
+          return `${this.themeConfig.siteTitle} ${__version}`;
+        }
         return this.$tr('poweredBy', { version: __version });
       },
     },

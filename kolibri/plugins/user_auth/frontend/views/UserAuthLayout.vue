@@ -49,6 +49,7 @@
   import AppError from 'kolibri/components/error/AppError';
   import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
   import { error } from 'kolibri/utils/appError';
+  import themeConfig from 'kolibri/styles/themeConfig';
   import { ComponentMap } from '../constants';
   import CoreBanner from './CoreBanner';
 
@@ -58,15 +59,19 @@
       return {
         // Use arrow function to bind $tr to this component
         titleTemplate: title => {
+          const productName = this.productName;
           if (this.error) {
-            return this.$tr('kolibriTitleMessage', { title: this.$tr('errorPageTitle') });
+            return this.$tr('productTitleMessage', {
+              title: this.$tr('errorPageTitle'),
+              product: productName,
+            });
           }
-          // If no child component sets title, it reads 'Kolibri'
+          // If no child component sets title, it reads the product name
           if (!title) {
-            return this.coreString('kolibriLabel');
+            return productName;
           }
-          // If child component sets title, it reads 'Child Title - Kolibri'
-          return this.$tr('kolibriTitleMessage', { title });
+          // If child component sets title, it reads 'Child Title - Product'
+          return this.$tr('productTitleMessage', { title, product: productName });
         },
       };
     },
@@ -81,6 +86,9 @@
       return { error };
     },
     computed: {
+      productName() {
+        return themeConfig.siteTitle || this.coreString('kolibriLabel');
+      },
       isAuthorized() {
         return !(
           this.error &&
@@ -111,8 +119,9 @@
       },
     },
     $trs: {
-      kolibriTitleMessage: {
-        message: '{ title } - Kolibri',
+      // Product comes from theme siteTitle, or core "Kolibri" label when unthemed.
+      productTitleMessage: {
+        message: '{ title } - { product }',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       errorPageTitle: {

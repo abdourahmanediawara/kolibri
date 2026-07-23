@@ -171,4 +171,28 @@ describe('auth base component', () => {
       clearTimeoutSpy.mockRestore();
     });
   });
+
+  describe('version footer branding', () => {
+    it('uses theme siteTitle when set', () => {
+      const themeConfig = require('kolibri/styles/themeConfig').default;
+      const previous = themeConfig.siteTitle;
+      themeConfig.siteTitle = 'AE Apprendre';
+      const router = new VueRouter({ routes });
+      const wrapper = mount(AuthBase, {
+        router,
+        stubs: [
+          'router-link',
+          'KButton',
+          'KExternalLink',
+          'CoreLogo',
+          'LanguageSwitcherFooter',
+          'PrivacyInfoModal',
+          'DeviceUnusableMessage',
+        ],
+      });
+      expect(wrapper.vm.versionMsg).toMatch(/^AE Apprendre /);
+      themeConfig.siteTitle = previous;
+      wrapper.destroy();
+    });
+  });
 });

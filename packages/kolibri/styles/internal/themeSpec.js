@@ -43,6 +43,10 @@ const _imageSpec = {
 };
 
 export default {
+  siteTitle: {
+    type: String,
+    default: null,
+  },
   appBar: {
     type: Object,
     default: null,

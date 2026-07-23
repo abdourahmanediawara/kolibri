@@ -19,16 +19,25 @@ export KOLIBRI_RUN_MODE="dev"
 ```bash
 python -m pip install -e ./action_education_theme
 python -m pip install -e ./action_education_portal
+python -m pip install -e ./action_education_training
 kolibri plugin disable kolibri.plugins.default_theme
 kolibri plugin enable action_education_theme
 kolibri plugin enable action_education_portal
+kolibri plugin enable action_education_training
 ```
 
 Vérifier dans `~/.kolibri-action-education-dev/plugins.json` que `action_education_portal` apparaît **avant** `kolibri.plugins.learn` pour que la redirection LEARNER aille vers le portal.
 
+Migrations training (si le serveur tourne déjà, préférer un redémarrage après migrate) :
+
+```bash
+kolibri manage migrate action_education_training
+```
+
 ## Serveur de développement
 
 ```bash
+pnpm install   # une fois après ajout du portal au workspace
 pnpm run devserver core,learn,action_education_portal
 ```
 
@@ -41,6 +50,7 @@ Learn : http://127.0.0.1:8000/fr-fr/learn/
 ```bash
 pytest action_education_theme/test/ -q
 pytest action_education_portal/test/ -q
+pytest action_education_training/test/ -q
 pytest kolibri/deployment/default/test/test_dev_csp_webpack_hosts.py -q
 ```
 

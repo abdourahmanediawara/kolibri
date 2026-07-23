@@ -129,4 +129,31 @@ describe('webpackConfigPlugin', function () {
       expectParsedDataIsUndefined(data);
     });
   });
+
+  describe('devServer publicPath host (WSL/Windows splash regression)', function () {
+    it('should use the configured address in publicPath, not a hardcoded localhost', function () {
+      const config = webpackConfigPlugin(data, {
+        mode: 'development',
+        devServer: true,
+        port: 3000,
+        address: '127.0.0.1',
+        setDevServerPublicPath: true,
+      });
+      expect(config.output.publicPath).toBe(
+        `http://127.0.0.1:3000/${data.name}/`,
+      );
+      expect(config.output.publicPath).not.toContain('://localhost:');
+    });
+
+    it('should keep localhost publicPath when address is localhost', function () {
+      const config = webpackConfigPlugin(data, {
+        mode: 'development',
+        devServer: true,
+        port: 3000,
+        address: 'localhost',
+        setDevServerPublicPath: true,
+      });
+      expect(config.output.publicPath).toBe(`http://localhost:3000/${data.name}/`);
+    });
+  });
 });

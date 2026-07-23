@@ -34,6 +34,12 @@ function createWebpackCompiler(bundleData, options) {
   const buildOptions = {
     hot: options.hot,
     port: options.port,
+    // Use the same host the webpack-dev-server binds to for asset publicPath.
+    // Defaulting publicPath to "localhost" breaks on Windows/WSL when another
+    // process listens on IPv6 ::1:port while webpack is on 127.0.0.1:port —
+    // the browser then loads HTML (or the wrong app) instead of the JS bundle,
+    // so kolibriCoreAppGlobal never initializes and SPAs stay on the splash.
+    address: options.host,
     mode: options.development ? 'development' : 'production',
     cache: options.cache,
     transpile: options.transpile,

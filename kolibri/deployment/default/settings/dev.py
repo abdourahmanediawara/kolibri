@@ -1,5 +1,7 @@
 import os
 
+from kolibri.deployment.default.webpack_dev_hosts import webpack_dev_server_hosts
+
 from .base import *  # noqa isort:skip @UnusedWildImport
 
 DEBUG = True
@@ -51,8 +53,9 @@ REST_FRAMEWORK = {
 
 SWAGGER_SETTINGS = {"DEFAULT_INFO": "kolibri.deployment.default.dev_urls.api_info"}
 
-# Ensure that the CSP is set up to allow webpack-dev-server to be accessed during development
+# Ensure that the CSP is set up to allow webpack-dev-server to be accessed during development.
 WEBPACK_DEV_SERVER_PORT = os.environ.get("WEBPACK_DEV_SERVER_PORT", "3000")
-CSP_DEFAULT_SRC += (f"localhost:{WEBPACK_DEV_SERVER_PORT}", "ws:")  # noqa F405
-CSP_SCRIPT_SRC += (f"localhost:{WEBPACK_DEV_SERVER_PORT}",)  # noqa F405
-CSP_STYLE_SRC += (f"localhost:{WEBPACK_DEV_SERVER_PORT}",)  # noqa F405
+WEBPACK_DEV_SERVER_HOSTS = webpack_dev_server_hosts(WEBPACK_DEV_SERVER_PORT)
+CSP_DEFAULT_SRC += WEBPACK_DEV_SERVER_HOSTS + ("ws:",)  # noqa F405
+CSP_SCRIPT_SRC += WEBPACK_DEV_SERVER_HOSTS  # noqa F405
+CSP_STYLE_SRC += WEBPACK_DEV_SERVER_HOSTS  # noqa F405

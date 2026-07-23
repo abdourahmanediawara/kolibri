@@ -60,3 +60,5 @@ pytest kolibri/deployment/default/test/test_dev_csp_webpack_hosts.py -q
 - `action_education_theme` n’est **pas** dans `build_tools/build_plugins.txt`.
 - Hors ligne / Wi‑Fi : voir `AE_OFFLINE_WIFI.md` et `python scripts/ae_offline_checks.py`.
 - Dans `plugins.json`, `action_education_portal` doit être listé **avant** `kolibri.plugins.learn`.
+- Après une mise à jour de version Kolibri (réécriture de `plugins.json`), relancer :
+  `python scripts/ae_offline_checks.py --fix-plugin-order`

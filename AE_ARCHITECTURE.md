@@ -47,3 +47,10 @@ Endpoints rapports (Phase 8) :
 - `GET …/export/enrollments/<training_id>/` — CSV
 - `GET …/export/certificates/` — CSV
 - `GET …/summary/session/<session_id>/` — taux de présence
+
+## Hors ligne / Wi‑Fi
+
+- Assets thème locaux uniquement (pas de CDN) — `AE_OFFLINE_WIFI.md`
+- Contrôle : `python scripts/ae_offline_checks.py`
+- `LISTEN_ADDRESS=0.0.0.0` pour accès tablettes sur le même Wi‑Fi
+- `action_education_portal` **avant** `kolibri.plugins.learn` dans `plugins.json`

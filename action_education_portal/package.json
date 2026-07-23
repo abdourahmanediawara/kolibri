@@ -1,0 +1,19 @@
+{
+  "name": "action-education-portal",
+  "description": "AE Apprendre learner portal for Kolibri",
+  "private": true,
+  "version": "0.1.0",
+  "dependencies": {
+    "kolibri": "workspace:*",
+    "kolibri-app": "workspace:*",
+    "kolibri-common": "workspace:*",
+    "kolibri-design-system": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:",
+    "vuex": "catalog:"
+  },
+  "devDependencies": {
+    "@testing-library/vue": "catalog:",
+    "@vue/test-utils": "catalog:"
+  }
+}

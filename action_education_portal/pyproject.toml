@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "action-education-portal"
+version = "0.1.0"
+description = "AE Apprendre learner portal for Kolibri (Action Éducation)"
+requires-python = ">=3.6"
+license = { text = "MIT" }
+authors = [{ name = "Action Éducation" }]
+dependencies = []
+
+[project.entry-points."kolibri.plugins"]
+action_education_portal = "action_education_portal"
+
+[tool.setuptools]
+packages = ["action_education_portal"]
+
+[tool.setuptools.package-dir]
+"action_education_portal" = "."
+
+[tool.setuptools.package-data]
+action_education_portal = ["templates/**/*", "static/**/*", "locale/**/*"]

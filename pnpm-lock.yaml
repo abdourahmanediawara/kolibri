@@ -134,6 +134,37 @@ importers:
         specifier: '*'
         version: 2.3.3
 
+  action_education_portal:
+    dependencies:
+      kolibri:
+        specifier: workspace:*
+        version: link:../packages/kolibri
+      kolibri-app:
+        specifier: workspace:*
+        version: link:../packages/kolibri-app
+      kolibri-common:
+        specifier: workspace:*
+        version: link:../packages/kolibri-common
+      kolibri-design-system:
+        specifier: 'catalog:'
+        version: 5.7.0
+      vue:
+        specifier: 'catalog:'
+        version: 2.7.16
+      vue-router:
+        specifier: 'catalog:'
+        version: 3.6.5(vue@2.7.16)
+      vuex:
+        specifier: 'catalog:'
+        version: 3.6.2(vue@2.7.16)
+    devDependencies:
+      '@testing-library/vue':
+        specifier: 'catalog:'
+        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
+      '@vue/test-utils':
+        specifier: 'catalog:'
+        version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
+
   kolibri/core:
     dependencies:
       '@babel/core':

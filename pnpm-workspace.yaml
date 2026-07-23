@@ -8,6 +8,7 @@ packages:
   - packages/*
   - kolibri/core
   - kolibri/plugins/*
+  - action_education_portal
 
 catalog:
   "@testing-library/jest-dom": ^6.6.4

@@ -1,2 +1,3 @@
 kolibri.core
 kolibri.plugins.*
+action_education_portal

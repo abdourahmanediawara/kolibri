@@ -22,3 +22,17 @@ def test_build_plugins_includes_portal_not_theme():
     text = Path(__file__).resolve().parents[2].joinpath("build_tools/build_plugins.txt").read_text()
     assert "action_education_portal" in text
     assert "action_education_theme" not in text
+
+
+def test_portal_frontend_routes_cover_phase3():
+    from pathlib import Path
+
+    routes = Path(__file__).resolve().parents[1].joinpath("frontend/routes.js").read_text()
+    for name in (
+        "PortalCatalog",
+        "PortalVideos",
+        "PortalQuizzes",
+        "PortalProgress",
+        "PortalHelp",
+    ):
+        assert name in routes

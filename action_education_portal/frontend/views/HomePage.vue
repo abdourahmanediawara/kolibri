@@ -68,7 +68,7 @@
             <KButton
               :text="exploreTrainings$()"
               :primary="true"
-              :href="libraryHref"
+              :href="catalogHref"
             />
           </template>
         </section>
@@ -155,9 +155,12 @@
       const learnBase = computed(() => urls['kolibri:kolibri.plugins.learn:learn']());
       const libraryHref = computed(() => `${learnBase.value}#/library`);
       const homeHref = computed(() => `${learnBase.value}#/home`);
-      const portalHelpHref = computed(
-        () => `${urls['kolibri:action_education_portal:portal']()}#/help`,
-      );
+      const portalBase = computed(() => urls['kolibri:action_education_portal:portal']());
+      const catalogHref = computed(() => `${portalBase.value}#/catalog`);
+      const videosHref = computed(() => `${portalBase.value}#/videos`);
+      const quizzesHref = computed(() => `${portalBase.value}#/quizzes`);
+      const progressHref = computed(() => `${portalBase.value}#/progress`);
+      const portalHelpHref = computed(() => `${portalBase.value}#/help`);
 
       const greeting = computed(() => {
         const name = (full_name && full_name.value) || (username && username.value);
@@ -195,28 +198,28 @@
           icon: 'library',
           title: shortcutExplore$(),
           description: shortcutExploreDesc$(),
-          href: libraryHref.value,
+          href: catalogHref.value,
         },
         {
           id: 'videos',
           icon: 'video',
           title: shortcutVideos$(),
           description: shortcutVideosDesc$(),
-          href: libraryHref.value,
+          href: videosHref.value,
         },
         {
           id: 'quizzes',
           icon: 'quiz',
           title: shortcutQuizzes$(),
           description: shortcutQuizzesDesc$(),
-          href: homeHref.value,
+          href: quizzesHref.value,
         },
         {
           id: 'progress',
           icon: 'inProgress',
           title: shortcutProgress$(),
           description: shortcutProgressDesc$(),
-          href: homeHref.value,
+          href: progressHref.value,
         },
         {
           id: 'help',
@@ -275,6 +278,7 @@
         resumeHref,
         resumeProgressLabel,
         libraryHref,
+        catalogHref,
         shortcuts,
         shortcutsLabel$,
       };

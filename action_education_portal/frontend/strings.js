@@ -165,4 +165,76 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     message: 'Back to home',
     context: 'Link from secondary portal pages to the home page.',
   },
+  catalogTitle: {
+    message: 'Trainings',
+    context: 'Catalog page title listing available channels.',
+  },
+  catalogIntro: {
+    message: 'Browse trainings available on this device.',
+    context: 'Catalog page intro.',
+  },
+  catalogEmpty: {
+    message: 'No trainings are available yet. Ask your trainer to import content.',
+    context: 'Catalog empty state.',
+  },
+  channelMeta: {
+    message: '{count} resources',
+    context: 'Secondary line under a channel card.',
+  },
+  searchLabel: {
+    message: 'Search',
+    context: 'Search field label on portal list pages.',
+  },
+  searchAction: {
+    message: 'Search',
+    context: 'Search button label.',
+  },
+  videosTitle: {
+    message: 'Videos',
+    context: 'Videos page title.',
+  },
+  videosIntro: {
+    message: 'Local videos you can watch without internet.',
+    context: 'Videos page intro.',
+  },
+  videosEmpty: {
+    message: 'No videos are available on this device yet.',
+    context: 'Videos empty state.',
+  },
+  quizzesTitle: {
+    message: 'Quizzes',
+    context: 'Quizzes page title.',
+  },
+  quizzesIntro: {
+    message: 'Practice quizzes available in the local library.',
+    context: 'Quizzes page intro.',
+  },
+  quizzesEmpty: {
+    message: 'No quizzes are available on this device yet.',
+    context: 'Quizzes empty state.',
+  },
+  progressTitle: {
+    message: 'My progress',
+    context: 'Progress page title.',
+  },
+  progressIntro: {
+    message: 'Trainings you have started. Open one to continue.',
+    context: 'Progress page intro.',
+  },
+  progressEmpty: {
+    message: 'You have not started a training yet. Explore the catalog to begin.',
+    context: 'Progress empty state.',
+  },
+  progressPercent: {
+    message: '{percent}% complete',
+    context: 'Progress percentage label on a content card.',
+  },
+  notStarted: {
+    message: 'Not started',
+    context: 'Progress label when the learner has not begun an item.',
+  },
+  myTrainingsTitle: {
+    message: 'My trainings',
+    context: 'Page title for assigned / class content shortcut target.',
+  },
 });

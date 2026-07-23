@@ -12,7 +12,7 @@
 | 0 | Corriger splash Learn | Validé (2026-07-23) |
 | 1 | Finaliser thème AE | Validé (2026-07-23) |
 | 2 | Accueil apprenant + navigation | Validé (2026-07-23) |
-| 3 | Catalogue, vidéos, quiz, progression | À faire |
+| 3 | Catalogue, vidéos, quiz, progression | Validé (2026-07-23) |
 | 4 | Plugin `action_education_training` | À faire |
 | 5 | Sessions / inscriptions / présences | À faire |
 | 6 | Tableau de bord formateur | À faire |

@@ -19,6 +19,36 @@ registerNavItem({
         route: '/',
         name: 'PortalHome',
       },
+      {
+        label: portalStrings.$tr('catalogTitle'),
+        icon: 'library',
+        route: '/catalog',
+        name: 'PortalCatalog',
+      },
+      {
+        label: portalStrings.$tr('videosTitle'),
+        icon: 'video',
+        route: '/videos',
+        name: 'PortalVideos',
+      },
+      {
+        label: portalStrings.$tr('quizzesTitle'),
+        icon: 'quiz',
+        route: '/quizzes',
+        name: 'PortalQuizzes',
+      },
+      {
+        label: portalStrings.$tr('progressTitle'),
+        icon: 'inProgress',
+        route: '/progress',
+        name: 'PortalProgress',
+      },
+      {
+        label: portalStrings.$tr('helpPageTitle'),
+        icon: 'help',
+        route: '/help',
+        name: 'PortalHelp',
+      },
     ];
   },
 });

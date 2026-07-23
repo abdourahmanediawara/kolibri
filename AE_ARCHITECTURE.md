@@ -8,12 +8,13 @@
 | `action_education_portal` | Accueil apprenant simplifié `/portal/` + aide + entrée de navigation |
 | `action_education_training` | (Phase 4+) formations, sessions, présences, certificats |
 
-## Flux apprenant (Phase 2)
+## Flux apprenant (Phases 2–3)
 
 1. Connexion via `user_auth` (thème AE).
-2. Redirection LEARNER → `/…/portal/` si `action_education_portal` est enregistré **avant** `kolibri.plugins.learn` dans `plugins.json` (ordre d’activation).
-3. Accueil portal : carte « Continuer » via Learn `homehydrate` ; raccourcis vers Learn (`#/home`, `#/library`) et `#/help`.
-4. Contenu / lecteurs / quiz restent dans Learn et les viewers Kolibri.
+2. Redirection LEARNER → `/…/portal/` si `action_education_portal` est enregistré **avant** `kolibri.plugins.learn` dans `plugins.json`.
+3. Accueil portal : carte « Continuer » via Learn `homehydrate` ; raccourcis portal (`#/catalog`, `#/videos`, `#/quizzes`, `#/progress`, `#/help`) et Learn (`#/home` pour classes).
+4. Catalogue / vidéos / quiz : `ChannelResource` + `ContentNodeResource` + `ContentNodeProgressResource` (cœur) — aucune duplication de contenus.
+5. Ouverture d’un contenu : liens vers Learn `#/topics/c/:id` (lecteurs Kolibri inchangés).
 
 ## Build frontend
 

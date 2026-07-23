@@ -131,3 +131,53 @@ class TrainingReportsAPITests(APITestCase):
         url = reverse("kolibri:action_education_training:aeexport-certificates")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
+
+    def test_learner_can_print_own_certificate_only(self):
+        cert, _ = issue_certificate(self.learner, self.training)
+        other = FacilityUserFactory.create(facility=self.facility)
+        other_cert, _ = issue_certificate(other, self.training)
+
+        self.client.logout()
+        self.client.login(
+            username=self.learner.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        own_url = reverse(
+            "kolibri:action_education_training:aecertificate-print",
+            kwargs={"pk": cert.id},
+        )
+        response = self.client.get(own_url)
+        self.assertEqual(response.status_code, 200)
+
+        other_url = reverse(
+            "kolibri:action_education_training:aecertificate-print",
+            kwargs={"pk": other_cert.id},
+        )
+        response = self.client.get(other_url)
+        self.assertEqual(response.status_code, 403)
+
+        issue_url = reverse("kolibri:action_education_training:aecertificate-issue")
+        response = self.client.post(
+            issue_url,
+            {"learner": self.learner.id, "training": self.training.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_certificate_html_escapes_user_content(self):
+        self.learner.full_name = '<script>alert("xss")</script>'
+        self.learner.save()
+        cert, _ = issue_certificate(self.learner, self.training)
+        html = cert.printable_payload
+        self.assertNotIn("<script>", html)
+        self.assertIn("&lt;script&gt;", html)
+
+    def test_certificate_list_omits_printable_payload(self):
+        issue_certificate(self.learner, self.training)
+        url = reverse("kolibri:action_education_training:aecertificate-list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        rows = response.data if isinstance(response.data, list) else response.data.get("results", [])
+        self.assertTrue(rows)
+        self.assertNotIn("printable_payload", rows[0])

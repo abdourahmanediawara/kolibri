@@ -136,7 +136,6 @@ class CertificateViewSet(ValuesViewset):
         "issued_at",
         "certificate_number",
         "criteria_met",
-        "printable_payload",
     )
     field_map = {
         "learner": "learner_id",

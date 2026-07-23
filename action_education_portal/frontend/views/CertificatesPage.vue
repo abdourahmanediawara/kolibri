@@ -36,8 +36,12 @@
               :floatingLabel="false"
               autocomplete="off"
             />
-            <label class="select-label">{{ trainingSelectLabel$() }}</label>
+            <label
+              class="select-label"
+              for="ae-cert-training"
+            >{{ trainingSelectLabel$() }}</label>
             <select
+              id="ae-cert-training"
               v-model="form.trainingId"
               class="select"
             >

@@ -1,7 +1,5 @@
 import datetime
 
-import datetime
-
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
@@ -124,6 +122,5 @@ class CertificateSerializer(serializers.ModelSerializer):
             "issued_at",
             "certificate_number",
             "criteria_met",
-            "printable_payload",
         )
-        read_only_fields = ("id", "issued_at")
+        read_only_fields = ("id", "issued_at", "certificate_number")

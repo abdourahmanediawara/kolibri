@@ -19,7 +19,7 @@
 | 7 | Tableau de bord administrateur | Validé (2026-07-23) |
 | 8 | Certificats, rapports, exports | Validé (2026-07-23) |
 | 9 | Tests hors ligne / Wi-Fi local | Validé (2026-07-23) |
-| 10 | Performance, a11y, sécurité | À faire |
+| 10 | Performance, a11y, sécurité | Validé (2026-07-23) |
 | 11 | Documentation & paquet déploiement | À faire |
 
 ## Décisions

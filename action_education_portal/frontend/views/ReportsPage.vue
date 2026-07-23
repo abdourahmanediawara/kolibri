@@ -32,8 +32,12 @@
                 backgroundColor: $themeTokens.surface,
                 borderColor: $themeTokens.fineLine,
               }"
+              aria-labelledby="export-certs-heading"
             >
-              <h2 class="section-title">
+              <h2
+                id="export-certs-heading"
+                class="section-title"
+              >
                 {{ exportCertificatesTitle$() }}
               </h2>
               <p :style="{ color: $themeTokens.annotation }">
@@ -52,8 +56,12 @@
                 backgroundColor: $themeTokens.surface,
                 borderColor: $themeTokens.fineLine,
               }"
+              aria-labelledby="export-attendance-heading"
             >
-              <h2 class="section-title">
+              <h2
+                id="export-attendance-heading"
+                class="section-title"
+              >
                 {{ exportAttendanceTitle$() }}
               </h2>
               <p
@@ -94,8 +102,12 @@
                 backgroundColor: $themeTokens.surface,
                 borderColor: $themeTokens.fineLine,
               }"
+              aria-labelledby="export-enrollments-heading"
             >
-              <h2 class="section-title">
+              <h2
+                id="export-enrollments-heading"
+                class="section-title"
+              >
                 {{ exportEnrollmentsTitle$() }}
               </h2>
               <p

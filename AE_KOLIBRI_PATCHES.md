@@ -67,7 +67,10 @@ Les URLs des bundles et la CSP sont générées par le build / settings Django d
 
 Les chaînes de titre et de version sont dans les vues `user_auth` du cœur ; ThemeHook ne fournit pas de clé pour les remplacer sans ce bridge `siteTitle`.
 
-### Tests
+## Patch 003 — Activer les plugins AE dans settings de test
 
-- `pnpm test-jest` sur les specs Auth existantes.
-- Vérification manuelle `/fr-fr/auth/` : pied de page « AE Apprendre … », onglet sans suffixe Kolibri forcé.
+**Date :** 2026-07-23
+**Fichier :** `kolibri/deployment/default/settings/test.py`
+**Pourquoi :** pytest utilise un `KOLIBRI_HOME` isolé. Sans `plugins.json` AE avant le chargement de `base`, les modèles de `action_education_training` ne sont pas dans `INSTALLED_APPS`.
+**Changement :** avant `from .base import *`, créer `plugins.json` avec les plugins AE installés (s’ils sont importables) + `DEFAULT_PLUGINS`.
+**Report :** réappliquer ce préambule après une mise à jour Kolibri.

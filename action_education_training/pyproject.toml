@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "action-education-training"
+version = "0.1.0"
+description = "AE Apprendre training sessions, attendance, and certificates for Kolibri"
+requires-python = ">=3.6"
+license = { text = "MIT" }
+authors = [{ name = "Action Éducation" }]
+dependencies = []
+
+[project.entry-points."kolibri.plugins"]
+action_education_training = "action_education_training"
+
+[tool.setuptools]
+packages = ["action_education_training"]
+
+[tool.setuptools.package-dir]
+"action_education_training" = "."
+
+[tool.setuptools.package-data]
+action_education_training = ["locale/**/*"]

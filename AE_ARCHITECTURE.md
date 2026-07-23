@@ -6,7 +6,7 @@
 |--------|------|
 | `action_education_theme` | Identité visuelle (logo, couleurs, `siteTitle`) — pas de bundle webpack |
 | `action_education_portal` | Accueil apprenant simplifié `/portal/` + aide + entrée de navigation |
-| `action_education_training` | (Phase 4+) formations, sessions, présences, certificats |
+| `action_education_training` | Formations, sessions, inscriptions, présences, certificats (modèles + API) |
 
 ## Flux apprenant (Phases 2–3)
 
@@ -28,6 +28,12 @@ action_education_portal
 
 Ne pas y mettre `action_education_theme` (pas d’assets frontend) — sinon `webpack_json.py` échoue.
 
-## Données
+## Données AE Training
 
-Aucune duplication de progression, contenus ou comptes. Le portal lit les APIs Learn existantes.
+Modèles locaux dans `action_education_training` (SQLite Kolibri, migrations du plugin) :
+
+- `Training`, `TrainingSession`, `Enrollment`, `Attendance`, `Certificate`
+- Pas de duplication des contenus / progression Kolibri (`channel_id` optionnel)
+- Unicité : enrollment (training+learner), attendance (session+learner), certificate (learner+training)
+
+API ValuesViewset : `training`, `session`, `enrollment`, `attendance`, `certificate`.

@@ -15,7 +15,7 @@
 3. Accueil portal : carte « Continuer » via Learn `homehydrate` ; raccourcis portal (`#/catalog`, `#/videos`, `#/quizzes`, `#/progress`, `#/help`) et Learn (`#/home` pour classes).
 4. Catalogue / vidéos / quiz : `ChannelResource` + `ContentNodeResource` + `ContentNodeProgressResource` (cœur) — aucune duplication de contenus.
 5. Ouverture d’un contenu : liens vers Learn `#/topics/c/:id` (lecteurs Kolibri inchangés).
-6. Formateurs / admins : `#/trainer/sessions` (créer session) et `#/trainer/sessions/:id` (inscription + présences) via API `action_education_training`.
+6. Formateurs / admins : `#/trainer` (dashboard), `#/trainer/sessions` (créer session), `#/trainer/sessions/:id` (inscription + présences), `#/certificates` (émission + impression HTML), `#/reports` (exports CSV) via API `action_education_training`.
 
 ## Build frontend
 
@@ -38,3 +38,12 @@ Modèles locaux dans `action_education_training` (SQLite Kolibri, migrations du 
 - Unicité : enrollment (training+learner), attendance (session+learner), certificate (learner+training)
 
 API ValuesViewset : `training`, `session`, `enrollment`, `attendance`, `certificate`.
+
+Endpoints rapports (Phase 8) :
+
+- `POST …/certificate/issue/` — émission idempotente
+- `GET …/certificate/<id>/print/` — HTML imprimable
+- `GET …/export/attendance/<session_id>/` — CSV (`;`, BOM UTF-8)
+- `GET …/export/enrollments/<training_id>/` — CSV
+- `GET …/export/certificates/` — CSV
+- `GET …/summary/session/<session_id>/` — taux de présence

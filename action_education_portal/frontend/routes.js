@@ -8,6 +8,8 @@ import TrainerSessionsPage from './views/TrainerSessionsPage';
 import SessionAttendancePage from './views/SessionAttendancePage';
 import TrainerDashboardPage from './views/TrainerDashboardPage';
 import AdminDashboardPage from './views/AdminDashboardPage';
+import CertificatesPage from './views/CertificatesPage';
+import ReportsPage from './views/ReportsPage';
 import { portalStrings } from './strings';
 
 export default [
@@ -58,6 +60,16 @@ export default [
     name: 'PortalSessionAttendance',
     path: '/trainer/sessions/:sessionId',
     component: SessionAttendancePage,
+  },
+  {
+    name: 'PortalCertificates',
+    path: '/certificates',
+    component: CertificatesPage,
+  },
+  {
+    name: 'PortalReports',
+    path: '/reports',
+    component: ReportsPage,
   },
   {
     name: 'PortalHelp',

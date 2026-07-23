@@ -83,6 +83,40 @@ export function useTrainingApi() {
     }).then(r => r.data);
   }
 
+  function fetchCertificates() {
+    return client({ url: listUrl('aecertificate-list') }).then(r => unwrap(r.data));
+  }
+
+  function issueCertificate(payload) {
+    return client({
+      url: urls['kolibri:action_education_training:aecertificate-issue'](),
+      method: 'POST',
+      data: payload,
+    }).then(r => r.data);
+  }
+
+  function certificatePrintUrl(id) {
+    return urls['kolibri:action_education_training:aecertificate-print'](id);
+  }
+
+  function attendanceExportUrl(sessionId) {
+    return urls['kolibri:action_education_training:aeexport-attendance'](sessionId);
+  }
+
+  function enrollmentsExportUrl(trainingId) {
+    return urls['kolibri:action_education_training:aeexport-enrollments'](trainingId);
+  }
+
+  function certificatesExportUrl() {
+    return urls['kolibri:action_education_training:aeexport-certificates']();
+  }
+
+  function fetchSessionSummary(sessionId) {
+    return client({
+      url: urls['kolibri:action_education_training:aesummary-session'](sessionId),
+    }).then(r => r.data);
+  }
+
   return {
     fetchTrainings,
     createTraining,
@@ -94,5 +128,12 @@ export function useTrainingApi() {
     fetchAttendances,
     createAttendance,
     updateAttendance,
+    fetchCertificates,
+    issueCertificate,
+    certificatePrintUrl,
+    attendanceExportUrl,
+    enrollmentsExportUrl,
+    certificatesExportUrl,
+    fetchSessionSummary,
   };
 }

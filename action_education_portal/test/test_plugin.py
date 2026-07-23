@@ -38,5 +38,7 @@ def test_portal_frontend_routes_cover_phase3_and_trainer():
         "PortalTrainerDashboard",
         "PortalTrainerSessions",
         "PortalSessionAttendance",
+        "PortalCertificates",
+        "PortalReports",
     ):
         assert name in routes

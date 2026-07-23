@@ -159,6 +159,10 @@
         adminLinkTrainerDesc$,
         adminLinkDeviceTitle$,
         adminLinkDeviceDesc$,
+        adminLinkCertificatesTitle$,
+        adminLinkCertificatesDesc$,
+        adminLinkReportsTitle$,
+        adminLinkReportsDesc$,
       } = portalStrings;
 
       const { isAdmin, isSuperuser, userFacilityId } = useUser();
@@ -210,6 +214,20 @@
           title: adminLinkTrainerTitle$(),
           description: adminLinkTrainerDesc$(),
           href: `${portalBase.value}#/trainer`,
+        },
+        {
+          id: 'certificates',
+          icon: 'star',
+          title: adminLinkCertificatesTitle$(),
+          description: adminLinkCertificatesDesc$(),
+          href: `${portalBase.value}#/certificates`,
+        },
+        {
+          id: 'reports',
+          icon: 'reports',
+          title: adminLinkReportsTitle$(),
+          description: adminLinkReportsDesc$(),
+          href: `${portalBase.value}#/reports`,
         },
         {
           id: 'device',

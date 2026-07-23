@@ -18,6 +18,15 @@ API (ValuesViewset) sous le namespace plugin :
 - `/api/attendance/`
 - `/api/certificate/`
 
+Rapports / certificats :
+
+- `POST /api/certificate/issue/`
+- `GET /api/certificate/<id>/print/`
+- `GET /api/export/attendance/<session_id>/`
+- `GET /api/export/enrollments/<training_id>/`
+- `GET /api/export/certificates/`
+- `GET /api/summary/session/<session_id>/`
+
 ## Enable
 
 ```bash

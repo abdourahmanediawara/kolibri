@@ -62,6 +62,18 @@ registerNavItem({
         name: 'PortalTrainerSessions',
       },
       {
+        label: portalStrings.$tr('certificatesTitle'),
+        icon: 'star',
+        route: '/certificates',
+        name: 'PortalCertificates',
+      },
+      {
+        label: portalStrings.$tr('reportsTitle'),
+        icon: 'reports',
+        route: '/reports',
+        name: 'PortalReports',
+      },
+      {
         label: portalStrings.$tr('helpPageTitle'),
         icon: 'help',
         route: '/help',

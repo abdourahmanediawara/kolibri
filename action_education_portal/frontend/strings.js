@@ -469,4 +469,100 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     message: 'Overview and advanced tools',
     context: 'Home shortcut description for administrators.',
   },
+  certificatesTitle: {
+    message: 'Certificates',
+    context: 'Certificates page title.',
+  },
+  certificatesIntro: {
+    message: 'Issue and print training certificates for learners on this device.',
+    context: 'Certificates page intro.',
+  },
+  issueCertificateTitle: {
+    message: 'Issue a certificate',
+    context: 'Heading for certificate issue form.',
+  },
+  trainingSelectLabel: {
+    message: 'Training',
+    context: 'Label for training select when issuing a certificate.',
+  },
+  trainingSelectPlaceholder: {
+    message: 'Select a training',
+    context: 'Placeholder option for training select.',
+  },
+  issueCertificateAction: {
+    message: 'Issue certificate',
+    context: 'Button to issue a certificate.',
+  },
+  certificatesEmpty: {
+    message: 'No certificates issued yet.',
+    context: 'Empty state for certificates list.',
+  },
+  printCertificateAction: {
+    message: 'Print',
+    context: 'Button to open printable certificate HTML.',
+  },
+  certificateIssued: {
+    message: 'Certificate issued.',
+    context: 'Success message after issuing a certificate.',
+  },
+  certificateIssueError: {
+    message: 'Could not issue the certificate. Check the username and training.',
+    context: 'Error message after failed certificate issue.',
+  },
+  reportsTitle: {
+    message: 'Reports & exports',
+    context: 'Reports page title.',
+  },
+  reportsIntro: {
+    message: 'Download CSV reports for attendance, enrollments, and certificates (offline-ready).',
+    context: 'Reports page intro.',
+  },
+  exportCertificatesTitle: {
+    message: 'All certificates',
+    context: 'Heading for certificates CSV export.',
+  },
+  exportCertificatesDesc: {
+    message: 'Export every certificate issued on this facility.',
+    context: 'Description for certificates CSV export.',
+  },
+  exportAttendanceTitle: {
+    message: 'Attendance by session',
+    context: 'Heading for per-session attendance CSV exports.',
+  },
+  exportEnrollmentsTitle: {
+    message: 'Enrollments by training',
+    context: 'Heading for per-training enrollment CSV exports.',
+  },
+  downloadCsvAction: {
+    message: 'Download CSV',
+    context: 'Button to download a CSV export.',
+  },
+  trainingsEmpty: {
+    message: 'No trainings yet.',
+    context: 'Empty state when there are no trainings to export.',
+  },
+  openCertificatesAction: {
+    message: 'Certificates',
+    context: 'Button opening certificates page from trainer dashboard.',
+  },
+  openReportsAction: {
+    message: 'Reports',
+    context: 'Button opening reports page from trainer dashboard.',
+  },
+  adminLinkReportsTitle: {
+    message: 'Reports',
+    context: 'Admin quick link title for CSV exports.',
+  },
+  adminLinkReportsDesc: {
+    message: 'CSV exports for attendance and certificates',
+    context: 'Admin quick link description for reports.',
+  },
+  adminLinkCertificatesTitle: {
+    message: 'Certificates',
+    context: 'Admin quick link title for certificates.',
+  },
+  adminLinkCertificatesDesc: {
+    message: 'Issue and print learner certificates',
+    context: 'Admin quick link description for certificates.',
+  },
 });

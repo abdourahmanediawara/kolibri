@@ -54,6 +54,16 @@
               :href="sessionsHref"
             />
             <KButton
+              :text="openCertificatesAction$()"
+              appearance="raised-button"
+              :href="certificatesHref"
+            />
+            <KButton
+              :text="openReportsAction$()"
+              appearance="raised-button"
+              :href="reportsHref"
+            />
+            <KButton
               :text="openCoachAction$()"
               appearance="raised-button"
               :href="coachHref"
@@ -133,6 +143,8 @@
         trainerDashIntro$,
         trainerStaffOnly$,
         openSessionsAction$,
+        openCertificatesAction$,
+        openReportsAction$,
         openCoachAction$,
         todaySessionsTitle$,
         todaySessionsEmpty$,
@@ -156,6 +168,8 @@
       const homeHref = computed(() => urls['kolibri:action_education_portal:portal']());
       const portalBase = computed(() => urls['kolibri:action_education_portal:portal']());
       const sessionsHref = computed(() => `${portalBase.value}#/trainer/sessions`);
+      const certificatesHref = computed(() => `${portalBase.value}#/certificates`);
+      const reportsHref = computed(() => `${portalBase.value}#/reports`);
       const coachHref = computed(() => urls['kolibri:kolibri.plugins.coach:coach']());
 
       const summaryCards = computed(() => [
@@ -221,6 +235,8 @@
         trainerDashIntro$,
         trainerStaffOnly$,
         openSessionsAction$,
+        openCertificatesAction$,
+        openReportsAction$,
         openCoachAction$,
         todaySessionsTitle$,
         todaySessionsEmpty$,
@@ -232,6 +248,8 @@
         todaySessions,
         homeHref,
         sessionsHref,
+        certificatesHref,
+        reportsHref,
         coachHref,
       };
     },

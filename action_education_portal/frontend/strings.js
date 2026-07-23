@@ -237,4 +237,116 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     message: 'My trainings',
     context: 'Page title for assigned / class content shortcut target.',
   },
+  trainerSessionsTitle: {
+    message: 'Sessions',
+    context: 'Trainer sessions page title.',
+  },
+  trainerSessionsIntro: {
+    message: 'Create a training session and take attendance offline.',
+    context: 'Trainer sessions page intro.',
+  },
+  trainerStaffOnly: {
+    message: 'Only trainers and administrators can manage sessions.',
+    context: 'Shown when a learner opens trainer pages.',
+  },
+  createSessionTitle: {
+    message: 'New session',
+    context: 'Heading for the create-session form.',
+  },
+  trainingTitleLabel: {
+    message: 'Training title',
+    context: 'Label for training title field.',
+  },
+  locationLabel: {
+    message: 'Location',
+    context: 'Label for session location field.',
+  },
+  startLabel: {
+    message: 'Start date and time',
+    context: 'Label for session start datetime field.',
+  },
+  startHint: {
+    message: 'Use format YYYY-MM-DDTHH:MM (example: 2026-07-23T14:00).',
+    context: 'Help text for the start datetime field.',
+  },
+  createSessionAction: {
+    message: 'Create session',
+    context: 'Button to create a training session.',
+  },
+  sessionsEmpty: {
+    message: 'No sessions yet. Create the first one above.',
+    context: 'Empty state for trainer sessions list.',
+  },
+  takeAttendanceAction: {
+    message: 'Attendance',
+    context: 'Button opening attendance for a session.',
+  },
+  saveSuccess: {
+    message: 'Saved.',
+    context: 'Generic success status after saving.',
+  },
+  saveError: {
+    message: 'Could not save. Check the fields and try again.',
+    context: 'Generic error status after a failed save.',
+  },
+  attendancePageTitle: {
+    message: 'Attendance',
+    context: 'Attendance page title.',
+  },
+  enrollTitle: {
+    message: 'Add a learner',
+    context: 'Enrollment form heading on attendance page.',
+  },
+  learnerUsernameLabel: {
+    message: 'Learner username',
+    context: 'Username field for enrolling a learner.',
+  },
+  enrollAction: {
+    message: 'Enroll',
+    context: 'Button to enroll a learner in the session.',
+  },
+  attendanceEmpty: {
+    message: 'No learners enrolled yet. Add a username above.',
+    context: 'Empty state when a session has no enrollments.',
+  },
+  backToSessions: {
+    message: 'Back to sessions',
+    context: 'Link from attendance page to sessions list.',
+  },
+  statusPresent: {
+    message: 'Present',
+    context: 'Attendance status button.',
+  },
+  statusAbsent: {
+    message: 'Absent',
+    context: 'Attendance status button.',
+  },
+  statusLate: {
+    message: 'Late',
+    context: 'Attendance status button.',
+  },
+  statusExcused: {
+    message: 'Excused',
+    context: 'Attendance status button.',
+  },
+  statusNone: {
+    message: 'Not recorded',
+    context: 'Attendance status when none is set.',
+  },
+  enrollSuccess: {
+    message: 'Learner enrolled.',
+    context: 'Success message after enrollment.',
+  },
+  enrollError: {
+    message: 'Could not enroll this learner. Check the username.',
+    context: 'Error message after failed enrollment.',
+  },
+  shortcutTrainer: {
+    message: 'Sessions',
+    context: 'Home shortcut for trainers.',
+  },
+  shortcutTrainerDesc: {
+    message: 'Create sessions and take attendance',
+    context: 'Home shortcut description for trainers.',
+  },
 });

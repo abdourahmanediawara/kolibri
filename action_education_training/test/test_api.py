@@ -48,21 +48,31 @@ class TrainingAPITests(APITestCase):
         training_id = response.data["id"]
 
         start = timezone.now()
-        # DateTimeTzField expects Kolibri stamp format, not ISO-8601 with "T".
-        session = TrainingSession.objects.create(
-            training_id=training_id,
-            start_datetime=start,
-            end_datetime=start + timedelta(hours=2),
-            location="Maison des jeunes",
-            trainer=self.admin,
+        session_url = reverse("kolibri:action_education_training:aesession-list")
+        response = self.client.post(
+            session_url,
+            {
+                "training": training_id,
+                "start_datetime": start.isoformat().replace("+00:00", "Z"),
+                "end_datetime": (start + timedelta(hours=2))
+                .isoformat()
+                .replace("+00:00", "Z"),
+                "location": "Maison des jeunes",
+                "trainer": self.admin.id,
+                "status": "scheduled",
+                "notes": "",
+            },
+            format="json",
         )
+        self.assertEqual(response.status_code, 201, response.content)
+        session_id = response.data["id"]
 
         enrollment_url = reverse("kolibri:action_education_training:aeenrollment-list")
         response = self.client.post(
             enrollment_url,
             {
                 "training": training_id,
-                "session": session.id,
+                "session": session_id,
                 "learner": self.learner.id,
             },
             format="json",
@@ -73,7 +83,7 @@ class TrainingAPITests(APITestCase):
         response = self.client.post(
             attendance_url,
             {
-                "session": session.id,
+                "session": session_id,
                 "learner": self.learner.id,
                 "status": ATTENDANCE_PRESENT,
                 "recorded_by": self.admin.id,
@@ -82,8 +92,9 @@ class TrainingAPITests(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(Attendance.objects.filter(session_id=session.id).count(), 1)
+        self.assertEqual(Attendance.objects.filter(session_id=session_id).count(), 1)
         self.assertEqual(Enrollment.objects.filter(training_id=training_id).count(), 1)
+        self.assertEqual(TrainingSession.objects.filter(training_id=training_id).count(), 1)
         self.assertTrue(Training.objects.filter(id=training_id).exists())
 
     def test_learner_cannot_create_attendance(self):

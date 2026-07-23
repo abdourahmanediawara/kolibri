@@ -15,6 +15,7 @@
 3. Accueil portal : carte « Continuer » via Learn `homehydrate` ; raccourcis portal (`#/catalog`, `#/videos`, `#/quizzes`, `#/progress`, `#/help`) et Learn (`#/home` pour classes).
 4. Catalogue / vidéos / quiz : `ChannelResource` + `ContentNodeResource` + `ContentNodeProgressResource` (cœur) — aucune duplication de contenus.
 5. Ouverture d’un contenu : liens vers Learn `#/topics/c/:id` (lecteurs Kolibri inchangés).
+6. Formateurs / admins : `#/trainer/sessions` (créer session) et `#/trainer/sessions/:id` (inscription + présences) via API `action_education_training`.
 
 ## Build frontend
 

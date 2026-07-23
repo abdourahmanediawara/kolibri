@@ -44,6 +44,12 @@ registerNavItem({
         name: 'PortalProgress',
       },
       {
+        label: portalStrings.$tr('trainerSessionsTitle'),
+        icon: 'classes',
+        route: '/trainer/sessions',
+        name: 'PortalTrainerSessions',
+      },
+      {
         label: portalStrings.$tr('helpPageTitle'),
         icon: 'help',
         route: '/help',

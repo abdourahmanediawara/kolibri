@@ -14,7 +14,7 @@
 | 2 | Accueil apprenant + navigation | Validé (2026-07-23) |
 | 3 | Catalogue, vidéos, quiz, progression | Validé (2026-07-23) |
 | 4 | Plugin `action_education_training` | Validé (2026-07-23) |
-| 5 | Sessions / inscriptions / présences | À faire |
+| 5 | Sessions / inscriptions / présences | Validé (2026-07-23) |
 | 6 | Tableau de bord formateur | À faire |
 | 7 | Tableau de bord administrateur | À faire |
 | 8 | Certificats, rapports, exports | À faire |

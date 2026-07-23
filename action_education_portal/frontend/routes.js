@@ -4,6 +4,8 @@ import CatalogPage from './views/CatalogPage';
 import VideosPage from './views/VideosPage';
 import QuizzesPage from './views/QuizzesPage';
 import ProgressPage from './views/ProgressPage';
+import TrainerSessionsPage from './views/TrainerSessionsPage';
+import SessionAttendancePage from './views/SessionAttendancePage';
 import { portalStrings } from './strings';
 
 export default [
@@ -34,6 +36,16 @@ export default [
     name: 'PortalProgress',
     path: '/progress',
     component: ProgressPage,
+  },
+  {
+    name: 'PortalTrainerSessions',
+    path: '/trainer/sessions',
+    component: TrainerSessionsPage,
+  },
+  {
+    name: 'PortalSessionAttendance',
+    path: '/trainer/sessions/:sessionId',
+    component: SessionAttendancePage,
   },
   {
     name: 'PortalHelp',

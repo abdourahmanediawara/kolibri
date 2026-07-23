@@ -146,9 +146,11 @@
         shortcutHelpDesc$,
         offlineHint$,
         shortcutsLabel$,
+        shortcutTrainer$,
+        shortcutTrainerDesc$,
       } = portalStrings;
 
-      const { full_name, username, isUserLoggedIn } = useUser();
+      const { full_name, username, isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
       const loading = ref(true);
       const resumeItem = ref(null);
 
@@ -161,6 +163,11 @@
       const quizzesHref = computed(() => `${portalBase.value}#/quizzes`);
       const progressHref = computed(() => `${portalBase.value}#/progress`);
       const portalHelpHref = computed(() => `${portalBase.value}#/help`);
+      const trainerSessionsHref = computed(() => `${portalBase.value}#/trainer/sessions`);
+
+      const isStaff = computed(
+        () => isCoach.value || isAdmin.value || isSuperuser.value,
+      );
 
       const greeting = computed(() => {
         const name = (full_name && full_name.value) || (username && username.value);
@@ -185,50 +192,62 @@
         return `${Math.round(progress * 100)}%`;
       });
 
-      const shortcuts = computed(() => [
-        {
-          id: 'trainings',
-          icon: 'lesson',
-          title: shortcutTrainings$(),
-          description: shortcutTrainingsDesc$(),
-          href: homeHref.value,
-        },
-        {
-          id: 'explore',
-          icon: 'library',
-          title: shortcutExplore$(),
-          description: shortcutExploreDesc$(),
-          href: catalogHref.value,
-        },
-        {
-          id: 'videos',
-          icon: 'video',
-          title: shortcutVideos$(),
-          description: shortcutVideosDesc$(),
-          href: videosHref.value,
-        },
-        {
-          id: 'quizzes',
-          icon: 'quiz',
-          title: shortcutQuizzes$(),
-          description: shortcutQuizzesDesc$(),
-          href: quizzesHref.value,
-        },
-        {
-          id: 'progress',
-          icon: 'inProgress',
-          title: shortcutProgress$(),
-          description: shortcutProgressDesc$(),
-          href: progressHref.value,
-        },
-        {
-          id: 'help',
-          icon: 'help',
-          title: shortcutHelp$(),
-          description: shortcutHelpDesc$(),
-          href: portalHelpHref.value,
-        },
-      ]);
+      const shortcuts = computed(() => {
+        const items = [
+          {
+            id: 'trainings',
+            icon: 'lesson',
+            title: shortcutTrainings$(),
+            description: shortcutTrainingsDesc$(),
+            href: homeHref.value,
+          },
+          {
+            id: 'explore',
+            icon: 'library',
+            title: shortcutExplore$(),
+            description: shortcutExploreDesc$(),
+            href: catalogHref.value,
+          },
+          {
+            id: 'videos',
+            icon: 'video',
+            title: shortcutVideos$(),
+            description: shortcutVideosDesc$(),
+            href: videosHref.value,
+          },
+          {
+            id: 'quizzes',
+            icon: 'quiz',
+            title: shortcutQuizzes$(),
+            description: shortcutQuizzesDesc$(),
+            href: quizzesHref.value,
+          },
+          {
+            id: 'progress',
+            icon: 'inProgress',
+            title: shortcutProgress$(),
+            description: shortcutProgressDesc$(),
+            href: progressHref.value,
+          },
+          {
+            id: 'help',
+            icon: 'help',
+            title: shortcutHelp$(),
+            description: shortcutHelpDesc$(),
+            href: portalHelpHref.value,
+          },
+        ];
+        if (isStaff.value) {
+          items.unshift({
+            id: 'trainer',
+            icon: 'classes',
+            title: shortcutTrainer$(),
+            description: shortcutTrainerDesc$(),
+            href: trainerSessionsHref.value,
+          });
+        }
+        return items;
+      });
 
       onMounted(() => {
         if (!isUserLoggedIn.value) {

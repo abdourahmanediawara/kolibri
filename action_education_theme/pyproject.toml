@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "action-education-theme"
+version = "0.1.0"
+description = "AE Apprendre theme plugin for Kolibri (Action Éducation)"
+requires-python = ">=3.6"
+license = { text = "MIT" }
+authors = [{ name = "Action Éducation" }]
+# Hosted inside a Kolibri environment; do not pin Kolibri here.
+dependencies = []
+
+[project.entry-points."kolibri.plugins"]
+action_education_theme = "action_education_theme"
+
+[tool.setuptools]
+packages = ["action_education_theme"]
+
+[tool.setuptools.package-dir]
+"action_education_theme" = "."
+
+[tool.setuptools.package-data]
+action_education_theme = ["static/**/*"]

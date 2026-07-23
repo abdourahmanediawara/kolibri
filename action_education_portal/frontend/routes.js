@@ -7,6 +7,7 @@ import ProgressPage from './views/ProgressPage';
 import TrainerSessionsPage from './views/TrainerSessionsPage';
 import SessionAttendancePage from './views/SessionAttendancePage';
 import TrainerDashboardPage from './views/TrainerDashboardPage';
+import AdminDashboardPage from './views/AdminDashboardPage';
 import { portalStrings } from './strings';
 
 export default [
@@ -37,6 +38,11 @@ export default [
     name: 'PortalProgress',
     path: '/progress',
     component: ProgressPage,
+  },
+  {
+    name: 'PortalAdminDashboard',
+    path: '/admin',
+    component: AdminDashboardPage,
   },
   {
     name: 'PortalTrainerDashboard',

@@ -148,6 +148,8 @@
         shortcutsLabel$,
         shortcutTrainer$,
         shortcutTrainerDesc$,
+        shortcutAdmin$,
+        shortcutAdminDesc$,
       } = portalStrings;
 
       const { full_name, username, isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
@@ -165,10 +167,12 @@
       const portalHelpHref = computed(() => `${portalBase.value}#/help`);
       const trainerSessionsHref = computed(() => `${portalBase.value}#/trainer/sessions`);
       const trainerDashHref = computed(() => `${portalBase.value}#/trainer`);
+      const adminDashHref = computed(() => `${portalBase.value}#/admin`);
 
       const isStaff = computed(
         () => isCoach.value || isAdmin.value || isSuperuser.value,
       );
+      const isFacilityAdmin = computed(() => isAdmin.value || isSuperuser.value);
 
       const greeting = computed(() => {
         const name = (full_name && full_name.value) || (username && username.value);
@@ -238,6 +242,15 @@
             href: portalHelpHref.value,
           },
         ];
+        if (isFacilityAdmin.value) {
+          items.unshift({
+            id: 'admin',
+            icon: 'people',
+            title: shortcutAdmin$(),
+            description: shortcutAdminDesc$(),
+            href: adminDashHref.value,
+          });
+        }
         if (isStaff.value) {
           items.unshift({
             id: 'trainer',

@@ -389,4 +389,84 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     message: 'Attendance records',
     context: 'Dashboard summary card label.',
   },
+  adminDashTitle: {
+    message: 'Admin dashboard',
+    context: 'Administrator dashboard page title.',
+  },
+  adminDashIntro: {
+    message: 'Simple overview for Action Éducation administrators on this local server.',
+    context: 'Admin dashboard intro.',
+  },
+  adminStaffOnly: {
+    message: 'Only administrators can open this page.',
+    context: 'Shown when a non-admin opens the admin dashboard.',
+  },
+  adminQuickLinksTitle: {
+    message: 'Quick links',
+    context: 'Heading for admin quick links section.',
+  },
+  adminAdvancedTitle: {
+    message: 'Advanced administration',
+    context: 'Heading for links to full Kolibri Facility/Device tools.',
+  },
+  adminAdvancedBody: {
+    message: 'Use Kolibri Facility and Device for full user, class, content, and backup tools.',
+    context: 'Explains advanced admin section.',
+  },
+  openFacilityAction: {
+    message: 'Open Facility',
+    context: 'Button to Kolibri Facility plugin.',
+  },
+  openDeviceAction: {
+    message: 'Open Device',
+    context: 'Button to Kolibri Device plugin.',
+  },
+  dashUsersLabel: {
+    message: 'Users',
+    context: 'Admin dashboard summary card label.',
+  },
+  dashChannelsLabel: {
+    message: 'Channels',
+    context: 'Admin dashboard summary card label.',
+  },
+  adminLinkUsersTitle: {
+    message: 'Users',
+    context: 'Admin quick link title.',
+  },
+  adminLinkUsersDesc: {
+    message: 'Manage accounts and classes',
+    context: 'Admin quick link description.',
+  },
+  adminLinkContentsTitle: {
+    message: 'Contents',
+    context: 'Admin quick link title.',
+  },
+  adminLinkContentsDesc: {
+    message: 'Browse local library',
+    context: 'Admin quick link description.',
+  },
+  adminLinkTrainerTitle: {
+    message: 'Trainer tools',
+    context: 'Admin quick link title.',
+  },
+  adminLinkTrainerDesc: {
+    message: 'Sessions and attendance',
+    context: 'Admin quick link description.',
+  },
+  adminLinkDeviceTitle: {
+    message: 'Device',
+    context: 'Admin quick link title.',
+  },
+  adminLinkDeviceDesc: {
+    message: 'Channels, updates, and settings',
+    context: 'Admin quick link description.',
+  },
+  shortcutAdmin: {
+    message: 'Admin',
+    context: 'Home shortcut for administrators.',
+  },
+  shortcutAdminDesc: {
+    message: 'Overview and advanced tools',
+    context: 'Home shortcut description for administrators.',
+  },
 });

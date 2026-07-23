@@ -34,6 +34,7 @@ def test_portal_frontend_routes_cover_phase3_and_trainer():
         "PortalQuizzes",
         "PortalProgress",
         "PortalHelp",
+        "PortalAdminDashboard",
         "PortalTrainerDashboard",
         "PortalTrainerSessions",
         "PortalSessionAttendance",

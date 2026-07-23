@@ -16,7 +16,7 @@
 | 4 | Plugin `action_education_training` | Validé (2026-07-23) |
 | 5 | Sessions / inscriptions / présences | Validé (2026-07-23) |
 | 6 | Tableau de bord formateur | Validé (2026-07-23) |
-| 7 | Tableau de bord administrateur | À faire |
+| 7 | Tableau de bord administrateur | Validé (2026-07-23) |
 | 8 | Certificats, rapports, exports | À faire |
 | 9 | Tests hors ligne / Wi-Fi local | À faire |
 | 10 | Performance, a11y, sécurité | À faire |

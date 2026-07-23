@@ -32,9 +32,26 @@
 - Redirection LEARNER : premier `RoleBasedRedirectHook` gagnant — garder `action_education_portal` avant `kolibri.plugins.learn` dans `plugins.json`.
 - Documentation utilisateur en français : `AE_USER_GUIDE_*.md` ; index `AE_README.md`.
 
+## Critères d’acceptation (section 28)
+
+- [x] AE Apprendre démarre sans erreur (port 8000, `KOLIBRI_HOME` isolé)
+- [x] Splash Learn corrigé (Patch 001)
+- [x] Logo / couleurs AE (thème)
+- [x] Accueil apprenant portal
+- [x] Catalogue, vidéos, quiz, progression
+- [x] Sessions / présences formateur
+- [x] Tableaux de bord formateur et admin
+- [x] Certificats + exports CSV hors ligne
+- [x] Contrôles hors ligne / Wi‑Fi (`scripts/ae_offline_checks.py`)
+- [x] Documentation maintenance + guides FR
+- [ ] Push GitHub à jour (à faire si credentials disponibles)
+- [x] Port 8080 non touché
+
+Index docs : `AE_README.md`.
+
 ## Risques
 
 - Conflit Windows `localhost` vs `127.0.0.1` / IPv6 en mode webpack-dev-server (Phase 0).
 - Ne pas casser Auth / Device / Coach / sync Kolibri.
 - Ne jamais toucher le serveur 8080.
-- Traductions FR portal via Crowdin / catalogues locaux encore à brancher (messages source EN).
+- Messages portal en français source ; catalogues Crowdin multi-langues restent optionnels.

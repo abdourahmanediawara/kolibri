@@ -1,240 +1,249 @@
 import { createTranslator } from 'kolibri/utils/i18n';
 
+// Source messages in French — primary audience is Action Éducation Guinée.
 export const portalStrings = createTranslator('ActionEducationPortalStrings', {
   homeNavLabel: {
-    message: 'Home',
+    message: 'Accueil',
     context: 'Side navigation label for the AE Apprendre learner home.',
   },
   pageTitle: {
-    message: 'Home',
+    message: 'Accueil',
     context: 'Browser tab / app bar title for the learner portal home.',
   },
   greetingNamed: {
-    message: 'Hello, {name}',
+    message: 'Bonjour, {name}',
     context: 'Welcome heading when the learner first name is known.',
   },
   greetingGeneric: {
-    message: 'Hello',
+    message: 'Bonjour',
     context: 'Welcome heading when the learner name is unavailable.',
   },
   tagline: {
-    message: 'What would you like to learn today?',
+    message: 'Que souhaitez-vous apprendre aujourd’hui ?',
     context: 'Short supporting sentence under the greeting.',
   },
   continueTitle: {
-    message: 'Continue my training',
+    message: 'Continuer ma formation',
     context: 'Primary card heading for resuming learning.',
   },
   continueEmpty: {
-    message: 'Start your first training',
+    message: 'Commencez votre première formation',
     context: 'Empty state when the learner has no resumable content.',
   },
   exploreTrainings: {
-    message: 'Explore trainings',
+    message: 'Explorer les formations',
     context: 'Button linking to the Learn library.',
   },
   continueAction: {
-    message: 'Continue',
+    message: 'Continuer',
     context: 'Button to resume the last training.',
   },
   shortcutTrainings: {
-    message: 'My trainings',
+    message: 'Mes formations',
     context: 'Shortcut card title.',
   },
   shortcutTrainingsDesc: {
-    message: 'Classes and assigned content',
+    message: 'Classes et contenus assignés',
     context: 'Shortcut card description.',
   },
   shortcutExplore: {
-    message: 'Explore',
+    message: 'Explorer',
     context: 'Shortcut card title.',
   },
   shortcutExploreDesc: {
-    message: 'Browse the library',
+    message: 'Parcourir la bibliothèque',
     context: 'Shortcut card description.',
   },
   shortcutVideos: {
-    message: 'Videos',
+    message: 'Vidéos',
     context: 'Shortcut card title.',
   },
   shortcutVideosDesc: {
-    message: 'Watch local videos',
+    message: 'Regarder les vidéos locales',
     context: 'Shortcut card description.',
   },
   shortcutQuizzes: {
-    message: 'Quizzes',
+    message: 'Quiz',
     context: 'Shortcut card title.',
   },
   shortcutQuizzesDesc: {
-    message: 'Practice and check your knowledge',
+    message: 'S’exercer et vérifier ses connaissances',
     context: 'Shortcut card description.',
   },
   shortcutProgress: {
-    message: 'My progress',
+    message: 'Ma progression',
     context: 'Shortcut card title.',
   },
   shortcutProgressDesc: {
-    message: 'See what you have completed',
+    message: 'Voir ce que vous avez terminé',
     context: 'Shortcut card description.',
   },
   shortcutHelp: {
-    message: 'Help',
+    message: 'Aide',
     context: 'Shortcut card title.',
   },
   shortcutHelpDesc: {
-    message: 'Simple guides to get started',
+    message: 'Guides simples pour démarrer',
     context: 'Shortcut card description.',
   },
   loadingLabel: {
-    message: 'Loading…',
+    message: 'Chargement…',
     context: 'Accessible loading status.',
   },
   offlineHint: {
-    message: 'Works without internet on this local network.',
+    message: 'Fonctionne sans Internet sur ce réseau local.',
     context: 'Reassurance that the portal is offline-capable.',
   },
   shortcutsLabel: {
-    message: 'Main shortcuts',
+    message: 'Raccourcis principaux',
     context: 'Accessible label for the six primary portal shortcut cards.',
   },
   helpPageTitle: {
-    message: 'Help',
+    message: 'Aide',
     context: 'App bar title for the help page.',
   },
   helpIntro: {
-    message: 'Follow these short steps. Ask your trainer if you need more help.',
+    message: 'Suivez ces étapes courtes. Demandez à votre formateur si vous avez besoin d’aide.',
     context: 'Intro text on the learner help page.',
   },
   helpStepLoginTitle: {
-    message: '1. Sign in',
+    message: '1. Se connecter',
     context: 'Help step heading.',
   },
   helpStepLoginBody: {
-    message: 'Enter your username and password, or choose Browse without an account if allowed.',
+    message:
+      'Entrez votre nom d’utilisateur et votre mot de passe, ou choisissez Parcourir sans compte si c’est autorisé.',
     context: 'Help step body.',
   },
   helpStepOpenTitle: {
-    message: '2. Open a training',
+    message: '2. Ouvrir une formation',
     context: 'Help step heading.',
   },
   helpStepOpenBody: {
-    message: 'From Home, tap Explore or My trainings, then choose a training card.',
+    message:
+      'Depuis l’accueil, touchez Explorer ou Mes formations, puis choisissez une carte de formation.',
     context: 'Help step body.',
   },
   helpStepVideoTitle: {
-    message: '3. Watch a video',
+    message: '3. Regarder une vidéo',
     context: 'Help step heading.',
   },
   helpStepVideoBody: {
-    message: 'Open a video from the library. It plays on this device — no internet needed.',
+    message:
+      'Ouvrez une vidéo depuis la bibliothèque. Elle se lit sur cet appareil — sans Internet.',
     context: 'Help step body.',
   },
   helpStepQuizTitle: {
-    message: '4. Take a quiz',
+    message: '4. Faire un quiz',
     context: 'Help step heading.',
   },
   helpStepQuizBody: {
-    message: 'Open a quiz from your class or the library, answer the questions, then submit.',
+    message:
+      'Ouvrez un quiz depuis votre classe ou la bibliothèque, répondez aux questions, puis envoyez.',
     context: 'Help step body.',
   },
   helpStepProgressTitle: {
-    message: '5. See your progress',
+    message: '5. Voir votre progression',
     context: 'Help step heading.',
   },
   helpStepProgressBody: {
-    message: 'Your progress is saved automatically, even without internet.',
+    message: 'Votre progression est enregistrée automatiquement, même sans Internet.',
     context: 'Help step body.',
   },
   helpStepOfflineTitle: {
-    message: '6. What does offline mean?',
+    message: '6. Que signifie hors ligne ?',
     context: 'Help step heading.',
   },
   helpStepOfflineBody: {
-    message: 'You use AE Apprendre on the local Wi-Fi. Contents and results stay on this network.',
+    message:
+      'Vous utilisez AE Apprendre sur le Wi‑Fi local. Les contenus et résultats restent sur ce réseau.',
     context: 'Help step body.',
   },
   helpStepTrainerTitle: {
-    message: '7. Ask your trainer',
+    message: '7. Demander à votre formateur',
     context: 'Help step heading.',
   },
   helpStepTrainerBody: {
-    message: 'If something does not work, tell your trainer. They can help you on site.',
+    message:
+      'Si quelque chose ne fonctionne pas, dites-le à votre formateur. Il peut vous aider sur place.',
     context: 'Help step body.',
   },
   backHome: {
-    message: 'Back to home',
+    message: 'Retour à l’accueil',
     context: 'Link from secondary portal pages to the home page.',
   },
   catalogTitle: {
-    message: 'Trainings',
+    message: 'Formations',
     context: 'Catalog page title listing available channels.',
   },
   catalogIntro: {
-    message: 'Browse trainings available on this device.',
+    message: 'Parcourez les formations disponibles sur cet appareil.',
     context: 'Catalog page intro.',
   },
   catalogEmpty: {
-    message: 'No trainings are available yet. Ask your trainer to import content.',
+    message:
+      'Aucune formation n’est encore disponible. Demandez à votre formateur d’importer du contenu.',
     context: 'Catalog empty state.',
   },
   channelMeta: {
-    message: '{count} resources',
+    message: '{count} ressources',
     context: 'Secondary line under a channel card.',
   },
   searchLabel: {
-    message: 'Search',
+    message: 'Rechercher',
     context: 'Search field label on portal list pages.',
   },
   searchAction: {
-    message: 'Search',
+    message: 'Rechercher',
     context: 'Search button label.',
   },
   videosTitle: {
-    message: 'Videos',
+    message: 'Vidéos',
     context: 'Videos page title.',
   },
   videosIntro: {
-    message: 'Local videos you can watch without internet.',
+    message: 'Vidéos locales à regarder sans Internet.',
     context: 'Videos page intro.',
   },
   videosEmpty: {
-    message: 'No videos are available on this device yet.',
+    message: 'Aucune vidéo n’est encore disponible sur cet appareil.',
     context: 'Videos empty state.',
   },
   quizzesTitle: {
-    message: 'Quizzes',
+    message: 'Quiz',
     context: 'Quizzes page title.',
   },
   quizzesIntro: {
-    message: 'Practice quizzes available in the local library.',
+    message: 'Quiz d’entraînement disponibles dans la bibliothèque locale.',
     context: 'Quizzes page intro.',
   },
   quizzesEmpty: {
-    message: 'No quizzes are available on this device yet.',
+    message: 'Aucun quiz n’est encore disponible sur cet appareil.',
     context: 'Quizzes empty state.',
   },
   progressTitle: {
-    message: 'My progress',
+    message: 'Ma progression',
     context: 'Progress page title.',
   },
   progressIntro: {
-    message: 'Trainings you have started. Open one to continue.',
+    message: 'Formations que vous avez commencées. Ouvrez-en une pour continuer.',
     context: 'Progress page intro.',
   },
   progressEmpty: {
-    message: 'You have not started a training yet. Explore the catalog to begin.',
+    message:
+      'Vous n’avez pas encore commencé de formation. Explorez le catalogue pour démarrer.',
     context: 'Progress empty state.',
   },
   progressPercent: {
-    message: '{percent}% complete',
+    message: '{percent} % terminé',
     context: 'Progress percentage label on a content card.',
   },
   notStarted: {
-    message: 'Not started',
+    message: 'Pas commencé',
     context: 'Progress label when the learner has not begun an item.',
   },
   myTrainingsTitle: {
-    message: 'My trainings',
+    message: 'Mes formations',
     context: 'Page title for assigned / class content shortcut target.',
   },
   trainerSessionsTitle: {
@@ -242,79 +251,79 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     context: 'Trainer sessions page title.',
   },
   trainerSessionsIntro: {
-    message: 'Create a training session and take attendance offline.',
+    message: 'Créez une session de formation et prenez les présences hors ligne.',
     context: 'Trainer sessions page intro.',
   },
   trainerStaffOnly: {
-    message: 'Only trainers and administrators can manage sessions.',
+    message: 'Seuls les formateurs et administrateurs peuvent gérer les sessions.',
     context: 'Shown when a learner opens trainer pages.',
   },
   createSessionTitle: {
-    message: 'New session',
+    message: 'Nouvelle session',
     context: 'Heading for the create-session form.',
   },
   trainingTitleLabel: {
-    message: 'Training title',
+    message: 'Titre de la formation',
     context: 'Label for training title field.',
   },
   locationLabel: {
-    message: 'Location',
+    message: 'Lieu',
     context: 'Label for session location field.',
   },
   startLabel: {
-    message: 'Start date and time',
+    message: 'Date et heure de début',
     context: 'Label for session start datetime field.',
   },
   startHint: {
-    message: 'Use format YYYY-MM-DDTHH:MM (example: 2026-07-23T14:00).',
+    message: 'Format AAAA-MM-JJTHH:MM (exemple : 2026-07-23T14:00).',
     context: 'Help text for the start datetime field.',
   },
   createSessionAction: {
-    message: 'Create session',
+    message: 'Créer la session',
     context: 'Button to create a training session.',
   },
   sessionsEmpty: {
-    message: 'No sessions yet. Create the first one above.',
+    message: 'Aucune session pour l’instant. Créez la première ci-dessus.',
     context: 'Empty state for trainer sessions list.',
   },
   takeAttendanceAction: {
-    message: 'Attendance',
+    message: 'Présences',
     context: 'Button opening attendance for a session.',
   },
   saveSuccess: {
-    message: 'Saved.',
+    message: 'Enregistré.',
     context: 'Generic success status after saving.',
   },
   saveError: {
-    message: 'Could not save. Check the fields and try again.',
+    message: 'Enregistrement impossible. Vérifiez les champs et réessayez.',
     context: 'Generic error status after a failed save.',
   },
   attendancePageTitle: {
-    message: 'Attendance',
+    message: 'Présences',
     context: 'Attendance page title.',
   },
   enrollTitle: {
-    message: 'Add a learner',
+    message: 'Ajouter un apprenant',
     context: 'Enrollment form heading on attendance page.',
   },
   learnerUsernameLabel: {
-    message: 'Learner username',
+    message: 'Nom d’utilisateur de l’apprenant',
     context: 'Username field for enrolling a learner.',
   },
   enrollAction: {
-    message: 'Enroll',
+    message: 'Inscrire',
     context: 'Button to enroll a learner in the session.',
   },
   attendanceEmpty: {
-    message: 'No learners enrolled yet. Add a username above.',
+    message: 'Aucun apprenant inscrit. Ajoutez un nom d’utilisateur ci-dessus.',
     context: 'Empty state when a session has no enrollments.',
   },
   backToSessions: {
-    message: 'Back to sessions',
+    message: 'Retour aux sessions',
     context: 'Link from attendance page to sessions list.',
   },
   statusPresent: {
-    message: 'Present',
+    message: 'Présent',
     context: 'Attendance status button.',
   },
   statusAbsent: {
@@ -322,59 +331,60 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     context: 'Attendance status button.',
   },
   statusLate: {
-    message: 'Late',
+    message: 'En retard',
     context: 'Attendance status button.',
   },
   statusExcused: {
-    message: 'Excused',
+    message: 'Excusé',
     context: 'Attendance status button.',
   },
   statusNone: {
-    message: 'Not recorded',
+    message: 'Non saisi',
     context: 'Attendance status when none is set.',
   },
   enrollSuccess: {
-    message: 'Learner enrolled.',
+    message: 'Apprenant inscrit.',
     context: 'Success message after enrollment.',
   },
   enrollError: {
-    message: 'Could not enroll this learner. Check the username.',
+    message: 'Inscription impossible. Vérifiez le nom d’utilisateur.',
     context: 'Error message after failed enrollment.',
   },
   shortcutTrainer: {
-    message: 'Trainer',
+    message: 'Formateur',
     context: 'Home shortcut for trainers.',
   },
   shortcutTrainerDesc: {
-    message: 'Dashboard, sessions and attendance',
+    message: 'Tableau de bord, sessions et présences',
     context: 'Home shortcut description for trainers.',
   },
   trainerDashTitle: {
-    message: 'Trainer dashboard',
+    message: 'Tableau de bord formateur',
     context: 'Trainer dashboard page title.',
   },
   trainerDashIntro: {
-    message: 'Overview of AE trainings, sessions, and attendance on this device.',
+    message:
+      'Vue d’ensemble des formations AE, sessions et présences sur cet appareil.',
     context: 'Trainer dashboard intro.',
   },
   openSessionsAction: {
-    message: 'Manage sessions',
+    message: 'Gérer les sessions',
     context: 'Button to open sessions list from dashboard.',
   },
   openCoachAction: {
-    message: 'Open Coach (Kolibri)',
+    message: 'Ouvrir Coach (Kolibri)',
     context: 'Button linking to advanced Kolibri Coach plugin.',
   },
   todaySessionsTitle: {
-    message: 'Sessions today',
+    message: 'Sessions du jour',
     context: 'Heading for today session list on trainer dashboard.',
   },
   todaySessionsEmpty: {
-    message: 'No sessions scheduled for today.',
+    message: 'Aucune session prévue aujourd’hui.',
     context: 'Empty state for today sessions on trainer dashboard.',
   },
   dashTrainingsLabel: {
-    message: 'Trainings',
+    message: 'Formations',
     context: 'Dashboard summary card label.',
   },
   dashSessionsLabel: {
@@ -382,83 +392,85 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     context: 'Dashboard summary card label.',
   },
   dashEnrollmentsLabel: {
-    message: 'Enrollments',
+    message: 'Inscriptions',
     context: 'Dashboard summary card label.',
   },
   dashAttendanceLabel: {
-    message: 'Attendance records',
+    message: 'Présences enregistrées',
     context: 'Dashboard summary card label.',
   },
   adminDashTitle: {
-    message: 'Admin dashboard',
+    message: 'Tableau de bord admin',
     context: 'Administrator dashboard page title.',
   },
   adminDashIntro: {
-    message: 'Simple overview for Action Éducation administrators on this local server.',
+    message:
+      'Vue simple pour les administrateurs Action Éducation sur ce serveur local.',
     context: 'Admin dashboard intro.',
   },
   adminStaffOnly: {
-    message: 'Only administrators can open this page.',
+    message: 'Seuls les administrateurs peuvent ouvrir cette page.',
     context: 'Shown when a non-admin opens the admin dashboard.',
   },
   adminQuickLinksTitle: {
-    message: 'Quick links',
+    message: 'Liens rapides',
     context: 'Heading for admin quick links section.',
   },
   adminAdvancedTitle: {
-    message: 'Advanced administration',
+    message: 'Administration avancée',
     context: 'Heading for links to full Kolibri Facility/Device tools.',
   },
   adminAdvancedBody: {
-    message: 'Use Kolibri Facility and Device for full user, class, content, and backup tools.',
+    message:
+      'Utilisez Facility et Device de Kolibri pour les comptes, classes, contenus et sauvegardes.',
     context: 'Explains advanced admin section.',
   },
   openFacilityAction: {
-    message: 'Open Facility',
+    message: 'Ouvrir Facility',
     context: 'Button to Kolibri Facility plugin.',
   },
   openDeviceAction: {
-    message: 'Open Device',
+    message: 'Ouvrir Device',
     context: 'Button to Kolibri Device plugin.',
   },
   dashUsersLabel: {
-    message: 'Users',
+    message: 'Utilisateurs',
     context: 'Admin dashboard summary card label.',
   },
   dashChannelsLabel: {
-    message: 'Channels',
+    message: 'Canaux',
     context: 'Admin dashboard summary card label.',
   },
   adminLinkUsersTitle: {
-    message: 'Users',
+    message: 'Utilisateurs',
     context: 'Admin quick link title.',
   },
   adminLinkUsersDesc: {
-    message: 'Manage accounts and classes',
+    message: 'Gérer les comptes et classes',
     context: 'Admin quick link description.',
   },
   adminLinkContentsTitle: {
-    message: 'Contents',
+    message: 'Contenus',
     context: 'Admin quick link title.',
   },
   adminLinkContentsDesc: {
-    message: 'Browse local library',
+    message: 'Parcourir la bibliothèque locale',
     context: 'Admin quick link description.',
   },
   adminLinkTrainerTitle: {
-    message: 'Trainer tools',
+    message: 'Outils formateur',
     context: 'Admin quick link title.',
   },
   adminLinkTrainerDesc: {
-    message: 'Sessions and attendance',
+    message: 'Sessions et présences',
     context: 'Admin quick link description.',
   },
   adminLinkDeviceTitle: {
-    message: 'Device',
+    message: 'Appareil',
     context: 'Admin quick link title.',
   },
   adminLinkDeviceDesc: {
-    message: 'Channels, updates, and settings',
+    message: 'Canaux, mises à jour et paramètres',
     context: 'Admin quick link description.',
   },
   shortcutAdmin: {
@@ -466,103 +478,106 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     context: 'Home shortcut for administrators.',
   },
   shortcutAdminDesc: {
-    message: 'Overview and advanced tools',
+    message: 'Vue d’ensemble et outils avancés',
     context: 'Home shortcut description for administrators.',
   },
   certificatesTitle: {
-    message: 'Certificates',
+    message: 'Certificats',
     context: 'Certificates page title.',
   },
   certificatesIntro: {
-    message: 'Issue and print training certificates for learners on this device.',
+    message:
+      'Délivrer et imprimer les certificats de formation pour les apprenants sur cet appareil.',
     context: 'Certificates page intro.',
   },
   issueCertificateTitle: {
-    message: 'Issue a certificate',
+    message: 'Délivrer un certificat',
     context: 'Heading for certificate issue form.',
   },
   trainingSelectLabel: {
-    message: 'Training',
+    message: 'Formation',
     context: 'Label for training select when issuing a certificate.',
   },
   trainingSelectPlaceholder: {
-    message: 'Select a training',
+    message: 'Choisir une formation',
     context: 'Placeholder option for training select.',
   },
   issueCertificateAction: {
-    message: 'Issue certificate',
+    message: 'Délivrer le certificat',
     context: 'Button to issue a certificate.',
   },
   certificatesEmpty: {
-    message: 'No certificates issued yet.',
+    message: 'Aucun certificat délivré pour l’instant.',
     context: 'Empty state for certificates list.',
   },
   printCertificateAction: {
-    message: 'Print',
+    message: 'Imprimer',
     context: 'Button to open printable certificate HTML.',
   },
   certificateIssued: {
-    message: 'Certificate issued.',
+    message: 'Certificat délivré.',
     context: 'Success message after issuing a certificate.',
   },
   certificateIssueError: {
-    message: 'Could not issue the certificate. Check the username and training.',
+    message:
+      'Impossible de délivrer le certificat. Vérifiez le nom d’utilisateur et la formation.',
     context: 'Error message after failed certificate issue.',
   },
   reportsTitle: {
-    message: 'Reports & exports',
+    message: 'Rapports et exports',
     context: 'Reports page title.',
   },
   reportsIntro: {
-    message: 'Download CSV reports for attendance, enrollments, and certificates (offline-ready).',
+    message:
+      'Télécharger les rapports CSV des présences, inscriptions et certificats (hors ligne).',
     context: 'Reports page intro.',
   },
   exportCertificatesTitle: {
-    message: 'All certificates',
+    message: 'Tous les certificats',
     context: 'Heading for certificates CSV export.',
   },
   exportCertificatesDesc: {
-    message: 'Export every certificate issued on this facility.',
+    message: 'Exporter tous les certificats délivrés dans cet établissement.',
     context: 'Description for certificates CSV export.',
   },
   exportAttendanceTitle: {
-    message: 'Attendance by session',
+    message: 'Présences par session',
     context: 'Heading for per-session attendance CSV exports.',
   },
   exportEnrollmentsTitle: {
-    message: 'Enrollments by training',
+    message: 'Inscriptions par formation',
     context: 'Heading for per-training enrollment CSV exports.',
   },
   downloadCsvAction: {
-    message: 'Download CSV',
+    message: 'Télécharger CSV',
     context: 'Button to download a CSV export.',
   },
   trainingsEmpty: {
-    message: 'No trainings yet.',
+    message: 'Aucune formation pour l’instant.',
     context: 'Empty state when there are no trainings to export.',
   },
   openCertificatesAction: {
-    message: 'Certificates',
+    message: 'Certificats',
     context: 'Button opening certificates page from trainer dashboard.',
   },
   openReportsAction: {
-    message: 'Reports',
+    message: 'Rapports',
     context: 'Button opening reports page from trainer dashboard.',
   },
   adminLinkReportsTitle: {
-    message: 'Reports',
+    message: 'Rapports',
     context: 'Admin quick link title for CSV exports.',
   },
   adminLinkReportsDesc: {
-    message: 'CSV exports for attendance and certificates',
+    message: 'Exports CSV des présences et certificats',
     context: 'Admin quick link description for reports.',
   },
   adminLinkCertificatesTitle: {
-    message: 'Certificates',
+    message: 'Certificats',
     context: 'Admin quick link title for certificates.',
   },
   adminLinkCertificatesDesc: {
-    message: 'Issue and print learner certificates',
+    message: 'Délivrer et imprimer les certificats',
     context: 'Admin quick link description for certificates.',
   },
 });

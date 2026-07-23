@@ -38,7 +38,9 @@ kolibri manage migrate action_education_training
 
 ```bash
 pnpm install   # une fois après ajout du portal au workspace
-pnpm run devserver core,learn,action_education_portal
+# Inclure les plugins de navigation : sinon leurs stats restent « compile »
+# et /portal/ affiche « Webpack Error: Compilation still in progress ».
+pnpm run devserver core,learn,action_education_portal,user_auth,facility,device,coach,user_profile
 ```
 
 URL : http://127.0.0.1:8000  

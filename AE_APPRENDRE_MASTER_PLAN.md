@@ -20,16 +20,17 @@
 | 8 | Certificats, rapports, exports | Validé (2026-07-23) |
 | 9 | Tests hors ligne / Wi-Fi local | Validé (2026-07-23) |
 | 10 | Performance, a11y, sécurité | Validé (2026-07-23) |
-| 11 | Documentation & paquet déploiement | À faire |
+| 11 | Documentation & paquet déploiement | Validé (2026-07-23) |
 
 ## Décisions
 
 - Plugins externes installables (`kolibri.plugins`) plutôt que fork massif du cœur.
 - Identité visuelle via `action_education_theme` (existant, hors `build_plugins.txt`).
 - Portail UX via `action_education_portal` (Phase 2) — package pnpm workspace + `buildConfig.js`.
-- Formations / présences via `action_education_training` (à créer).
+- Formations / présences via `action_education_training`.
 - Toute modification du cœur documentée dans `AE_KOLIBRI_PATCHES.md`.
 - Redirection LEARNER : premier `RoleBasedRedirectHook` gagnant — garder `action_education_portal` avant `kolibri.plugins.learn` dans `plugins.json`.
+- Documentation utilisateur en français : `AE_USER_GUIDE_*.md` ; index `AE_README.md`.
 
 ## Risques
 

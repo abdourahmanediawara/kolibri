@@ -580,4 +580,233 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     message: 'Délivrer et imprimer les certificats',
     context: 'Admin quick link description for certificates.',
   },
+  platformTitle: {
+    message: 'Plateforme de formation Action Éducation',
+    context: 'Product name shown in app shell and browser chrome.',
+  },
+  openMenu: {
+    message: 'Menu',
+    context: 'Mobile button to open AE side navigation.',
+  },
+  closeMenu: {
+    message: 'Fermer le menu',
+    context: 'Mobile button to close AE side navigation.',
+  },
+  navLabel: {
+    message: 'Navigation principale',
+    context: 'Accessible label for AE side navigation.',
+  },
+  spacesLabel: {
+    message: 'Espaces',
+    context: 'Accessible label for learner/coach/admin space switcher.',
+  },
+  technicalAdmin: {
+    message: 'Administration technique',
+    context: 'Discrete link to native Kolibri Device for superusers.',
+  },
+  spaceLearner: {
+    message: 'Apprenant',
+    context: 'Space switcher label for learner area.',
+  },
+  spaceCoach: {
+    message: 'Formateur',
+    context: 'Space switcher label for coach area.',
+  },
+  spaceAdmin: {
+    message: 'Administrateur',
+    context: 'Space switcher label for admin area.',
+  },
+  libraryTitle: {
+    message: 'Bibliothèque',
+    context: 'Library page title.',
+  },
+  coachDashTitle: {
+    message: 'Tableau de bord',
+    context: 'Coach dashboard title.',
+  },
+  learnersTitle: {
+    message: 'Apprenants',
+    context: 'Coach learners page title.',
+  },
+  resultsTitle: {
+    message: 'Résultats',
+    context: 'Coach results page title.',
+  },
+  contentManageTitle: {
+    message: 'Gestion des contenus',
+    context: 'Admin content management page title.',
+  },
+  classesTitle: {
+    message: 'Groupes et classes',
+    context: 'Admin classes page title.',
+  },
+  coachesTitle: {
+    message: 'Formateurs',
+    context: 'Admin coaches page title.',
+  },
+  syncTitle: {
+    message: 'Synchronisation',
+    context: 'Admin sync page title.',
+  },
+  settingsTitle: {
+    message: 'Paramètres',
+    context: 'Admin settings page title.',
+  },
+  accessDenied: {
+    message: 'Vous n’avez pas l’autorisation d’ouvrir cette page.',
+    context: 'Shown when route permission check fails.',
+  },
+  localOnline: {
+    message: 'Connecté au serveur local',
+    context: 'Connection status on learner home.',
+  },
+  offlineAvailable: {
+    message: 'Disponible hors connexion',
+    context: 'Offline capability status on learner home.',
+  },
+  completedCount: {
+    message: '{count} formation(s) terminée(s)',
+    context: 'Count of completed trainings on learner home.',
+  },
+  globalProgress: {
+    message: 'Progression globale : {percent} %',
+    context: 'Overall progress label when computable.',
+  },
+  recentTitle: {
+    message: 'Récemment consultées',
+    context: 'Heading for recent resources list.',
+  },
+  startAction: {
+    message: 'Commencer',
+    context: 'Button to start a training.',
+  },
+  statusNotStarted: {
+    message: 'Non commencée',
+    context: 'Training card status.',
+  },
+  statusInProgress: {
+    message: 'En cours',
+    context: 'Training card status.',
+  },
+  statusCompleted: {
+    message: 'Terminée',
+    context: 'Training card status.',
+  },
+  emptyFormationsLearner: {
+    message: 'Votre formateur n’a pas encore ajouté de formation.',
+    context: 'Empty state for learner formations.',
+  },
+  emptyFormationsStaff: {
+    message: 'Aucune formation n’est encore disponible.',
+    context: 'Empty state for staff formations list.',
+  },
+  addContentAction: {
+    message: 'Ajouter du contenu',
+    context: 'Primary CTA to open content import flows.',
+  },
+  importFromInternet: {
+    message: 'Importer depuis Internet',
+    context: 'Content import method label.',
+  },
+  importFromNetwork: {
+    message: 'Importer depuis un appareil du réseau',
+    context: 'Content import method label.',
+  },
+  importFromUsb: {
+    message: 'Importer depuis une clé USB ou un disque',
+    context: 'Content import method label.',
+  },
+  contentImportHelp: {
+    message:
+      'Utilisez les méthodes d’importation Kolibri prises en charge. Le téléversement direct de fichiers isolés n’est pas disponible dans cette version.',
+    context: 'Explains MVP content import limits.',
+  },
+  openFacilityUsers: {
+    message: 'Gérer les utilisateurs (Facility)',
+    context: 'Link to native Facility users.',
+  },
+  openFacilityClasses: {
+    message: 'Gérer les classes (Facility)',
+    context: 'Link to native Facility classes.',
+  },
+  syncIntro: {
+    message: 'Synchronisez cet appareil avec un autre Kolibri ou un serveur distant lorsque le réseau le permet.',
+    context: 'Admin sync page intro.',
+  },
+  openDeviceSync: {
+    message: 'Ouvrir la synchronisation',
+    context: 'Button to Device sync UI.',
+  },
+  settingsIntro: {
+    message: 'Réglages utiles de la plateforme. Les options avancées restent dans l’administration technique.',
+    context: 'Admin settings intro.',
+  },
+  previewLearner: {
+    message: 'Prévisualiser l’espace apprenant',
+    context: 'Admin/coach link to learner area.',
+  },
+  modulesLabel: {
+    message: '{count} modules',
+    context: 'Module count on a formation card.',
+  },
+  filterAll: {
+    message: 'Tous',
+    context: 'Filter option for all types.',
+  },
+  typeVideo: {
+    message: 'Vidéos',
+    context: 'Content type filter.',
+  },
+  typeDocument: {
+    message: 'Documents',
+    context: 'Content type filter.',
+  },
+  typeAudio: {
+    message: 'Audio',
+    context: 'Content type filter.',
+  },
+  typeHtml5: {
+    message: 'Interactifs',
+    context: 'Content type filter.',
+  },
+  quizBestScore: {
+    message: 'Meilleure note : {score}%',
+    context: 'Best quiz score when available.',
+  },
+  quizLastAttempt: {
+    message: 'Dernière tentative',
+    context: 'Last attempt label when date unknown.',
+  },
+  createSessionShortcut: {
+    message: 'Créer une session',
+    context: 'Coach dashboard shortcut.',
+  },
+  viewLearnersShortcut: {
+    message: 'Consulter les apprenants',
+    context: 'Coach dashboard shortcut.',
+  },
+  learnersEmpty: {
+    message: 'Aucun apprenant trouvé dans cet établissement.',
+    context: 'Empty learners list.',
+  },
+  resultsIntro: {
+    message: 'Résultats issus des présences et certificats enregistrés sur cet appareil.',
+    context: 'Coach results intro.',
+  },
+  forbiddenTitle: {
+    message: 'Accès refusé',
+    context: 'Forbidden page title.',
+  },
+  loadError: {
+    message: 'Impossible de charger les données. Réessayez dans un moment.',
+    context: 'Generic error when an API request fails in the portal.',
+  },
+  retryAction: {
+    message: 'Réessayer',
+    context: 'Retry button after a load error.',
+  },
+  connectionOffline: {
+    message: 'Hors ligne — contenus déjà téléchargés disponibles',
+    context: 'Status when the browser reports offline.',
+  },
 });

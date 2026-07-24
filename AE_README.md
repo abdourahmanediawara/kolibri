@@ -13,6 +13,7 @@
 | `AE_USER_GUIDE_ADMIN.md` | Guide administrateur (FR) |
 | `AE_USER_GUIDE_TRAINER.md` | Guide formateur (FR) |
 | `AE_USER_GUIDE_LEARNER.md` | Guide apprenant (FR) |
+| `AE_UX_REDESIGN.md` | Refonte UX `/ae` (shell, rôles) |
 | `ACTION_EDUCATION_UI_AUDIT.md` | Audit UI initial |
 
 ## Scripts

@@ -4,53 +4,49 @@
 
 | Plugin | Rôle |
 |--------|------|
-| `action_education_theme` | Identité visuelle (logo, couleurs, `siteTitle`) — pas de bundle webpack |
-| `action_education_portal` | Accueil apprenant simplifié `/portal/` + aide + entrée de navigation |
-| `action_education_training` | Formations, sessions, inscriptions, présences, certificats (modèles + API) |
+| `action_education_theme` | Branding (logo, couleurs, `siteTitle`) |
+| `action_education_portal` | Interface produit `/portal/#/ae/...` |
+| `action_education_training` | API formations / sessions / certificats |
 
-## Flux apprenant (Phases 2–3)
+Kolibri (auth, contenus, progression, sync) reste le moteur. Pas d’accès DB depuis le frontend.
 
-1. Connexion via `user_auth` (thème AE).
-2. Redirection LEARNER → `/…/portal/` si `action_education_portal` est enregistré **avant** `kolibri.plugins.learn` dans `plugins.json`.
-3. Accueil portal : carte « Continuer » via Learn `homehydrate` ; raccourcis portal (`#/catalog`, `#/videos`, `#/quizzes`, `#/progress`, `#/help`) et Learn (`#/home` pour classes).
-4. Catalogue / vidéos / quiz : `ChannelResource` + `ContentNodeResource` + `ContentNodeProgressResource` (cœur) — aucune duplication de contenus.
-5. Ouverture d’un contenu : liens vers Learn `#/topics/c/:id` (lecteurs Kolibri inchangés).
-6. Formateurs / admins : `#/trainer` (dashboard), `#/trainer/sessions` (créer session), `#/trainer/sessions/:id` (inscription + présences), `#/certificates` (émission + impression HTML), `#/reports` (exports CSV) via API `action_education_training`.
+## Flux post-login
 
-## Build frontend
+1. Auth Kolibri.
+2. Redirections `RoleBasedRedirectHook` du portal (plugin **avant** learn / coach / facility dans `plugins.json`) :
+   - LEARNER → portal
+   - COACH / ASSIGNABLE_COACH → portal
+   - ADMIN → portal
+   - SUPERUSER → Device (natif) ; portal accessible manuellement
+3. Landing hash selon le rôle : `/ae/admin`, `/ae/coach` ou `/ae/learn`.
 
-`build_tools/build_plugins.txt` ne doit lister que les plugins **avec** `buildConfig.js` :
+## Espaces UI (`action_education_portal`)
 
-```
-kolibri.core
-kolibri.plugins.*
-action_education_portal
-```
+| Espace | Routes | Public |
+|--------|--------|--------|
+| Apprenant | `/ae/learn/*` | Continuer, formations, bibliothèque, quiz, progression, aide |
+| Formateur | `/ae/coach/*` | Tableau de bord, sessions, apprenants, résultats |
+| Admin | `/ae/admin/*` | Utilisateurs, contenus (Device), sync, rapports |
+| Technique | lien Device | Superuser / gestion contenus |
 
-Ne pas y mettre `action_education_theme` (pas d’assets frontend) — sinon `webpack_json.py` échoue.
+Shell : `AeAppShell.vue` + `useAePermissions` + `useAeNav`.
 
-## Données AE Training
+Les anciennes routes (`/catalog`, `/trainer`, …) redirigent vers `/ae/...`.
 
-Modèles locaux dans `action_education_training` (SQLite Kolibri, migrations du plugin) :
+## Couches frontend
 
-- `Training`, `TrainingSession`, `Enrollment`, `Attendance`, `Certificate`
-- Pas de duplication des contenus / progression Kolibri (`channel_id` optionnel)
-- Unicité : enrollment (training+learner), attendance (session+learner), certificate (learner+training)
+- Permissions : `composables/useAePermissions.js`
+- Navigation : `composables/useAeNav.js`
+- Contenu Learn : `composables/useLearnContent.js`
+- Formations AE : `composables/useTrainingApi.js`
+- Connexion : `composables/useAeConnection.js`
 
-API ValuesViewset : `training`, `session`, `enrollment`, `attendance`, `certificate`.
+## Ordre plugins
 
-Endpoints rapports (Phase 8) :
+`action_education_portal` **avant** `kolibri.plugins.learn` (et avant coach/facility pour les redirects associés).
 
-- `POST …/certificate/issue/` — émission idempotente
-- `GET …/certificate/<id>/print/` — HTML imprimable
-- `GET …/export/attendance/<session_id>/` — CSV (`;`, BOM UTF-8)
-- `GET …/export/enrollments/<training_id>/` — CSV
-- `GET …/export/certificates/` — CSV
-- `GET …/summary/session/<session_id>/` — taux de présence
+Après upgrade Kolibri : `python scripts/ae_offline_checks.py --fix-plugin-order`
 
-## Hors ligne / Wi‑Fi
+## Restauration UX
 
-- Assets thème locaux uniquement (pas de CDN) — `AE_OFFLINE_WIFI.md`
-- Contrôle : `python scripts/ae_offline_checks.py`
-- `LISTEN_ADDRESS=0.0.0.0` pour accès tablettes sur le même Wi‑Fi
-- `action_education_portal` **avant** `kolibri.plugins.learn` dans `plugins.json`
+Tag Git : `ae-pre-ux-redesign-2026-07-24`

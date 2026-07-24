@@ -1,3 +1,6 @@
+from kolibri.core.auth.constants.user_kinds import ADMIN
+from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
+from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -7,7 +10,7 @@ from kolibri.plugins.hooks import register_hook
 
 
 class ActionEducationPortalPlugin(KolibriPluginBase):
-    """Simplified learner home for AE Apprendre."""
+    """Plateforme de formation Action Éducation — interface publique."""
 
     translated_view_urls = "urls"
 
@@ -16,7 +19,7 @@ class ActionEducationPortalPlugin(KolibriPluginBase):
         return "portal/"
 
     def name(self, lang):
-        return "AE Apprendre"
+        return "Plateforme de formation Action Éducation"
 
 
 @register_hook
@@ -31,12 +34,35 @@ class PortalNavItem(NavigationHook):
 
 @register_hook
 class PortalRedirect(RoleBasedRedirectHook):
-    """
-    Prefer portal for learners after login when this plugin loads before Learn.
-    Coach/admin/superuser redirects remain unaffected (higher roles win first).
-    """
+    """Learners land on the AE portal when this plugin loads before Learn."""
 
     roles = (LEARNER,)
+
+    @property
+    def url(self):
+        return self.plugin_url(ActionEducationPortalPlugin, "portal")
+
+
+@register_hook
+class CoachPortalRedirect(RoleBasedRedirectHook):
+    """Coaches land on the AE portal when this plugin loads before Coach."""
+
+    roles = (COACH, ASSIGNABLE_COACH)
+    require_full_facility = True
+    require_no_on_my_own_facility = True
+
+    @property
+    def url(self):
+        return self.plugin_url(ActionEducationPortalPlugin, "portal")
+
+
+@register_hook
+class AdminPortalRedirect(RoleBasedRedirectHook):
+    """Facility admins land on the AE portal when this plugin loads before Facility."""
+
+    roles = (ADMIN,)
+    require_full_facility = True
+    require_no_on_my_own_facility = True
 
     @property
     def url(self):

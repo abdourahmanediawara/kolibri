@@ -25,5 +25,6 @@ def test_portal_frontend_has_no_cdn_urls():
 
 def test_portal_routes_include_offline_report_pages():
     routes = Path(__file__).resolve().parents[1].joinpath("frontend/routes.js").read_text()
-    assert "PortalCertificates" in routes
-    assert "PortalReports" in routes
+    assert "AeAdminReports" in routes
+    assert "/certificates" in routes
+    assert "/reports" in routes

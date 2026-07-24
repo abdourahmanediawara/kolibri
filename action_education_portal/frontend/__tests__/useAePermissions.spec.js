@@ -58,6 +58,16 @@ describe('useAePermissions', () => {
     expect(perms.canViewLearnerArea.value).toBe(true);
     expect(perms.canManageSessions.value).toBe(false);
     expect(perms.canViewAdminDashboard.value).toBe(false);
+    expect(perms.canAccessTechnicalAdministration.value).toBe(false);
     expect(perms.defaultLandingPath.value).toBe('/ae/learn');
+  });
+
+  it('grants technical administration to superusers', () => {
+    const user = useUser();
+    user.__setKind(['superuser', 'can_manage_content']);
+    const perms = useAePermissions();
+    expect(perms.canViewAdminDashboard.value).toBe(true);
+    expect(perms.canAccessTechnicalAdministration.value).toBe(true);
+    expect(perms.defaultLandingPath.value).toBe('/ae/admin');
   });
 });

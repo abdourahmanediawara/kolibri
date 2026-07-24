@@ -37,6 +37,8 @@
           :label="trainingTitleLabel$()"
           :floatingLabel="false"
           autocomplete="off"
+          :invalid="Boolean(formError) && !form.title.trim()"
+          :invalidText="formError"
         />
         <KTextbox
           v-model="form.location"
@@ -44,19 +46,43 @@
           :floatingLabel="false"
           autocomplete="off"
         />
-        <KTextbox
-          v-model="form.startLocal"
-          :label="startLabel$()"
-          :floatingLabel="false"
-          autocomplete="off"
-          :invalid="Boolean(formError)"
-          :invalidText="formError"
-        />
+        <div class="datetime-row">
+          <label class="field">
+            <span class="field-label">{{ dateLabel$() }}</span>
+            <input
+              v-model="form.date"
+              class="native-input"
+              type="date"
+              required
+              :style="{
+                borderColor: $themeTokens.fineLine,
+                color: $themeTokens.text,
+                backgroundColor: $themeTokens.surface,
+              }"
+            >
+          </label>
+          <label class="field">
+            <span class="field-label">{{ timeLabel$() }}</span>
+            <input
+              v-model="form.time"
+              class="native-input"
+              type="time"
+              required
+              :style="{
+                borderColor: $themeTokens.fineLine,
+                color: $themeTokens.text,
+                backgroundColor: $themeTokens.surface,
+              }"
+            >
+          </label>
+        </div>
         <p
+          v-if="formError"
           class="hint"
-          :style="{ color: $themeTokens.annotation }"
+          role="alert"
+          :style="{ color: $themeTokens.error }"
         >
-          {{ startHint$() }}
+          {{ formError }}
         </p>
         <KButton
           :text="createSessionAction$()"
@@ -110,7 +136,7 @@
             class="attendance-link"
             :style="{ color: $themeTokens.primary }"
           >
-            {{ takeAttendanceAction$() }}
+            {{ openSessionAction$() }}
           </router-link>
         </li>
       </ul>
@@ -134,13 +160,18 @@
         createSessionTitle$,
         trainingTitleLabel$,
         locationLabel$,
-        startLabel$,
-        startHint$,
+        dateLabel$,
+        timeLabel$,
         createSessionAction$,
         sessionsEmpty$,
-        takeAttendanceAction$,
+        openSessionAction$,
         saveSuccess$,
         saveError$,
+        sessionDateRequired$,
+        sessionStatusScheduled$,
+        sessionStatusInProgress$,
+        sessionStatusCompleted$,
+        sessionStatusCancelled$,
       } = portalStrings;
 
       const { canManageSessions, currentUserId, userFacilityId } = useAePermissions();
@@ -155,42 +186,90 @@
       const form = reactive({
         title: '',
         location: '',
-        startLocal: '',
+        date: '',
+        time: '',
       });
+
+      function pad(n) {
+        return String(n).padStart(2, '0');
+      }
+
+      function defaultDateTime() {
+        const d = new Date();
+        d.setMinutes(0, 0, 0);
+        d.setHours(d.getHours() + 1);
+        return {
+          date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+          time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+        };
+      }
 
       function trainingTitle(session) {
         const training = trainingsById.value[session.training];
         return (training && training.title) || session.training;
       }
 
+      function statusLabel(status) {
+        if (status === 'in_progress') {
+          return sessionStatusInProgress$();
+        }
+        if (status === 'completed') {
+          return sessionStatusCompleted$();
+        }
+        if (status === 'cancelled') {
+          return sessionStatusCancelled$();
+        }
+        return sessionStatusScheduled$();
+      }
+
+      function formatWhen(iso) {
+        if (!iso) {
+          return '';
+        }
+        const dt = new Date(iso);
+        if (Number.isNaN(dt.getTime())) {
+          return String(iso);
+        }
+        return dt.toLocaleString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
+
       function sessionMeta(session) {
         const parts = [];
+        const when = formatWhen(session.start_datetime);
+        if (when) {
+          parts.push(when);
+        }
         if (session.location) {
           parts.push(session.location);
         }
-        if (session.start_datetime) {
-          parts.push(String(session.start_datetime).slice(0, 19));
+        if (session.status) {
+          parts.push(statusLabel(session.status));
         }
         return parts.join(' · ');
       }
 
-      function defaultStartLocal() {
-        const d = new Date();
-        d.setMinutes(0, 0, 0);
-        d.setHours(d.getHours() + 1);
-        const pad = n => String(n).padStart(2, '0');
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
-          d.getHours(),
-        )}:${pad(d.getMinutes())}`;
-      }
-
-      function parseLocalToIso(value) {
-        const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value || '');
-        if (!match) {
+      function parseDateTimeToIso(date, time) {
+        if (!date || !time) {
           return null;
         }
-        const [, y, m, day, h, min] = match;
-        const dt = new Date(Number(y), Number(m) - 1, Number(day), Number(h), Number(min));
+        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+        const timeMatch = /^(\d{2}):(\d{2})$/.exec(time);
+        if (!match || !timeMatch) {
+          return null;
+        }
+        const dt = new Date(
+          Number(match[1]),
+          Number(match[2]) - 1,
+          Number(match[3]),
+          Number(timeMatch[1]),
+          Number(timeMatch[2]),
+        );
         if (Number.isNaN(dt.getTime())) {
           return null;
         }
@@ -220,9 +299,9 @@
           formError.value = saveError$();
           return;
         }
-        const startIso = parseLocalToIso(form.startLocal || defaultStartLocal());
+        const startIso = parseDateTimeToIso(form.date, form.time);
         if (!startIso) {
-          formError.value = startHint$();
+          formError.value = sessionDateRequired$();
           return;
         }
         const end = new Date(startIso);
@@ -251,7 +330,9 @@
             saveMessage.value = saveSuccess$();
             form.title = '';
             form.location = '';
-            form.startLocal = defaultStartLocal();
+            const defaults = defaultDateTime();
+            form.date = defaults.date;
+            form.time = defaults.time;
             return refresh();
           })
           .catch(() => {
@@ -263,7 +344,9 @@
       }
 
       onMounted(() => {
-        form.startLocal = defaultStartLocal();
+        const defaults = defaultDateTime();
+        form.date = defaults.date;
+        form.time = defaults.time;
         if (canManageSessions.value) {
           refresh();
         } else {
@@ -278,11 +361,11 @@
         createSessionTitle$,
         trainingTitleLabel$,
         locationLabel$,
-        startLabel$,
-        startHint$,
+        dateLabel$,
+        timeLabel$,
         createSessionAction$,
         sessionsEmpty$,
-        takeAttendanceAction$,
+        openSessionAction$,
         canManageSessions,
         loading,
         saving,
@@ -328,6 +411,33 @@
     margin: 0 0 12px;
     font-size: 1.15rem;
     font-weight: 600;
+  }
+
+  .datetime-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .field {
+    display: flex;
+    flex: 1 1 140px;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .native-input {
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 1rem;
+    border: 1px solid;
+    border-radius: 4px;
   }
 
   .session-list {

@@ -74,7 +74,9 @@
 
 <script>
   import { computed, onMounted, ref } from 'vue';
+  import { UserKinds } from 'kolibri/constants';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import { portalStrings } from '../../strings';
   import { useAePermissions } from '../../composables/useAePermissions';
@@ -88,9 +90,12 @@
         adminDashIntro$,
         previewLearner$,
         dashUsersLabel$,
+        dashLearnersLabel$,
         dashChannelsLabel$,
         dashTrainingsLabel$,
         dashSessionsLabel$,
+        coachesTitle$,
+        classesTitle$,
         adminLinkContentsTitle$,
         adminLinkUsersTitle$,
         syncTitle$,
@@ -99,14 +104,27 @@
       const { userFacilityId } = useAePermissions();
       const api = useTrainingApi();
       const loading = ref(true);
-      const counts = ref({ users: 0, channels: 0, trainings: 0, sessions: 0 });
+      const counts = ref({
+        users: null,
+        learners: null,
+        coaches: null,
+        classes: null,
+        channels: null,
+        trainings: null,
+        sessions: null,
+      });
 
-      const summaryCards = computed(() => [
-        { id: 'users', value: counts.value.users, label: dashUsersLabel$() },
-        { id: 'channels', value: counts.value.channels, label: dashChannelsLabel$() },
-        { id: 'trainings', value: counts.value.trainings, label: dashTrainingsLabel$() },
-        { id: 'sessions', value: counts.value.sessions, label: dashSessionsLabel$() },
-      ]);
+      const summaryCards = computed(() =>
+        [
+          { id: 'users', value: counts.value.users, label: dashUsersLabel$() },
+          { id: 'learners', value: counts.value.learners, label: dashLearnersLabel$() },
+          { id: 'coaches', value: counts.value.coaches, label: coachesTitle$() },
+          { id: 'classes', value: counts.value.classes, label: classesTitle$() },
+          { id: 'channels', value: counts.value.channels, label: dashChannelsLabel$() },
+          { id: 'trainings', value: counts.value.trainings, label: dashTrainingsLabel$() },
+          { id: 'sessions', value: counts.value.sessions, label: dashSessionsLabel$() },
+        ].filter(card => typeof card.value === 'number' && card.value > 0),
+      );
 
       const quickLinks = computed(() => [
         {
@@ -129,32 +147,61 @@
         },
       ]);
 
+      function isStaffUser(user) {
+        return Boolean(
+          (user.roles || []).find(
+            role =>
+              role.kind === UserKinds.COACH ||
+              role.kind === UserKinds.ASSIGNABLE_COACH ||
+              role.kind === UserKinds.ADMIN,
+          ),
+        );
+      }
+
       onMounted(() => {
-        Promise.all([
+        Promise.allSettled([
           FacilityUserResource.fetchCollection({
             getParams: { member_of: userFacilityId.value },
+          }),
+          ClassroomResource.fetchCollection({
+            getParams: { facility: userFacilityId.value },
           }),
           ChannelResource.fetchCollection({ getParams: { available: true } }),
           api.fetchTrainings(),
           api.fetchSessions(),
-        ])
-          .then(([users, channels, trainings, sessions]) => {
-            const channelList = Array.isArray(channels)
-              ? channels
-              : (channels && channels.results) || [];
-            counts.value = {
-              users: (users || []).length,
-              channels: channelList.length,
-              trainings: (trainings || []).length,
-              sessions: (sessions || []).length,
-            };
-          })
-          .catch(() => {
-            counts.value = { users: 0, channels: 0, trainings: 0, sessions: 0 };
-          })
-          .finally(() => {
-            loading.value = false;
-          });
+        ]).then(results => {
+          const users =
+            results[0].status === 'fulfilled' ? results[0].value || [] : null;
+          const classrooms =
+            results[1].status === 'fulfilled' ? results[1].value || [] : null;
+          const channelsRaw =
+            results[2].status === 'fulfilled' ? results[2].value : null;
+          const trainings =
+            results[3].status === 'fulfilled' ? results[3].value || [] : null;
+          const sessions =
+            results[4].status === 'fulfilled' ? results[4].value || [] : null;
+
+          let channelList = null;
+          if (channelsRaw != null) {
+            channelList = Array.isArray(channelsRaw)
+              ? channelsRaw
+              : (channelsRaw && channelsRaw.results) || [];
+          }
+
+          const staff = users ? users.filter(isStaffUser) : null;
+          const learners = users ? users.filter(user => !isStaffUser(user)) : null;
+
+          counts.value = {
+            users: users ? users.length : null,
+            learners: learners ? learners.length : null,
+            coaches: staff ? staff.length : null,
+            classes: classrooms ? classrooms.length : null,
+            channels: channelList ? channelList.length : null,
+            trainings: trainings ? trainings.length : null,
+            sessions: sessions ? sessions.length : null,
+          };
+          loading.value = false;
+        });
       });
 
       return {

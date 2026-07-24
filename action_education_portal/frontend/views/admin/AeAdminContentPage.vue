@@ -13,26 +13,20 @@
       {{ contentImportHelp$() }}
     </p>
 
+    <ul
+      class="methods"
+      :style="{ color: $themeTokens.annotation }"
+    >
+      <li>{{ importFromInternet$() }}</li>
+      <li>{{ importFromNetwork$() }}</li>
+      <li>{{ importFromUsb$() }}</li>
+    </ul>
+
     <div class="actions">
       <KButton
-        :text="addContentAction$()"
+        :text="openContentImportAction$()"
         :primary="true"
-        :href="deviceHref"
-      />
-      <KButton
-        :text="importFromInternet$()"
-        appearance="raised-button"
-        :href="deviceHref"
-      />
-      <KButton
-        :text="importFromNetwork$()"
-        appearance="raised-button"
-        :href="deviceHref"
-      />
-      <KButton
-        :text="importFromUsb$()"
-        appearance="raised-button"
-        :href="deviceHref"
+        :href="deviceContentHref"
       />
     </div>
   </div>
@@ -49,24 +43,25 @@
       const {
         contentManageTitle$,
         contentImportHelp$,
-        addContentAction$,
         importFromInternet$,
         importFromNetwork$,
         importFromUsb$,
+        openContentImportAction$,
       } = portalStrings;
 
-      const deviceHref = computed(
-        () => urls['kolibri:kolibri.plugins.device:device_management'](),
-      );
+      const deviceContentHref = computed(() => {
+        const base = urls['kolibri:kolibri.plugins.device:device_management']();
+        return `${base}#/content`;
+      });
 
       return {
         contentManageTitle$,
         contentImportHelp$,
-        addContentAction$,
         importFromInternet$,
         importFromNetwork$,
         importFromUsb$,
-        deviceHref,
+        openContentImportAction$,
+        deviceContentHref,
       };
     },
   };
@@ -85,7 +80,12 @@
   }
 
   .intro {
+    margin: 0 0 12px;
+  }
+
+  .methods {
     margin: 0 0 20px;
+    padding-inline-start: 1.25rem;
   }
 
   .actions {

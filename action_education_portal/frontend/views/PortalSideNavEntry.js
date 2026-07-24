@@ -18,6 +18,36 @@ function isNativePluginUrl(url) {
   return nativePluginUrls.some(base => url === base || (url && url.startsWith(base)));
 }
 
+const { isSuperuser, canManageContent, isCoach, isAdmin } = useUser();
+
+function portalSubRoutes() {
+  const routes = [
+    {
+      label: portalStrings.$tr('homeNavLabel'),
+      icon: 'dashboard',
+      route: '/ae/learn',
+      name: 'AeLearnHome',
+    },
+  ];
+  if (isCoach.value || isAdmin.value || isSuperuser.value) {
+    routes.push({
+      label: portalStrings.$tr('spaceCoach'),
+      icon: 'coach',
+      route: '/ae/coach',
+      name: 'AeCoachHome',
+    });
+  }
+  if (isAdmin.value || isSuperuser.value) {
+    routes.push({
+      label: portalStrings.$tr('spaceAdmin'),
+      icon: 'people',
+      route: '/ae/admin',
+      name: 'AeAdminHome',
+    });
+  }
+  return routes;
+}
+
 registerNavItem({
   get url() {
     return portalUrl;
@@ -29,30 +59,9 @@ registerNavItem({
   bottomBar: true,
   role: UserKinds.LEARNER,
   get routes() {
-    return [
-      {
-        label: portalStrings.$tr('homeNavLabel'),
-        icon: 'dashboard',
-        route: '/ae/learn',
-        name: 'AeLearnHome',
-      },
-      {
-        label: portalStrings.$tr('spaceCoach'),
-        icon: 'coach',
-        route: '/ae/coach',
-        name: 'AeCoachHome',
-      },
-      {
-        label: portalStrings.$tr('spaceAdmin'),
-        icon: 'people',
-        route: '/ae/admin',
-        name: 'AeAdminHome',
-      },
-    ];
+    return portalSubRoutes();
   },
 });
-
-const { isSuperuser, canManageContent } = useUser();
 
 function applyNavFilter() {
   if (isSuperuser.value || canManageContent.value) {
@@ -70,5 +79,5 @@ function applyNavFilter() {
 }
 
 watch(navItems, applyNavFilter, { deep: true });
-watch([isSuperuser, canManageContent], applyNavFilter);
+watch([isSuperuser, canManageContent, isCoach, isAdmin], applyNavFilter);
 applyNavFilter();

@@ -718,8 +718,61 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
   },
   contentImportHelp: {
     message:
-      'Utilisez les méthodes d’importation Kolibri prises en charge. Le téléversement direct de fichiers isolés n’est pas disponible dans cette version.',
+      'Les contenus s’ajoutent via les méthodes d’importation Kolibri (Internet, appareil du réseau, USB ou disque). Aucun téléversement isolé de fichier n’est proposé ici.',
     context: 'Explains MVP content import limits.',
+  },
+  openContentImportAction: {
+    message: 'Ouvrir l’importation de contenus',
+    context: 'Single honest CTA to Device content management.',
+  },
+  signInAction: {
+    message: 'Se connecter',
+    context: 'Link to auth when portal access is denied for anonymous users.',
+  },
+  dateLabel: {
+    message: 'Date',
+    context: 'Session creation date picker label.',
+  },
+  timeLabel: {
+    message: 'Heure',
+    context: 'Session creation time picker label.',
+  },
+  sessionDateRequired: {
+    message: 'Indiquez une date et une heure valides.',
+    context: 'Validation error for session datetime.',
+  },
+  openSessionAction: {
+    message: 'Ouvrir la session',
+    context: 'Link from session list to session detail.',
+  },
+  sessionStatusScheduled: {
+    message: 'Planifiée',
+    context: 'Training session status.',
+  },
+  sessionStatusInProgress: {
+    message: 'En cours',
+    context: 'Training session status.',
+  },
+  sessionStatusCompleted: {
+    message: 'Terminée',
+    context: 'Training session status.',
+  },
+  sessionStatusCancelled: {
+    message: 'Annulée',
+    context: 'Training session status.',
+  },
+  dashLearnersLabel: {
+    message: 'Apprenants',
+    context: 'Admin dashboard card for learner count.',
+  },
+  settingsDeviceHint: {
+    message:
+      'Nom de l’appareil, langue, accès invité et visibilité réseau se règlent dans les paramètres Device, où ils sont réellement enregistrés.',
+    context: 'Honest settings page guidance.',
+  },
+  openDeviceSettingsAction: {
+    message: 'Ouvrir les paramètres Device',
+    context: 'Button to Device settings page.',
   },
   openFacilityUsers: {
     message: 'Gérer les utilisateurs (Facility)',

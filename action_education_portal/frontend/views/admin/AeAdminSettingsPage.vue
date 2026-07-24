@@ -24,8 +24,13 @@
         <strong>{{ platformTitle$() }}</strong>
       </p>
       <p :style="{ color: $themeTokens.annotation }">
-        Langue du site : fr-fr
+        {{ settingsDeviceHint$() }}
       </p>
+      <KButton
+        :text="openDeviceSettingsAction$()"
+        :primary="true"
+        :href="deviceSettingsHref"
+      />
     </section>
 
     <p class="tech">
@@ -52,18 +57,24 @@
         settingsIntro$,
         platformTitle$,
         technicalAdmin$,
+        settingsDeviceHint$,
+        openDeviceSettingsAction$,
       } = portalStrings;
 
       const deviceHref = computed(
         () => urls['kolibri:kolibri.plugins.device:device_management'](),
       );
+      const deviceSettingsHref = computed(() => `${deviceHref.value}#/settings`);
 
       return {
         settingsTitle$,
         settingsIntro$,
         platformTitle$,
         technicalAdmin$,
+        settingsDeviceHint$,
+        openDeviceSettingsAction$,
         deviceHref,
+        deviceSettingsHref,
       };
     },
   };
@@ -82,7 +93,7 @@
   }
 
   .intro {
-    margin: 0 0 16px;
+    margin: 0 0 20px;
   }
 
   .block {

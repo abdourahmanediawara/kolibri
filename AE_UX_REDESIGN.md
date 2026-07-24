@@ -1,27 +1,32 @@
-# AE UX Redesign — Phases 1–7
+# AE UX Redesign — Phases 1–7 + audit correctif
 
 Point de restauration : tag `ae-pre-ux-redesign-2026-07-24`.
 
-## Livré
+## Livré (shell)
 
-1. **Permissions + shell** — `useAePermissions`, `AeAppShell`, onglet actif, redirects post-login
-2. **Menus / routes** — `/ae/learn|coach|admin/*`, switcher d’espaces, responsive (`windowIsSmall`)
-3. **Apprenant** — home (homehydrate), formations, bibliothèque, quiz, progression, aide
-4. **Formateur** — dashboard, sessions + présence, apprenants, résultats, bibliothèque
-5. **Admin** — dashboard, contenus → Device, users/classes Facility, sync, rapports
-6. **Offline / erreurs** — statut connexion, messages d’échec + réessai sur écrans clés
-7. **Tests / docs** — pytest routes/hooks, Jest permissions/nav, `AE_ARCHITECTURE.md`, ce fichier
+1. Permissions + shell `/ae`
+2. Menus / routes / responsive
+3–5. Espaces apprenant / formateur / admin
+6. Offline / erreurs
+7. Tests structurels + docs
+
+## Correctifs audit fonctionnel
+
+- Anonyme → Auth (Django + guards SPA)
+- Landing post-login selon rôle
+- Onglets Formateur/Admin filtrés par rôle (`PortalSideNavEntry`)
+- Contenu : un CTA honnête vers Device `#/content`
+- Sessions : date + heure FR, validation, statut, ouverture
+- Dashboards : cartes masquées si valeur absente / 0 ; `allSettled`
+- Apprenants coach : filtre hors staff
+- Paramètres : lien Device `#/settings` (persistance native)
 
 ## Accès
 
-- URL : `/fr-fr/portal/#/ae/learn` (ou landing selon rôle)
-- Devserver (plugins nav) :
-  ```bash
-  export KOLIBRI_HOME="$HOME/.kolibri-action-education-dev"
-  export KOLIBRI_RUN_MODE="dev"
-  pnpm run devserver core,learn,action_education_portal,user_auth,facility,device,coach,user_profile
-  ```
+```bash
+export KOLIBRI_HOME="$HOME/.kolibri-action-education-dev"
+export KOLIBRI_RUN_MODE="dev"
+pnpm run devserver core,learn,action_education_portal,user_auth,facility,device,coach,user_profile
+```
 
-## Legacy
-
-Anciennes pages portal (`HomePage.vue`, `TrainerSessionsPage.vue`, …) non routées ; redirections depuis les anciens hash.
+URL : `/fr-fr/portal/` (redirige vers Auth si non connecté).

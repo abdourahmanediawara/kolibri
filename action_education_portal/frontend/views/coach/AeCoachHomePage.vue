@@ -105,12 +105,14 @@
       const loading = ref(true);
       const counts = ref({ trainings: 0, sessions: 0, enrollments: 0, attendance: 0 });
 
-      const summaryCards = computed(() => [
-        { id: 't', value: counts.value.trainings, label: dashTrainingsLabel$() },
-        { id: 's', value: counts.value.sessions, label: dashSessionsLabel$() },
-        { id: 'e', value: counts.value.enrollments, label: dashEnrollmentsLabel$() },
-        { id: 'a', value: counts.value.attendance, label: dashAttendanceLabel$() },
-      ]);
+      const summaryCards = computed(() =>
+        [
+          { id: 't', value: counts.value.trainings, label: dashTrainingsLabel$() },
+          { id: 's', value: counts.value.sessions, label: dashSessionsLabel$() },
+          { id: 'e', value: counts.value.enrollments, label: dashEnrollmentsLabel$() },
+          { id: 'a', value: counts.value.attendance, label: dashAttendanceLabel$() },
+        ].filter(card => typeof card.value === 'number' && card.value > 0),
+      );
 
       const shortcutLinks = computed(() => [
         {
@@ -135,26 +137,26 @@
           loading.value = false;
           return;
         }
-        Promise.all([
+        Promise.allSettled([
           api.fetchTrainings(),
           api.fetchSessions(),
           api.fetchEnrollments(),
           api.fetchAttendances(),
-        ])
-          .then(([trainings, sessions, enrollments, attendance]) => {
-            counts.value = {
-              trainings: (trainings || []).length,
-              sessions: (sessions || []).length,
-              enrollments: (enrollments || []).length,
-              attendance: (attendance || []).length,
-            };
-          })
-          .catch(() => {
-            counts.value = { trainings: 0, sessions: 0, enrollments: 0, attendance: 0 };
-          })
-          .finally(() => {
-            loading.value = false;
-          });
+        ]).then(results => {
+          const valueOf = (result, fallback = []) =>
+            result.status === 'fulfilled' ? result.value || fallback : fallback;
+          const trainings = valueOf(results[0]);
+          const sessions = valueOf(results[1]);
+          const enrollments = valueOf(results[2]);
+          const attendance = valueOf(results[3]);
+          counts.value = {
+            trainings: trainings.length,
+            sessions: sessions.length,
+            enrollments: enrollments.length,
+            attendance: attendance.length,
+          };
+          loading.value = false;
+        });
       });
 
       return {

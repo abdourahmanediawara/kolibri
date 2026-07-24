@@ -45,6 +45,7 @@
 
 <script>
   import { onMounted, ref } from 'vue';
+  import { UserKinds } from 'kolibri/constants';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { portalStrings } from '../../strings';
   import { useAePermissions } from '../../composables/useAePermissions';
@@ -57,12 +58,23 @@
       const loading = ref(true);
       const learners = ref([]);
 
+      function isStaffUser(user) {
+        return Boolean(
+          (user.roles || []).find(
+            role =>
+              role.kind === UserKinds.COACH ||
+              role.kind === UserKinds.ASSIGNABLE_COACH ||
+              role.kind === UserKinds.ADMIN,
+          ),
+        );
+      }
+
       onMounted(() => {
         FacilityUserResource.fetchCollection({
           getParams: { member_of: userFacilityId.value },
         })
           .then(users => {
-            learners.value = users || [];
+            learners.value = (users || []).filter(user => !isStaffUser(user));
           })
           .finally(() => {
             loading.value = false;

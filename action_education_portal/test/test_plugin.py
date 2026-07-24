@@ -58,3 +58,26 @@ def test_portal_frontend_routes_cover_ae_spaces():
         "AeForbidden",
     ):
         assert name in routes
+
+
+def test_portal_side_nav_filters_role_routes():
+    from pathlib import Path
+
+    text = (
+        Path(__file__)
+        .resolve()
+        .parents[1]
+        .joinpath("frontend/views/PortalSideNavEntry.js")
+        .read_text()
+    )
+    assert "portalSubRoutes" in text
+    assert "isCoach.value" in text
+    assert "isAdmin.value" in text
+
+
+def test_route_guards_redirect_anonymous_to_signin():
+    from pathlib import Path
+
+    text = Path(__file__).resolve().parents[1].joinpath("frontend/routeGuards.js").read_text()
+    assert "redirectToSignIn" in text
+    assert "isUserLoggedIn" in text

@@ -9,8 +9,18 @@
     <p :style="{ color: $themeTokens.annotation }">
       {{ accessDenied$() }}
     </p>
+    <p v-if="!isUserLoggedIn">
+      <a
+        class="home-link"
+        :href="signInHref"
+        :style="{ color: $themeTokens.primary }"
+      >
+        {{ signInAction$() }}
+      </a>
+    </p>
     <router-link
-      to="/ae/learn"
+      v-else
+      :to="homePath"
       class="home-link"
       :style="{ color: $themeTokens.primary }"
     >
@@ -20,13 +30,28 @@
 </template>
 
 <script>
+  import { computed } from 'vue';
   import { portalStrings } from '../strings';
+  import { useAePermissions } from '../composables/useAePermissions';
+  import { signInUrl } from '../routeGuards';
 
   export default {
     name: 'AeForbiddenPage',
     setup() {
-      const { forbiddenTitle$, accessDenied$, backHome$ } = portalStrings;
-      return { forbiddenTitle$, accessDenied$, backHome$ };
+      const { forbiddenTitle$, accessDenied$, backHome$, signInAction$ } = portalStrings;
+      const { isUserLoggedIn, defaultLandingPath } = useAePermissions();
+      const homePath = computed(() => defaultLandingPath.value);
+      const signInHref = computed(() => signInUrl());
+
+      return {
+        forbiddenTitle$,
+        accessDenied$,
+        backHome$,
+        signInAction$,
+        isUserLoggedIn,
+        homePath,
+        signInHref,
+      };
     },
   };
 </script>

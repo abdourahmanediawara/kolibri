@@ -632,6 +632,105 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     message: 'Résultats',
     context: 'Coach results page title.',
   },
+  resultsIntro: {
+    message:
+      'Consultez la progression réelle des exercices réalisés par les apprenants. Les scores ne s’affichent que lorsqu’ils existent dans Kolibri.',
+    context: 'Coach results page introduction.',
+  },
+  resultsEmpty: {
+    message: 'Aucun résultat d’exercice pour les filtres sélectionnés.',
+    context: 'Empty state when no exercise results match filters.',
+  },
+  resultsPartialError: {
+    message: 'Une partie des données n’a pas pu être chargée. Les résultats affichés peuvent être incomplets.',
+    context: 'Shown when certificates or filter lists fail but exercise results loaded.',
+  },
+  resultsLoadError: {
+    message: 'Impossible de charger les résultats pour le moment.',
+    context: 'Shown when the learner results API fails.',
+  },
+  filterLearnerLabel: {
+    message: 'Apprenant',
+    context: 'Filter label on coach results.',
+  },
+  filterClassroomLabel: {
+    message: 'Classe',
+    context: 'Filter label on coach results.',
+  },
+  filterTrainingLabel: {
+    message: 'Formation',
+    context: 'Filter label on coach results.',
+  },
+  filterExerciseLabel: {
+    message: 'Exercice',
+    context: 'Filter label on coach results.',
+  },
+  filterAllOption: {
+    message: 'Tous',
+    context: 'Default filter option meaning no restriction.',
+  },
+  applyFiltersAction: {
+    message: 'Filtrer',
+    context: 'Button to apply coach results filters.',
+  },
+  colLearner: {
+    message: 'Apprenant',
+    context: 'Results table column.',
+  },
+  colExercise: {
+    message: 'Exercice',
+    context: 'Results table column.',
+  },
+  colParent: {
+    message: 'Contenu parent',
+    context: 'Results table column for parent topic/title.',
+  },
+  colStatus: {
+    message: 'Statut',
+    context: 'Results table column.',
+  },
+  colScore: {
+    message: 'Réponses correctes',
+    context: 'Results table column — only when attempt data exists.',
+  },
+  colTries: {
+    message: 'Tentatives',
+    context: 'Results table column.',
+  },
+  colLastActivity: {
+    message: 'Dernière activité',
+    context: 'Results table column.',
+  },
+  colMastery: {
+    message: 'Niveau de maîtrise',
+    context: 'Results table column when MasteryLog provides mastery_level.',
+  },
+  statusNotStarted: {
+    message: 'Non commencé',
+    context: 'Exercise result status.',
+  },
+  statusStarted: {
+    message: 'Commencé',
+    context: 'Exercise result status.',
+  },
+  statusCompleted: {
+    message: 'Terminé',
+    context: 'Exercise result status.',
+  },
+  scoreUnavailable: {
+    message: '—',
+    context: 'Shown when no quiz attempt score exists (do not invent one).',
+  },
+  deviceAdminRequiredHint: {
+    message:
+      'Cette action nécessite un administrateur technique de l’appareil (permissions Device Kolibri). L’administrateur d’établissement n’y a pas accès automatiquement.',
+    context: 'Shown instead of Device CTAs when the user lacks DevicePermissions.',
+  },
+  facilityAdminSettingsHint: {
+    message:
+      'Paramètres fonctionnels de l’établissement. Les réglages techniques de l’appareil sont réservés à l’administrateur technique.',
+    context: 'Facility admin settings page explanation.',
+  },
   contentManageTitle: {
     message: 'Gestion des contenus',
     context: 'Admin content management page title.',
@@ -841,10 +940,6 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
   learnersEmpty: {
     message: 'Aucun apprenant trouvé dans cet établissement.',
     context: 'Empty learners list.',
-  },
-  resultsIntro: {
-    message: 'Résultats issus des présences et certificats enregistrés sur cet appareil.',
-    context: 'Coach results intro.',
   },
   forbiddenTitle: {
     message: 'Accès refusé',

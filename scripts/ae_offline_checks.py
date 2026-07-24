@@ -94,17 +94,23 @@ def check_plugins_order(kolibri_home):
         return fail("action_education_training not installed")
     try:
         portal_i = installed.index("action_education_portal")
-        learn_i = installed.index("kolibri.plugins.learn")
     except ValueError:
-        return fail("learn or portal missing from INSTALLED_PLUGINS")
-    if portal_i > learn_i:
-        return fail(
-            "action_education_portal must appear BEFORE kolibri.plugins.learn "
-            "in plugins.json (currently portal index {}, learn index {})".format(
-                portal_i, learn_i
+        return fail("portal missing from INSTALLED_PLUGINS")
+    for peer in (
+        "kolibri.plugins.facility",
+        "kolibri.plugins.coach",
+        "kolibri.plugins.learn",
+    ):
+        if peer not in installed:
+            continue
+        if portal_i > installed.index(peer):
+            return fail(
+                "action_education_portal must appear BEFORE {} in plugins.json "
+                "(portal index {}, {} index {})".format(
+                    peer, portal_i, peer, installed.index(peer)
+                )
             )
-        )
-    ok("Plugin order: portal before learn; AE theme active")
+    ok("Plugin order: portal before facility/coach/learn; AE theme active")
     return 0
 
 
@@ -161,25 +167,42 @@ def check_live(base_url):
 
 
 def ensure_portal_before_learn(kolibri_home, apply_fix):
+    """
+    Ensure action_education_portal loads before facility/coach/learn so its
+    RoleBasedRedirectHooks win (first registered hook matches).
+    """
     path = Path(kolibri_home) / "plugins.json"
     data = json.loads(path.read_text(encoding="utf-8"))
     installed = list(data.get("INSTALLED_PLUGINS") or [])
-    if "action_education_portal" not in installed or "kolibri.plugins.learn" not in installed:
+    if "action_education_portal" not in installed:
         return 1
+    peers = [
+        peer
+        for peer in (
+            "kolibri.plugins.facility",
+            "kolibri.plugins.coach",
+            "kolibri.plugins.learn",
+        )
+        if peer in installed
+    ]
+    if not peers:
+        return 0
     portal_i = installed.index("action_education_portal")
-    learn_i = installed.index("kolibri.plugins.learn")
-    if portal_i < learn_i:
+    first_peer_i = min(installed.index(peer) for peer in peers)
+    if portal_i < first_peer_i:
         return 0
     if not apply_fix:
-        print("[HINT] Re-run with --fix-plugin-order to move portal before learn.")
+        print(
+            "[HINT] Re-run with --fix-plugin-order to move portal before "
+            "facility/coach/learn."
+        )
         return 1
     installed.pop(portal_i)
-    # After pop, learn index may shift if portal was after learn.
-    learn_i = installed.index("kolibri.plugins.learn")
-    installed.insert(learn_i, "action_education_portal")
+    first_peer_i = min(installed.index(peer) for peer in peers)
+    installed.insert(first_peer_i, "action_education_portal")
     data["INSTALLED_PLUGINS"] = installed
     path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-    ok("Rewrote plugins.json: portal now before learn")
+    ok("Rewrote plugins.json: portal now before facility/coach/learn")
     return 0
 
 

@@ -24,6 +24,19 @@
         <strong>{{ platformTitle$() }}</strong>
       </p>
       <p :style="{ color: $themeTokens.annotation }">
+        {{ facilityAdminSettingsHint$() }}
+      </p>
+    </section>
+
+    <section
+      v-if="canAccessDeviceAdministration"
+      class="block"
+      :style="{
+        backgroundColor: $themeTokens.surface,
+        borderColor: $themeTokens.fineLine,
+      }"
+    >
+      <p :style="{ color: $themeTokens.annotation }">
         {{ settingsDeviceHint$() }}
       </p>
       <KButton
@@ -31,15 +44,22 @@
         :primary="true"
         :href="deviceSettingsHref"
       />
+      <p class="tech">
+        <a
+          :href="deviceHref"
+          :style="{ color: $themeTokens.annotation }"
+        >
+          {{ technicalAdmin$() }}
+        </a>
+      </p>
     </section>
 
-    <p class="tech">
-      <a
-        :href="deviceHref"
-        :style="{ color: $themeTokens.annotation }"
-      >
-        {{ technicalAdmin$() }}
-      </a>
+    <p
+      v-else
+      class="hint"
+      :style="{ color: $themeTokens.annotation }"
+    >
+      {{ deviceAdminRequiredHint$() }}
     </p>
   </div>
 </template>
@@ -48,6 +68,7 @@
   import { computed } from 'vue';
   import urls from 'kolibri/urls';
   import { portalStrings } from '../../strings';
+  import { useAePermissions } from '../../composables/useAePermissions';
 
   export default {
     name: 'AeAdminSettingsPage',
@@ -59,7 +80,11 @@
         technicalAdmin$,
         settingsDeviceHint$,
         openDeviceSettingsAction$,
+        facilityAdminSettingsHint$,
+        deviceAdminRequiredHint$,
       } = portalStrings;
+
+      const { canAccessDeviceAdministration } = useAePermissions();
 
       const deviceHref = computed(
         () => urls['kolibri:kolibri.plugins.device:device_management'](),
@@ -73,6 +98,9 @@
         technicalAdmin$,
         settingsDeviceHint$,
         openDeviceSettingsAction$,
+        facilityAdminSettingsHint$,
+        deviceAdminRequiredHint$,
+        canAccessDeviceAdministration,
         deviceHref,
         deviceSettingsHref,
       };
@@ -107,7 +135,8 @@
     margin: 0 0 8px;
   }
 
-  .tech {
-    margin: 0;
+  .tech,
+  .hint {
+    margin: 12px 0 0;
   }
 </style>

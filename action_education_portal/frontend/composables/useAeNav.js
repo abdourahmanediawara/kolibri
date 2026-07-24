@@ -176,6 +176,9 @@ export function useAeNav() {
         if (item.id === 'admin-content') {
           return perms.canManageContent.value;
         }
+        if (item.id === 'admin-sync') {
+          return perms.canAccessDeviceAdministration.value;
+        }
         return true;
       });
     }

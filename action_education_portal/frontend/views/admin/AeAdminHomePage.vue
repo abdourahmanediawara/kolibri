@@ -101,7 +101,7 @@
         syncTitle$,
       } = portalStrings;
 
-      const { userFacilityId } = useAePermissions();
+      const { userFacilityId, canAccessDeviceAdministration } = useAePermissions();
       const api = useTrainingApi();
       const loading = ref(true);
       const counts = ref({
@@ -126,26 +126,31 @@
         ].filter(card => typeof card.value === 'number' && card.value > 0),
       );
 
-      const quickLinks = computed(() => [
-        {
-          id: 'content',
-          icon: 'channel',
-          title: adminLinkContentsTitle$(),
-          to: { name: 'AeAdminContent' },
-        },
-        {
-          id: 'users',
-          icon: 'people',
-          title: adminLinkUsersTitle$(),
-          to: { name: 'AeAdminUsers' },
-        },
-        {
-          id: 'sync',
-          icon: 'device',
-          title: syncTitle$(),
-          to: { name: 'AeAdminSync' },
-        },
-      ]);
+      const quickLinks = computed(() => {
+        const links = [
+          {
+            id: 'content',
+            icon: 'channel',
+            title: adminLinkContentsTitle$(),
+            to: { name: 'AeAdminContent' },
+          },
+          {
+            id: 'users',
+            icon: 'people',
+            title: adminLinkUsersTitle$(),
+            to: { name: 'AeAdminUsers' },
+          },
+        ];
+        if (canAccessDeviceAdministration.value) {
+          links.push({
+            id: 'sync',
+            icon: 'device',
+            title: syncTitle$(),
+            to: { name: 'AeAdminSync' },
+          });
+        }
+        return links;
+      });
 
       function isStaffUser(user) {
         return Boolean(

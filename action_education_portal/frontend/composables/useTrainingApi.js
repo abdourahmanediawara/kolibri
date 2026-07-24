@@ -117,6 +117,13 @@ export function useTrainingApi() {
     }).then(r => r.data);
   }
 
+  function fetchLearnerResults(params = {}) {
+    return client({
+      url: urls['kolibri:action_education_training:aelearnerresults'](),
+      params,
+    }).then(r => r.data);
+  }
+
   return {
     fetchTrainings,
     createTraining,
@@ -135,5 +142,6 @@ export function useTrainingApi() {
     enrollmentsExportUrl,
     certificatesExportUrl,
     fetchSessionSummary,
+    fetchLearnerResults,
   };
 }

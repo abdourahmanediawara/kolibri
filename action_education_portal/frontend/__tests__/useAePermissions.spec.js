@@ -67,7 +67,25 @@ describe('useAePermissions', () => {
     user.__setKind(['superuser', 'can_manage_content']);
     const perms = useAePermissions();
     expect(perms.canViewAdminDashboard.value).toBe(true);
+    expect(perms.canAccessDeviceAdministration.value).toBe(true);
     expect(perms.canAccessTechnicalAdministration.value).toBe(true);
     expect(perms.defaultLandingPath.value).toBe('/ae/admin');
+  });
+
+  it('denies device administration to facility admins without DevicePermissions', () => {
+    const user = useUser();
+    user.__setKind(['admin']);
+    const perms = useAePermissions();
+    expect(perms.canViewAdminDashboard.value).toBe(true);
+    expect(perms.canManageContent.value).toBe(true);
+    expect(perms.canAccessDeviceAdministration.value).toBe(false);
+    expect(perms.canAccessTechnicalAdministration.value).toBe(false);
+  });
+
+  it('grants device administration when session can_manage_content is set', () => {
+    const user = useUser();
+    user.__setKind(['admin', 'can_manage_content']);
+    const perms = useAePermissions();
+    expect(perms.canAccessDeviceAdministration.value).toBe(true);
   });
 });

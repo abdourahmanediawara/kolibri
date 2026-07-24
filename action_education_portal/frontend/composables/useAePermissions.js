@@ -1,10 +1,10 @@
-import { computed } from 'vue';
-import useUser from 'kolibri/composables/useUser';
-
 /**
  * Single source of truth for Action Éducation UI permissions.
  * Derived from Kolibri session kinds / flags — never from group names alone.
  */
+import { computed } from 'vue';
+import useUser from 'kolibri/composables/useUser';
+
 export function useAePermissions() {
   const {
     isUserLoggedIn,
@@ -22,7 +22,9 @@ export function useAePermissions() {
   } = useUser();
 
   const canViewLearnerArea = computed(
-    () => isUserLoggedIn.value && (isLearner.value || isCoach.value || isAdmin.value || isSuperuser.value),
+    () =>
+      isUserLoggedIn.value &&
+      (isLearner.value || isCoach.value || isAdmin.value || isSuperuser.value),
   );
 
   const canViewCoachArea = computed(
@@ -37,15 +39,27 @@ export function useAePermissions() {
 
   const canManageUsers = computed(() => canViewAdminDashboard.value);
 
+  /**
+   * Facility-level content overview in the AE admin area (not Device import).
+   * Facility admins may browse available channels; Device import is separate.
+   */
   const canManageContent = computed(
     () =>
       isUserLoggedIn.value &&
       (sessionCanManageContent.value || isAdmin.value || isSuperuser.value),
   );
 
-  const canAccessTechnicalAdministration = computed(
-    () => isUserLoggedIn.value && (isSuperuser.value || canManageContent.value),
+  /**
+   * Technical Device administration (name, sync, import, settings).
+   * Based only on real Kolibri DevicePermissions session flags — never isAdmin alone.
+   */
+  const canAccessDeviceAdministration = computed(
+    () =>
+      isUserLoggedIn.value && (isSuperuser.value || Boolean(sessionCanManageContent.value)),
   );
+
+  /** @deprecated Prefer canAccessDeviceAdministration — kept as alias for existing templates. */
+  const canAccessTechnicalAdministration = canAccessDeviceAdministration;
 
   /** Post-login landing hash path inside /portal/ */
   const defaultLandingPath = computed(() => {
@@ -84,6 +98,7 @@ export function useAePermissions() {
     canViewAdminDashboard,
     canManageUsers,
     canManageContent,
+    canAccessDeviceAdministration,
     canAccessTechnicalAdministration,
     defaultLandingPath,
   };

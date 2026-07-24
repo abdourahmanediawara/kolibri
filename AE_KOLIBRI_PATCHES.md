@@ -74,3 +74,25 @@ Les chaînes de titre et de version sont dans les vues `user_auth` du cœur ; Th
 **Pourquoi :** pytest utilise un `KOLIBRI_HOME` isolé. Sans `plugins.json` AE avant le chargement de `base`, les modèles de `action_education_training` ne sont pas dans `INSTALLED_APPS`.
 **Changement :** avant `from .base import *`, créer `plugins.json` avec les plugins AE installés (s’ils sont importables) + `DEFAULT_PLUGINS`.
 **Report :** réappliquer ce préambule après une mise à jour Kolibri.
+
+## Patch 004 — Priorité des redirections RoleBasedRedirectHook (portail AE)
+
+**Statut :** **SUPPRIMÉ** (2026-07-24) — remplacé par une solution plugin.
+
+### Solution actuelle (sans modification du core)
+
+| Fichier | Rôle |
+|---------|------|
+| `action_education_portal/redirects.py` | Désenregistre `LearnRedirect`, `CoachRedirect`, `FacilityRedirect` |
+| `action_education_portal/apps.py` | `AppConfig.ready()` appelle `prefer_portal_role_redirects()` après le chargement de tous les plugins |
+| `action_education_portal/kolibri_plugin.py` | URLs de redirection avec hash `#/ae/learn|coach|admin` |
+
+`DeviceRedirect` (SUPERUSER) reste actif pour l’administration technique.
+
+### Ancien correctif core (ne plus appliquer)
+
+Le tri dans `kolibri/core/views.py` `get_url_by_role` a été **retiré**. Ne pas le réintroduire sauf si le désenregistrement des hooks échoue après une mise à jour Kolibri (API `remove_hook_from_registries` cassée).
+
+### Vérification
+
+Après démarrage : login `ae_learner` / `ae_coach` / `ae_admin` → `/fr-fr/portal/#/ae/…` via `/fr-fr/redirectuser/`.

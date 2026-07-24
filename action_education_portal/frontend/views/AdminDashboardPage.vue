@@ -99,6 +99,7 @@
                 :href="facilityHref"
               />
               <KButton
+                v-if="canAccessDeviceAdministration"
                 :text="openDeviceAction$()"
                 appearance="raised-button"
                 :href="deviceHref"
@@ -127,6 +128,7 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import { portalStrings } from '../strings';
+  import { useAePermissions } from '../composables/useAePermissions';
   import { useTrainingApi } from '../composables/useTrainingApi';
 
   export default {
@@ -166,6 +168,7 @@
       } = portalStrings;
 
       const { isAdmin, isSuperuser, userFacilityId } = useUser();
+      const { canAccessDeviceAdministration } = useAePermissions();
       const api = useTrainingApi();
       const canManage = computed(() => isAdmin.value || isSuperuser.value);
       const loading = ref(true);
@@ -193,50 +196,55 @@
         { id: 'attendance', value: counts.value.attendance, label: dashAttendanceLabel$() },
       ]);
 
-      const quickLinks = computed(() => [
-        {
-          id: 'users',
-          icon: 'people',
-          title: adminLinkUsersTitle$(),
-          description: adminLinkUsersDesc$(),
-          href: facilityHref.value,
-        },
-        {
-          id: 'contents',
-          icon: 'library',
-          title: adminLinkContentsTitle$(),
-          description: adminLinkContentsDesc$(),
-          href: learnHref.value,
-        },
-        {
-          id: 'trainer',
-          icon: 'classes',
-          title: adminLinkTrainerTitle$(),
-          description: adminLinkTrainerDesc$(),
-          href: `${portalBase.value}#/trainer`,
-        },
-        {
-          id: 'certificates',
-          icon: 'star',
-          title: adminLinkCertificatesTitle$(),
-          description: adminLinkCertificatesDesc$(),
-          href: `${portalBase.value}#/certificates`,
-        },
-        {
-          id: 'reports',
-          icon: 'reports',
-          title: adminLinkReportsTitle$(),
-          description: adminLinkReportsDesc$(),
-          href: `${portalBase.value}#/reports`,
-        },
-        {
-          id: 'device',
-          icon: 'device',
-          title: adminLinkDeviceTitle$(),
-          description: adminLinkDeviceDesc$(),
-          href: deviceHref.value,
-        },
-      ]);
+      const quickLinks = computed(() => {
+        const links = [
+          {
+            id: 'users',
+            icon: 'people',
+            title: adminLinkUsersTitle$(),
+            description: adminLinkUsersDesc$(),
+            href: facilityHref.value,
+          },
+          {
+            id: 'contents',
+            icon: 'library',
+            title: adminLinkContentsTitle$(),
+            description: adminLinkContentsDesc$(),
+            href: learnHref.value,
+          },
+          {
+            id: 'trainer',
+            icon: 'classes',
+            title: adminLinkTrainerTitle$(),
+            description: adminLinkTrainerDesc$(),
+            href: `${portalBase.value}#/trainer`,
+          },
+          {
+            id: 'certificates',
+            icon: 'star',
+            title: adminLinkCertificatesTitle$(),
+            description: adminLinkCertificatesDesc$(),
+            href: `${portalBase.value}#/certificates`,
+          },
+          {
+            id: 'reports',
+            icon: 'reports',
+            title: adminLinkReportsTitle$(),
+            description: adminLinkReportsDesc$(),
+            href: `${portalBase.value}#/reports`,
+          },
+        ];
+        if (canAccessDeviceAdministration.value) {
+          links.push({
+            id: 'device',
+            icon: 'device',
+            title: adminLinkDeviceTitle$(),
+            description: adminLinkDeviceDesc$(),
+            href: deviceHref.value,
+          });
+        }
+        return links;
+      });
 
       onMounted(() => {
         if (!canManage.value) {
@@ -280,6 +288,7 @@
         openDeviceAction$,
         backHome$,
         canManage,
+        canAccessDeviceAdministration,
         loading,
         summaryCards,
         quickLinks,

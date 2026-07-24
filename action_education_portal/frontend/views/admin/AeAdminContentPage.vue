@@ -22,13 +22,22 @@
       <li>{{ importFromUsb$() }}</li>
     </ul>
 
-    <div class="actions">
+    <div
+      v-if="canAccessDeviceAdministration"
+      class="actions"
+    >
       <KButton
         :text="openContentImportAction$()"
         :primary="true"
         :href="deviceContentHref"
       />
     </div>
+    <p
+      v-else
+      :style="{ color: $themeTokens.annotation }"
+    >
+      {{ deviceAdminRequiredHint$() }}
+    </p>
   </div>
 </template>
 
@@ -36,6 +45,7 @@
   import { computed } from 'vue';
   import urls from 'kolibri/urls';
   import { portalStrings } from '../../strings';
+  import { useAePermissions } from '../../composables/useAePermissions';
 
   export default {
     name: 'AeAdminContentPage',
@@ -47,7 +57,10 @@
         importFromNetwork$,
         importFromUsb$,
         openContentImportAction$,
+        deviceAdminRequiredHint$,
       } = portalStrings;
+
+      const { canAccessDeviceAdministration } = useAePermissions();
 
       const deviceContentHref = computed(() => {
         const base = urls['kolibri:kolibri.plugins.device:device_management']();
@@ -61,6 +74,8 @@
         importFromNetwork$,
         importFromUsb$,
         openContentImportAction$,
+        deviceAdminRequiredHint$,
+        canAccessDeviceAdministration,
         deviceContentHref,
       };
     },

@@ -12,11 +12,20 @@
     >
       {{ syncIntro$() }}
     </p>
-    <KButton
-      :text="openDeviceSync$()"
-      :primary="true"
-      :href="deviceHref"
-    />
+
+    <template v-if="canAccessDeviceAdministration">
+      <KButton
+        :text="openDeviceSync$()"
+        :primary="true"
+        :href="deviceHref"
+      />
+    </template>
+    <p
+      v-else
+      :style="{ color: $themeTokens.annotation }"
+    >
+      {{ deviceAdminRequiredHint$() }}
+    </p>
   </div>
 </template>
 
@@ -24,11 +33,14 @@
   import { computed } from 'vue';
   import urls from 'kolibri/urls';
   import { portalStrings } from '../../strings';
+  import { useAePermissions } from '../../composables/useAePermissions';
 
   export default {
     name: 'AeAdminSyncPage',
     setup() {
-      const { syncTitle$, syncIntro$, openDeviceSync$ } = portalStrings;
+      const { syncTitle$, syncIntro$, openDeviceSync$, deviceAdminRequiredHint$ } =
+        portalStrings;
+      const { canAccessDeviceAdministration } = useAePermissions();
 
       const deviceHref = computed(
         () => urls['kolibri:kolibri.plugins.device:device_management'](),
@@ -38,6 +50,8 @@
         syncTitle$,
         syncIntro$,
         openDeviceSync$,
+        deviceAdminRequiredHint$,
+        canAccessDeviceAdministration,
         deviceHref,
       };
     },

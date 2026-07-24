@@ -7,6 +7,7 @@ from .report_views import CertificatesExportView
 from .report_views import EnrollmentExportView
 from .report_views import IssueCertificateView
 from .report_views import SessionSummaryView
+from .results import LearnerResultsView
 from .viewsets import AttendanceViewSet
 from .viewsets import CertificateViewSet
 from .viewsets import EnrollmentViewSet
@@ -21,6 +22,11 @@ router.register(r"attendance", AttendanceViewSet, basename="aeattendance")
 router.register(r"certificate", CertificateViewSet, basename="aecertificate")
 
 urlpatterns = [
+    re_path(
+        r"^learnerresults/$",
+        LearnerResultsView.as_view(),
+        name="aelearnerresults",
+    ),
     re_path(
         r"^certificate/issue/$",
         IssueCertificateView.as_view(),

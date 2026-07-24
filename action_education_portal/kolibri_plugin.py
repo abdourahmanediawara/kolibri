@@ -34,18 +34,18 @@ class PortalNavItem(NavigationHook):
 
 @register_hook
 class PortalRedirect(RoleBasedRedirectHook):
-    """Learners land on the AE portal when this plugin loads before Learn."""
+    """Learners land on the AE learner space after login."""
 
     roles = (LEARNER,)
 
     @property
     def url(self):
-        return self.plugin_url(ActionEducationPortalPlugin, "portal")
+        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/ae/learn"
 
 
 @register_hook
 class CoachPortalRedirect(RoleBasedRedirectHook):
-    """Coaches land on the AE portal when this plugin loads before Coach."""
+    """Coaches land on the AE coach space after login."""
 
     roles = (COACH, ASSIGNABLE_COACH)
     require_full_facility = True
@@ -53,12 +53,12 @@ class CoachPortalRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(ActionEducationPortalPlugin, "portal")
+        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/ae/coach"
 
 
 @register_hook
 class AdminPortalRedirect(RoleBasedRedirectHook):
-    """Facility admins land on the AE portal when this plugin loads before Facility."""
+    """Facility admins land on the AE admin space after login."""
 
     roles = (ADMIN,)
     require_full_facility = True
@@ -66,4 +66,4 @@ class AdminPortalRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(ActionEducationPortalPlugin, "portal")
+        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/ae/admin"

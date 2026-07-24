@@ -1,3 +1,4 @@
+import pytest
 from action_education_portal.redirects import prefer_portal_role_redirects
 from kolibri.core.auth.constants.user_kinds import ADMIN
 from kolibri.core.auth.constants.user_kinds import COACH
@@ -6,6 +7,7 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.views import get_url_by_role
 
 
+@pytest.mark.django_db
 def test_prefer_portal_redirects_unregisters_native_hooks():
     prefer_portal_role_redirects()
 
@@ -14,8 +16,11 @@ def test_prefer_portal_redirects_unregisters_native_hooks():
     assert "kolibri.plugins.coach.kolibri_plugin" not in modules
     assert "kolibri.plugins.facility.kolibri_plugin" not in modules
     assert any("action_education_portal" in m for m in modules)
+    # Technical device admin redirect must remain available for SUPERUSER.
+    assert "kolibri.plugins.device.kolibri_plugin" in modules
 
 
+@pytest.mark.django_db
 def test_get_url_by_role_returns_portal_hashes_for_three_roles():
     prefer_portal_role_redirects()
 
@@ -29,8 +34,13 @@ def test_get_url_by_role_returns_portal_hashes_for_three_roles():
     assert "portal" in learner_url
     assert "portal" in coach_url
     assert "portal" in admin_url
+    # No self-referential loop markers: portal hashes are terminal client routes.
+    assert learner_url.count("#") == 1
+    assert coach_url.count("#") == 1
+    assert admin_url.count("#") == 1
 
 
+@pytest.mark.django_db
 def test_portal_redirect_hook_urls_include_role_hash():
     from action_education_portal.kolibri_plugin import AdminPortalRedirect
     from action_education_portal.kolibri_plugin import CoachPortalRedirect

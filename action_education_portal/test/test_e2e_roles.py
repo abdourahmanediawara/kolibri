@@ -1,6 +1,9 @@
 """
-API-level route/permission checks for AE portal with three roles.
-Passwords loaded from /tmp/ae-e2e/users.csv (not committed).
+Optional E2E against a provisioned AE KOLIBRI_HOME (not the pytest DB).
+
+Skipped by default. Run only when:
+  AE_E2E=1 and /tmp/ae-e2e/users.csv exists
+  with the live server DB / same KOLIBRI_HOME used for manual pilot.
 """
 from __future__ import unicode_literals
 
@@ -9,10 +12,14 @@ import os
 
 import pytest
 from django.test import Client
-from django.urls import reverse
 
 
 PASSWORD_FILE = "/tmp/ae-e2e/users.csv"
+
+pytestmark = pytest.mark.skipif(
+    os.environ.get("AE_E2E") != "1",
+    reason="Set AE_E2E=1 to run against a provisioned AE instance (users.csv).",
+)
 
 
 def _passwords():
@@ -29,10 +36,13 @@ def _passwords():
 def _login(client, username):
     passwords = _passwords()
     assert username in passwords
-    # Kolibri session login endpoint
     resp = client.post(
         "/api/auth/session/",
-        data={"username": username, "password": passwords[username]},
+        data={
+            "username": username,
+            "password": passwords[username],
+            "facility": os.environ.get("AE_FACILITY_ID"),
+        },
         content_type="application/json",
     )
     assert resp.status_code in (200, 201), resp.content

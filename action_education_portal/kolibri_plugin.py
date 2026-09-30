@@ -3,6 +3,7 @@ from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.auth.constants.user_kinds import LEARNER
+from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
@@ -83,9 +84,9 @@ class CoachPortalRedirect(RoleBasedRedirectHook):
 
 @register_hook
 class AdminPortalRedirect(RoleBasedRedirectHook):
-    """Facility admins land on the AE admin space after login."""
+    """Facility admins and super admins land on the AE admin space after login."""
 
-    roles = (ADMIN,)
+    roles = (SUPERUSER, ADMIN)
     require_full_facility = True
     require_no_on_my_own_facility = True
 

@@ -4,6 +4,7 @@ from kolibri.core.auth.constants.user_kinds import ADMIN
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.auth.constants.user_kinds import LEARNER
+from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.views import get_url_by_role
 
@@ -17,9 +18,9 @@ def test_prefer_portal_redirects_unregisters_native_hooks():
     assert "kolibri.plugins.coach.kolibri_plugin" not in modules
     assert "kolibri.plugins.facility.kolibri_plugin" not in modules
     assert "kolibri.plugins.user_auth.kolibri_plugin" not in modules
+    # Super admins land in the AE admin space too, not in Kolibri Device.
+    assert "kolibri.plugins.device.kolibri_plugin" not in modules
     assert any("action_education_portal" in m for m in modules)
-    # Technical device admin redirect must remain available for SUPERUSER.
-    assert "kolibri.plugins.device.kolibri_plugin" in modules
 
 
 @pytest.mark.django_db
@@ -39,6 +40,16 @@ def test_get_url_by_role_returns_portal_hashes_for_three_roles():
     assert learner_url.count("#") == 1
     assert coach_url.count("#") == 1
     assert admin_url.count("#") == 1
+
+
+@pytest.mark.django_db
+def test_super_admins_land_in_the_ae_admin_space():
+    prefer_portal_role_redirects()
+
+    url = get_url_by_role(SUPERUSER, full_facility_import=True)
+
+    assert url and "portal" in url
+    assert url.endswith("#/administrateur")
 
 
 @pytest.mark.django_db

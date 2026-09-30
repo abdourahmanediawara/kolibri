@@ -96,3 +96,20 @@ Le tri dans `kolibri/core/views.py` `get_url_by_role` a été **retiré**. Ne pa
 ### Vérification
 
 Après démarrage : login `ae_learner` / `ae_coach` / `ae_admin` → `/fr-fr/portal/#/ae/…` via `/fr-fr/redirectuser/`.
+
+## Patch 005 — Logo app bar cliquable (accueil)
+
+**Date :** 2026-08-05  
+**Fichier :** `packages/kolibri/components/pages/AppBarPage/internal/AppBar.vue`  
+**Pourquoi :** le logo Action Éducation doit renvoyer à l’accueil ; le titre texte « Plateforme de formation… » est retiré côté portal.  
+**Changement :** si `themeConfig.appBar.topLogo.href` est défini, le logo est enveloppé dans un lien `<a>`.  
+**Thème AE :** `action_education_theme/kolibri_plugin.py` renseigne `href` via `reverse("kolibri:action_education_portal:portal")`.  
+**Report :** réappliquer le wrapping `#brand` après une mise à jour Kolibri ; rebuild `kolibri.core` + `action_education_portal`.
+
+## Patch 006 — Masquer les points (feuille) dans l’app bar
+
+**Date :** 2026-08-06  
+**Fichier :** `packages/kolibri/components/pages/AppBarPage/internal/AppBar.vue`  
+**Pourquoi :** AE Apprendre n’affiche pas le score Kolibri (icône feuille + total) dans la barre. Le flag `showPoints` du thème ne suffisait pas (cache navigateur / même nom de bundle).  
+**Changement :** bloc points retiré entièrement de l’AppBar (fork AE).  
+**Report :** ne pas réintroduire le bloc `pointsActive` ; rebuild `kolibri.core`.

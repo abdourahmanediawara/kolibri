@@ -4,11 +4,8 @@
 
 ## Prérequis
 
-```bash
-cd /home/owner/kolibri
-source .venv/bin/activate
-export KOLIBRI_HOME="$HOME/.kolibri-action-education-dev"
-export KOLIBRI_RUN_MODE="dev"
+```powershell
+. .\scripts\ae_env_windows.ps1  # voir AE_DEVELOPMENT.md
 ```
 
 - Instance isolée uniquement (ne jamais toucher le port **8080**).
@@ -41,6 +38,18 @@ Kolibri écoute par défaut sur `LISTEN_ADDRESS = 0.0.0.0` (`options.ini` → se
 4. Si la connexion échoue : firewall Windows/WSL, ou `LISTEN_ADDRESS` forcé à `127.0.0.1` (à remettre à `0.0.0.0`).
 
 En mode `pnpm run devserver`, le webpack hot-reload écoute en local ; pour un atelier terrain préférer un build de production (`kolibri start` / assets compilés) — voir `AE_DEPLOYMENT.md` (Phase 11).
+
+### Atelier depuis un PC Windows
+
+En mode dev, les pages chargent leur JavaScript depuis `127.0.0.1:3001` : les autres appareils obtiennent une page blanche. Pour partager la plateforme :
+
+1. Arrêter le serveur de dev, puis compiler une fois : `pnpm run build` (après `. .\scripts\ae_env_windows.ps1`).
+2. Lancer : `powershell -ExecutionPolicy Bypass -File scripts\ae_lan_windows.ps1` (mode production, affiche les adresses à donner).
+3. Pare-feu, dans un PowerShell administrateur (réseau Wi-Fi classé *Privé*) :
+   `New-NetFirewallRule -DisplayName "AE Apprendre (port 8000)" -Direction Inbound -Protocol TCP -LocalPort 8000 -Action Allow -Profile Private`
+4. Tester depuis un téléphone sur le même Wi-Fi : `http://<IP du PC>:8000`.
+
+Revenir au développement : `scripts\ae_devserver_windows.ps1`.
 
 ## Checklist manuelle
 

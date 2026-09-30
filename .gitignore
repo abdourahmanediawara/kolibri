@@ -149,3 +149,7 @@ cext_cache
 *.gz
 # Ignore our special file size cache
 *.file_size
+
+# Action Éducation: local demo credentials and compiled plugin bundles
+.ae_users_check.txt
+action_education_*/static/action_education_*.*/

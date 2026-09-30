@@ -9,6 +9,7 @@ Modèles locaux (pas de duplication Kolibri contenus/progression) :
 - `Enrollment`
 - `Attendance` (unicité session+apprenant)
 - `Certificate`
+- `TrainingResource` (fichiers joints style Moodle : PDF, Word, vidéo, audio…)
 
 API (ValuesViewset) sous le namespace plugin :
 
@@ -17,6 +18,9 @@ API (ValuesViewset) sous le namespace plugin :
 - `/api/enrollment/`
 - `/api/attendance/`
 - `/api/certificate/`
+- `/api/resource/` (liste / suppression)
+- `POST /api/resource/upload/` (multipart)
+- `GET /api/resource/<id>/download/`
 
 Rapports / certificats :
 
@@ -29,11 +33,8 @@ Rapports / certificats :
 
 ## Enable
 
-```bash
-cd /home/owner/kolibri
-source .venv/bin/activate
-export KOLIBRI_HOME="$HOME/.kolibri-action-education-dev"
-export KOLIBRI_RUN_MODE="dev"
+```powershell
+. .\scripts\ae_env_windows.ps1  # see AE_DEVELOPMENT.md
 
 python -m pip install -e ./action_education_training
 kolibri plugin enable action_education_training

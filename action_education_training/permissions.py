@@ -21,6 +21,32 @@ def _is_facility_staff(user):
     )
 
 
+def _is_facility_admin(user):
+    """Facility admins (and device superusers) run the courses: they create and assign them."""
+    if not user or not getattr(user, "is_authenticated", False):
+        return False
+    if not isinstance(user, FacilityUser):
+        return False
+    if user.is_superuser:
+        return True
+    facility = getattr(user, "facility", None)
+    if facility is None:
+        return False
+    return user.has_role_for_collection([role_kinds.ADMIN], facility)
+
+
+def can_manage_training_content(user, training):
+    """Supports and quizzes: the facility admins, and the trainer the course is assigned to."""
+    if training is None:
+        return False
+    if training.facility_id != getattr(user, "facility_id", None):
+        # Other facilities: device superusers only.
+        return bool(getattr(user, "is_superuser", False))
+    return _is_facility_admin(user) or (
+        _is_facility_staff(user) and training.responsible_id == user.id
+    )
+
+
 class IsFacilityStaffOrReadOwn(BasePermission):
     """
     Coaches/admins: full access.

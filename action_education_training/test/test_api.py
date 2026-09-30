@@ -126,3 +126,47 @@ class TrainingAPITests(APITestCase):
             format="json",
         )
         self.assertIn(response.status_code, (403, 405))
+
+    def test_learner_cannot_create_training_or_session(self):
+        self.client.logout()
+        self.client.login(
+            username=self.learner.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        training_url = reverse("kolibri:action_education_training:aetraining-list")
+        response = self.client.post(
+            training_url,
+            {
+                "title": "Forbidden",
+                "description": "",
+                "facility": self.facility.id,
+                "status": STATUS_PUBLISHED,
+            },
+            format="json",
+        )
+        self.assertIn(response.status_code, (403, 405))
+
+        training = Training.objects.create(
+            title="Allowed by staff",
+            facility=self.facility,
+            status=STATUS_PUBLISHED,
+        )
+        start = timezone.now()
+        session_url = reverse("kolibri:action_education_training:aesession-list")
+        response = self.client.post(
+            session_url,
+            {
+                "training": training.id,
+                "start_datetime": start.isoformat().replace("+00:00", "Z"),
+                "end_datetime": (start + timedelta(hours=2))
+                .isoformat()
+                .replace("+00:00", "Z"),
+                "location": "Somewhere",
+                "trainer": self.learner.id,
+                "status": "scheduled",
+                "notes": "",
+            },
+            format="json",
+        )
+        self.assertIn(response.status_code, (403, 405))

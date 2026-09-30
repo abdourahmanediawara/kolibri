@@ -8,7 +8,9 @@ from action_education_training.models import Attendance
 from action_education_training.models import Certificate
 from action_education_training.models import Enrollment
 from action_education_training.models import Training
+from action_education_training.models import TrainingResource
 from action_education_training.models import TrainingSession
+from action_education_training.permissions import _is_facility_staff
 from kolibri.core.fields import create_timezonestamp
 from kolibri.core.fields import parse_timezonestamp
 
@@ -58,7 +60,18 @@ class TrainingSerializer(serializers.ModelSerializer):
             "date_created",
             "date_updated",
         )
-        read_only_fields = ("id", "date_created", "date_updated")
+        # The server sets the facility: the one of the admin who creates the course.
+        read_only_fields = ("id", "facility", "date_created", "date_updated")
+
+    def validate_responsible(self, user):
+        """The course is assigned to a trainer (or admin) of the same facility."""
+        if user is None:
+            return user
+        request = self.context.get("request")
+        facility_id = getattr(getattr(request, "user", None), "facility_id", None)
+        if user.facility_id != facility_id or not _is_facility_staff(user):
+            raise serializers.ValidationError("Choose a trainer of this facility.")
+        return user
 
 
 class TrainingSessionSerializer(serializers.ModelSerializer):
@@ -124,3 +137,30 @@ class CertificateSerializer(serializers.ModelSerializer):
             "criteria_met",
         )
         read_only_fields = ("id", "issued_at", "certificate_number")
+
+
+class TrainingResourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainingResource
+        fields = (
+            "id",
+            "training",
+            "title",
+            "kind",
+            "original_filename",
+            "mime_type",
+            "size_bytes",
+            "url",
+            "uploaded_by",
+            "sort_order",
+            "date_created",
+        )
+        read_only_fields = (
+            "id",
+            "kind",
+            "original_filename",
+            "mime_type",
+            "size_bytes",
+            "uploaded_by",
+            "date_created",
+        )

@@ -3,6 +3,7 @@ from rest_framework import routers
 
 from .coach_facility_views import CoachCreateClassroomView
 from .coach_facility_views import CoachCreateLearnerView
+from .coach_facility_views import UsernameAvailableView
 from .report_views import AttendanceExportView
 from .report_views import CertificatePrintView
 from .report_views import CertificatesExportView
@@ -46,6 +47,11 @@ urlpatterns = [
         r"^coach/learner/$",
         CoachCreateLearnerView.as_view(),
         name="aecoach_learner",
+    ),
+    re_path(
+        r"^username-available/$",
+        UsernameAvailableView.as_view(),
+        name="aeusername_available",
     ),
     re_path(
         r"^resource/upload/$",

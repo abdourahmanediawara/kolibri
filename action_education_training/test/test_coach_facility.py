@@ -87,3 +87,58 @@ class CoachFacilityAPITests(APITestCase):
         url = reverse("kolibri:action_education_training:aecoach_classroom")
         response = self.client.post(url, {"name": "Hacker"}, format="json")
         self.assertEqual(response.status_code, 403, response.content)
+
+    def create_learner(self, username, classroom):
+        url = reverse("kolibri:action_education_training:aecoach_learner")
+        payload = {
+            "username": username,
+            "full_name": "Autre",
+            "password": "Secret123!",
+            "classroom_id": classroom.id,
+        }
+        return self.client.post(url, payload, format="json")
+
+    def test_usernames_are_taken_whatever_the_case(self):
+        classroom = Classroom.objects.create(name="Classe D", parent=self.facility)
+        response = self.create_learner(self.learner.username.upper(), classroom)
+
+        self.assertEqual(response.status_code, 400, response.content)
+        self.assertEqual(response.data[0]["id"], "USERNAME_ALREADY_EXISTS")
+
+    def test_invalid_username_is_refused(self):
+        classroom = Classroom.objects.create(name="Classe E", parent=self.facility)
+        response = self.create_learner("awa camara!", classroom)
+
+        self.assertEqual(response.status_code, 400, response.content)
+        self.assertEqual(response.data[0]["id"], "INVALID_USERNAME")
+
+    def test_class_names_are_unique_in_the_facility(self):
+        Classroom.objects.create(name="Classe 6A", parent=self.facility)
+        url = reverse("kolibri:action_education_training:aecoach_classroom")
+        response = self.client.post(url, {"name": "classe 6a"}, format="json")
+
+        self.assertEqual(response.status_code, 400, response.content)
+        self.assertEqual(response.data[0]["id"], "UNIQUE")
+        self.assertEqual(Classroom.objects.filter(parent=self.facility).count(), 1)
+
+    def test_staff_check_if_a_username_is_available(self):
+        url = reverse("kolibri:action_education_training:aeusername_available")
+
+        taken = self.client.get(url, {"username": self.learner.username.upper()}).data
+        free = self.client.get(url, {"username": "nouvel_eleve"}).data
+        invalid = self.client.get(url, {"username": "awa camara!"}).data
+
+        self.assertEqual((taken["valid"], taken["available"]), (True, False))
+        self.assertEqual((free["valid"], free["available"]), (True, True))
+        self.assertEqual((invalid["valid"], invalid["available"]), (False, False))
+
+    def test_learners_cannot_check_usernames(self):
+        self.client.logout()
+        self.client.login(
+            username=self.learner.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        url = reverse("kolibri:action_education_training:aeusername_available")
+        response = self.client.get(url, {"username": "abc"})
+        self.assertEqual(response.status_code, 403, response.content)

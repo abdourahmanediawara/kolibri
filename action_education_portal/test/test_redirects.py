@@ -1,6 +1,7 @@
 import pytest
 from action_education_portal.redirects import prefer_portal_role_redirects
 from kolibri.core.auth.constants.user_kinds import ADMIN
+from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -15,6 +16,7 @@ def test_prefer_portal_redirects_unregisters_native_hooks():
     assert "kolibri.plugins.learn.kolibri_plugin" not in modules
     assert "kolibri.plugins.coach.kolibri_plugin" not in modules
     assert "kolibri.plugins.facility.kolibri_plugin" not in modules
+    assert "kolibri.plugins.user_auth.kolibri_plugin" not in modules
     assert any("action_education_portal" in m for m in modules)
     # Technical device admin redirect must remain available for SUPERUSER.
     assert "kolibri.plugins.device.kolibri_plugin" in modules
@@ -28,13 +30,12 @@ def test_get_url_by_role_returns_portal_hashes_for_three_roles():
     coach_url = get_url_by_role(COACH, full_facility_import=True)
     admin_url = get_url_by_role(ADMIN, full_facility_import=True)
 
-    assert learner_url and learner_url.endswith("#/ae/learn")
-    assert coach_url and coach_url.endswith("#/ae/coach")
-    assert admin_url and admin_url.endswith("#/ae/admin")
+    assert learner_url and learner_url.endswith("#/apprenant")
+    assert coach_url and coach_url.endswith("#/formateur")
+    assert admin_url and admin_url.endswith("#/administrateur")
     assert "portal" in learner_url
     assert "portal" in coach_url
     assert "portal" in admin_url
-    # No self-referential loop markers: portal hashes are terminal client routes.
     assert learner_url.count("#") == 1
     assert coach_url.count("#") == 1
     assert admin_url.count("#") == 1
@@ -46,6 +47,16 @@ def test_portal_redirect_hook_urls_include_role_hash():
     from action_education_portal.kolibri_plugin import CoachPortalRedirect
     from action_education_portal.kolibri_plugin import PortalRedirect
 
-    assert PortalRedirect().url.endswith("#/ae/learn")
-    assert CoachPortalRedirect().url.endswith("#/ae/coach")
-    assert AdminPortalRedirect().url.endswith("#/ae/admin")
+    assert PortalRedirect().url.endswith("#/apprenant")
+    assert CoachPortalRedirect().url.endswith("#/formateur")
+    assert AdminPortalRedirect().url.endswith("#/administrateur")
+
+
+@pytest.mark.django_db
+def test_anonymous_visitors_open_the_ae_sign_in_page():
+    prefer_portal_role_redirects()
+
+    url = get_url_by_role(ANONYMOUS)
+
+    assert url and "portal" in url
+    assert url.endswith("#/connexion")

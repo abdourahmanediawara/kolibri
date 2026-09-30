@@ -1,0 +1,61 @@
+/*
+ * AE Apprendre design tokens — Takira rules adapted to the web:
+ * radius scale 10/14/18/24, spacing 4/8/12/16/24/32, one soft card shadow,
+ * a tinted page background instead of pure white, large readable text.
+ * Brand orange / navy come from the AE theme and are set by each root component.
+ */
+
+@mixin ae-font {
+  font-family:
+    'AE Manrope',
+    'NotoSans',
+    'Noto Sans',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+
+@mixin ae-tokens {
+  --ae-orange-hover: #e4541f;
+  // Orange dark enough for small text (4.6:1 on the page background).
+  --ae-orange-ink: #c8440f;
+  // Very light orange for large surfaces: active nav item, action tiles.
+  --ae-orange-wash: #fff0e8;
+  // Orange for small text on the tinted surfaces above (5.4:1).
+  --ae-orange-deep: #a8380c;
+  --ae-text: #1f1d3d;
+  --ae-text-muted: #4b4e6d;
+  --ae-text-subtle: #6b6e85;
+  --ae-placeholder: #8a8ca3;
+  --ae-line: #ede4db;
+  --ae-field-line: #d9d5e4;
+  --ae-page: #fdf8f3;
+  --ae-surface: #ffffff;
+  --ae-surface-muted: #f7f3ee;
+  --ae-danger: #b3261e;
+  --ae-danger-soft: #ffebee;
+  // Takira KPI pastels: reuse these, do not invent new ones.
+  --ae-kpi-green: #d4edd6;
+  --ae-kpi-blue: #c8e2fa;
+  --ae-kpi-purple: #e6d0eb;
+  --ae-kpi-yellow: #ffeab3;
+  --ae-kpi-red: #ffd0d6;
+  --ae-kpi-mint: #c2e9e6;
+  --ae-radius-sm: 10px;
+  --ae-radius-md: 14px;
+  --ae-radius-lg: 18px;
+  --ae-radius-xl: 24px;
+  --ae-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --ae-shadow-raised: 0 1px 2px rgba(41, 33, 126, 0.04), 0 24px 48px -16px rgba(41, 33, 126, 0.14);
+  --ae-focus-ring: 0 0 0 4px rgba(41, 33, 126, 0.28);
+}
+
+@mixin ae-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

@@ -1,8 +1,10 @@
 from django.templatetags.static import static
+from django.urls import reverse
 
 from .brand_colors import APP_BAR_TEXT_HEX
 from .brand_colors import BRAND_COLORS
 from .brand_colors import LOGO_ALT_TEXT
+from .brand_colors import NAVY_HEX
 from .brand_colors import ORGANIZATION_NAME
 from .brand_colors import PLATFORM_NAME
 from .brand_colors import PRIMARY_HEX
@@ -17,6 +19,15 @@ _LOGO_STYLE_APP = "height: 36px; width: auto; max-width: 200px;"
 _LOGO_STYLE_SIGN_IN = (
     "margin-bottom: 12px; height: 64px; width: auto; max-width: 280px;"
 )
+
+
+def _portal_home_href():
+    """App-bar logo links to the AE portal home (role redirect on load)."""
+    try:
+        return reverse("kolibri:action_education_portal:portal")
+    except Exception:
+        # Tests / early import may lack URLConf or DB — relative portal path.
+        return "/portal/"
 
 
 class ActionEducationThemePlugin(KolibriPluginBase):
@@ -35,6 +46,7 @@ class ActionEducationThemeHook(theme_hook.ThemeHook):
             "src": logo_src,
             "alt": LOGO_ALT_TEXT,
             "style": _LOGO_STYLE_APP,
+            "href": _portal_home_href(),
         }
         return {
             "siteTitle": PLATFORM_NAME,
@@ -44,6 +56,8 @@ class ActionEducationThemeHook(theme_hook.ThemeHook):
                 "background": PRIMARY_HEX,
                 "textColor": APP_BAR_TEXT_HEX,
                 "topLogo": dict(logo),
+                # Hide Kolibri points leaf / score in the app bar.
+                "showPoints": False,
             },
             "sideNav": {
                 "title": PLATFORM_NAME,
@@ -72,7 +86,7 @@ class ActionEducationThemeHook(theme_hook.ThemeHook):
                 "titleStyle": {
                     "fontWeight": "600",
                     "fontSize": "20px",
-                    "color": PRIMARY_HEX,
+                    "color": NAVY_HEX,
                 },
                 "showKolibriFooterLogo": False,
                 "showPoweredBy": False,

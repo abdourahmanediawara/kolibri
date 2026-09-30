@@ -9,26 +9,27 @@ function portalAbsoluteUrl(hashPath = '') {
 }
 
 export function signInUrl(nextUrl) {
-  const auth = urls['kolibri:kolibri.plugins.user_auth:user_auth'];
-  if (!auth) {
-    return '/';
+  // Prefer the AE sign-in page when already inside the portal SPA.
+  const portalPath = urls['kolibri:action_education_portal:portal']();
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  if (nextUrl) {
+    return `${origin}${portalPath}#/connexion`;
   }
-  const next = encodeURIComponent(nextUrl || portalAbsoluteUrl());
-  return `${auth()}#/signin?next=${next}`;
+  return `${origin}${portalPath}#/connexion`;
 }
 
-export function redirectToSignIn(hashPath = '') {
+export function redirectToSignIn() {
   if (typeof window === 'undefined') {
     return;
   }
-  window.location.assign(signInUrl(portalAbsoluteUrl(hashPath)));
+  window.location.assign(signInUrl());
 }
 
 export function requirePerm(getterName) {
   return (to, from, next) => {
     const perms = useAePermissions();
     if (!perms.isUserLoggedIn.value) {
-      redirectToSignIn(to.fullPath || '/ae/learn');
+      next({ name: 'AeSignIn', query: { next: to.fullPath } });
       return;
     }
     if (perms[getterName] && perms[getterName].value) {
@@ -42,8 +43,19 @@ export function requirePerm(getterName) {
 export function redirectRoot(to, from, next) {
   const perms = useAePermissions();
   if (!perms.isUserLoggedIn.value) {
-    redirectToSignIn();
+    next({ name: 'AeSignIn' });
     return;
   }
   next(perms.defaultLandingPath.value);
 }
+
+export function requireAnonymousOrRedirect(to, from, next) {
+  const perms = useAePermissions();
+  if (perms.isUserLoggedIn.value) {
+    next(perms.defaultLandingPath.value);
+    return;
+  }
+  next();
+}
+
+export { portalAbsoluteUrl };

@@ -38,7 +38,7 @@
       </li>
     </ol>
     <router-link
-      to="/ae/learn"
+            :to="{ name: 'AeLearnHome' }"
       class="back-link"
       :style="{ color: $themeTokens.primary }"
     >

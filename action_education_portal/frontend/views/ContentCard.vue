@@ -2,6 +2,8 @@
   <a
     class="content-card"
     :href="href"
+    :target="target || undefined"
+    :rel="rel || undefined"
     :style="{
       backgroundColor: $themeTokens.surface,
       borderColor: $themeTokens.fineLine,
@@ -72,6 +74,14 @@
         default: '',
       },
       progressLabel: {
+        type: String,
+        default: '',
+      },
+      target: {
+        type: String,
+        default: '',
+      },
+      rel: {
         type: String,
         default: '',
       },

@@ -4,7 +4,8 @@ Native Learn / Coach / Facility plugins each register a RoleBasedRedirectHook.
 Hook selection is first-match by registration order, which is not reliably
 controlled by plugins.json. After all plugins have loaded, unregister those
 competing redirects so PortalRedirect / CoachPortalRedirect / AdminPortalRedirect
-are the only matches for LEARNER / COACH / ADMIN.
+are the only matches for LEARNER / COACH / ADMIN, and SignInPortalRedirect the
+only match for ANONYMOUS.
 
 DeviceRedirect (SUPERUSER) is intentionally left in place for technical admins.
 """
@@ -16,11 +17,13 @@ _COMPETING_REDIRECTS = (
     ("kolibri.plugins.learn.kolibri_plugin", "LearnRedirect"),
     ("kolibri.plugins.coach.kolibri_plugin", "CoachRedirect"),
     ("kolibri.plugins.facility.kolibri_plugin", "FacilityRedirect"),
+    # Anonymous visitors: the AE sign-in page replaces Kolibri's own.
+    ("kolibri.plugins.user_auth.kolibri_plugin", "LogInRedirect"),
 )
 
 
 def prefer_portal_role_redirects():
-    """Unregister native Learn/Coach/Facility RoleBasedRedirectHook classes."""
+    """Unregister native Learn/Coach/Facility/UserAuth RoleBasedRedirectHook classes."""
     for module_path, class_name in _COMPETING_REDIRECTS:
         try:
             module = __import__(module_path, fromlist=[class_name])

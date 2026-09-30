@@ -11,3 +11,5 @@ class ActionEducationPortalConfig(AppConfig):
         from action_education_portal.redirects import prefer_portal_role_redirects
 
         prefer_portal_role_redirects()
+
+        from action_education_portal import signals  # noqa: F401

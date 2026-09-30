@@ -18,48 +18,25 @@ function isNativePluginUrl(url) {
   return nativePluginUrls.some(base => url === base || (url && url.startsWith(base)));
 }
 
-const { isSuperuser, canManageContent, isCoach, isAdmin } = useUser();
+const { isSuperuser, canManageContent, isCoach, isAdmin, isLearner } = useUser();
 
-function portalSubRoutes() {
-  const routes = [
-    {
-      label: portalStrings.$tr('homeNavLabel'),
-      icon: 'dashboard',
-      route: '/ae/learn',
-      name: 'AeLearnHome',
-    },
-  ];
-  if (isCoach.value || isAdmin.value || isSuperuser.value) {
-    routes.push({
-      label: portalStrings.$tr('spaceCoach'),
-      icon: 'coach',
-      route: '/ae/coach',
-      name: 'AeCoachHome',
-    });
-  }
-  if (isAdmin.value || isSuperuser.value) {
-    routes.push({
-      label: portalStrings.$tr('spaceAdmin'),
-      icon: 'people',
-      route: '/ae/admin',
-      name: 'AeAdminHome',
-    });
-  }
-  return routes;
-}
-
+/**
+ * Single portal entry in Kolibri global nav — no Accueil/Formateur/Administrateur tabs.
+ * Landing hash is resolved after auth by role redirects / SPA defaultLandingPath.
+ * Top app-bar tabs are intentionally empty: AE chrome shows logo only.
+ */
 registerNavItem({
   get url() {
     return portalUrl;
   },
   get label() {
-    return portalStrings.$tr('platformTitle');
+    return portalStrings.$tr('homeNavLabel');
   },
   icon: 'dashboard',
   bottomBar: true,
   role: UserKinds.LEARNER,
   get routes() {
-    return portalSubRoutes();
+    return [];
   },
 });
 
@@ -79,5 +56,5 @@ function applyNavFilter() {
 }
 
 watch(navItems, applyNavFilter, { deep: true });
-watch([isSuperuser, canManageContent, isCoach, isAdmin], applyNavFilter);
+watch([isSuperuser, canManageContent, isCoach, isAdmin, isLearner], applyNavFilter);
 applyNavFilter();

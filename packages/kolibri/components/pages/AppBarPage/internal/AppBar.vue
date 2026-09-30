@@ -40,8 +40,22 @@
         </template>
 
         <template #brand>
+          <a
+            v-if="themeConfig.appBar.topLogo && themeConfig.appBar.topLogo.href"
+            :href="themeConfig.appBar.topLogo.href"
+            class="brand-logo-link"
+            :class="{ 'brand-logo-left': showAppNavView }"
+            :aria-label="themeConfig.appBar.topLogo.alt"
+          >
+            <img
+              :src="themeConfig.appBar.topLogo.src"
+              :alt="themeConfig.appBar.topLogo.alt"
+              :style="themeConfig.appBar.topLogo.style"
+              class="brand-logo"
+            >
+          </a>
           <img
-            v-if="themeConfig.appBar.topLogo"
+            v-else-if="themeConfig.appBar.topLogo"
             :src="themeConfig.appBar.topLogo.src"
             :alt="themeConfig.appBar.topLogo.alt"
             :style="themeConfig.appBar.topLogo.style"
@@ -73,31 +87,7 @@
             }"
           >
             <slot name="app-bar-actions"></slot>
-            <span v-if="isLearner">
-              <KIcon
-                ref="pointsButton"
-                icon="pointsActive"
-                :ariaLabel="$tr('pointsAriaLabel')"
-                :color="$themeTokens.primary"
-              />
-              <div
-                v-if="!windowIsSmall"
-                class="points-description"
-              >
-                {{ $formatNumber(totalPoints) }}
-              </div>
-              <div
-                v-if="pointsDisplayed"
-                class="points-popover"
-                :style="{
-                  color: $themeTokens.text,
-                  padding: '8px',
-                  backgroundColor: $themeTokens.surface,
-                }"
-              >
-                {{ $tr('pointsMessage', { points: totalPoints }) }}
-              </div>
-            </span>
+            <!-- AE Apprendre: Kolibri points chrome intentionally removed from the app bar. -->
             <span
               v-if="isUserLoggedIn"
               tabindex="-1"
@@ -148,7 +138,6 @@
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import themeConfig from 'kolibri/styles/themeConfig';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useTotalProgress from 'kolibri/composables/useTotalProgress';
   import useNav from 'kolibri/composables/useNav';
   import useUser from 'kolibri/composables/useUser';
   import SkipNavigationLink from '../../../SkipNavigationLink';
@@ -169,8 +158,7 @@
       const $route = useRoute();
       const { windowIsSmall } = useKResponsiveWindow();
       const { topBarHeight, navItems } = useNav();
-      const { isLearner, isUserLoggedIn, username, full_name } = useUser();
-      const { totalPoints, fetchPoints } = useTotalProgress();
+      const { isUserLoggedIn, username, full_name } = useUser();
       const links = computed(() => {
         const currentItem = get(navItems).find(nc => nc.url === window.location.pathname);
         if (!currentItem || !currentItem.routes) {
@@ -190,11 +178,8 @@
         topBarHeight,
         links,
         isUserLoggedIn,
-        isLearner,
         username,
         fullName: full_name,
-        totalPoints,
-        fetchPoints,
       };
     },
     props: {
@@ -213,7 +198,6 @@
     },
     data() {
       return {
-        pointsDisplayed: false,
         appBarWidth: 0,
         overflowCount: 0,
       };
@@ -249,42 +233,14 @@
         };
       },
     },
-    created() {
-      if (this.isLearner) {
-        this.fetchPoints();
-      }
-    },
     beforeDestroy() {
-      window.removeEventListener('click', this.handleWindowClick);
-      window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
       window.removeEventListener('resize', this.updateAppBarWidth);
     },
     mounted() {
-      window.addEventListener('click', this.handleWindowClick);
-      window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
       window.addEventListener('resize', this.updateAppBarWidth);
       this.updateAppBarWidth();
     },
     methods: {
-      handleWindowClick(event) {
-        if (this.$refs.pointsButton && this.$refs.pointsButton.$el) {
-          if (!this.$refs.pointsButton.$el.contains(event.target) && this.pointsDisplayed) {
-            this.pointsDisplayed = false;
-          } else if (
-            this.$refs.pointsButton &&
-            this.$refs.pointsButton.$el &&
-            this.$refs.pointsButton.$el.contains(event.target)
-          ) {
-            this.pointsDisplayed = !this.pointsDisplayed;
-          }
-        }
-        return event;
-      },
-      handlePopoverByKeyboard(event) {
-        if ((event.key == 'Tab' || event.key == 'Escape') && this.pointsDisplayed) {
-          this.pointsDisplayed = false;
-        }
-      },
       updateAppBarWidth() {
         this.appBarWidth = this.$refs.appBar?.clientWidth || 0;
       },
@@ -300,15 +256,6 @@
         message: 'Open site navigation',
         context:
           "This message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.\n\nIn this case the screen-reader will announce the message when user navigates to the 'hamburger' button with the keyboard, to indicate that it allows them to open the sidebar navigation menu.",
-      },
-      pointsMessage: {
-        message: 'You earned { points, number } points',
-        context: 'Notification indicating how many points a leaner has earned.',
-      },
-      pointsAriaLabel: {
-        message: 'Points earned',
-        context:
-          'Information for screen reader users about what information they will get by clicking a button',
       },
     },
   };
@@ -389,11 +336,24 @@
     margin-left: 8px;
   }
 
+  .brand-logo-link {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 8px;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
   .brand-logo {
     max-width: 48px;
     max-height: 48px;
     margin-right: 8px;
     vertical-align: middle;
+  }
+
+  .brand-logo-link .brand-logo {
+    margin-right: 0;
   }
 
   .brand-logo-left {
@@ -403,22 +363,6 @@
   // Hide the UiButton focus ring
   /deep/ .ui-button__focus-ring {
     display: none;
-  }
-
-  .points-popover {
-    @extend %dropshadow-6dp;
-
-    position: absolute;
-    right: 50px;
-    z-index: 24;
-    font-size: 12px;
-    border-radius: 8px;
-  }
-
-  .points-description {
-    display: inline-block;
-    margin-left: 8px;
-    font-size: 14px;
   }
 
   /deep/ .sub-nav .items {

@@ -1,228 +1,153 @@
 <template>
-  <div
-    class="ae-page"
-    :style="{ color: $themeTokens.text }"
+
+  <AeListPage
+    :title="resultsTitle$()"
+    :countLabel="resultsCount$({ count: rows.length })"
+    :subtitle="resultsIntro$()"
+    :note="partialError ? resultsPartialError$() : ''"
+    :loading="isLoadingResults"
+    :errorText="errorMessage"
+    :items="rows"
+    :sortOptions="sortOptions"
+    :emptyText="resultsEmpty$()"
+    :noMatchText="resultsEmpty$()"
+    :totalLabel="count => resultsCount$({ count })"
+    @retry="refresh"
   >
-    <h1 class="title">
-      {{ resultsTitle$() }}
-    </h1>
-    <p
-      class="intro"
-      :style="{ color: $themeTokens.annotation }"
-    >
-      {{ resultsIntro$() }}
-    </p>
-
-    <section
-      class="filters"
-      :style="{
-        backgroundColor: $themeTokens.surface,
-        borderColor: $themeTokens.fineLine,
-      }"
-    >
-      <label class="filter">
-        <span>{{ filterLearnerLabel$() }}</span>
-        <select
-          v-model="filters.learner"
-          class="select"
-        >
-          <option value="">
-            {{ filterAllOption$() }}
-          </option>
-          <option
-            v-for="learner in learnerOptions"
-            :key="learner.id"
-            :value="learner.id"
-          >
-            {{ learner.label }}
-          </option>
-        </select>
-      </label>
-      <label class="filter">
-        <span>{{ filterClassroomLabel$() }}</span>
-        <select
-          v-model="filters.classroom"
-          class="select"
-        >
-          <option value="">
-            {{ filterAllOption$() }}
-          </option>
-          <option
-            v-for="classroom in classroomOptions"
-            :key="classroom.id"
-            :value="classroom.id"
-          >
-            {{ classroom.name }}
-          </option>
-        </select>
-      </label>
-      <label class="filter">
-        <span>{{ filterTrainingLabel$() }}</span>
-        <select
-          v-model="filters.training"
-          class="select"
-        >
-          <option value="">
-            {{ filterAllOption$() }}
-          </option>
-          <option
-            v-for="training in trainingOptions"
-            :key="training.id"
-            :value="training.id"
-          >
-            {{ training.title }}
-          </option>
-        </select>
-      </label>
-      <label class="filter">
-        <span>{{ filterExerciseLabel$() }}</span>
-        <select
-          v-model="filters.content_id"
-          class="select"
-        >
-          <option value="">
-            {{ filterAllOption$() }}
-          </option>
-          <option
-            v-for="content in contentOptions"
-            :key="content.content_id"
-            :value="content.content_id"
-          >
-            {{ content.title }}
-          </option>
-        </select>
-      </label>
-      <KButton
-        :text="applyFiltersAction$()"
-        :primary="true"
-        @click="loadResults"
-      />
-    </section>
-
-    <p
-      v-if="partialError"
-      class="banner"
-      :style="{ color: $themeTokens.annotation }"
-    >
-      {{ resultsPartialError$() }}
-    </p>
-    <p
-      v-if="loadError"
-      class="banner"
-      role="alert"
-      :style="{ color: $themeTokens.error }"
-    >
-      {{ resultsLoadError$() }}
-    </p>
-
-    <KCircularLoader
-      v-if="loading"
-      :delay="false"
-    />
-
-    <template v-else-if="!loadError">
-      <p
-        v-if="!rows.length"
-        :style="{ color: $themeTokens.annotation }"
+    <template #filters>
+      <label
+        v-for="filter in filterFields"
+        :key="filter.key"
+        class="ae-list-filter"
       >
-        {{ resultsEmpty$() }}
-      </p>
-      <div
-        v-else
-        class="table-wrap"
-      >
-        <table class="results-table">
-          <thead>
-            <tr>
-              <th>{{ colLearner$() }}</th>
-              <th>{{ colExercise$() }}</th>
-              <th>{{ colParent$() }}</th>
-              <th>{{ colStatus$() }}</th>
-              <th>{{ colScore$() }}</th>
-              <th>{{ colTries$() }}</th>
-              <th>{{ colMastery$() }}</th>
-              <th>{{ colLastActivity$() }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="row in rows"
-              :key="`${row.learner_id}-${row.content_id}`"
-            >
-              <td>{{ row.learner_name }}</td>
-              <td>{{ row.content_title }}</td>
-              <td>{{ row.parent_title || scoreUnavailable$() }}</td>
-              <td>{{ statusLabel(row.status) }}</td>
-              <td>{{ scoreLabel(row) }}</td>
-              <td>{{ row.tries }}</td>
-              <td>
-                {{
-                  row.mastery_level != null ? row.mastery_level : scoreUnavailable$()
-                }}
-              </td>
-              <td>{{ formatDate(row.last_activity) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <span>{{ filter.label }} :</span>
+        <select
+          v-model="filters[filter.key]"
+          @change="loadResults"
+        >
+          <option value="">
+            {{ filterAllOption$() }}
+          </option>
+          <option
+            v-for="option in filter.options"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+        <AeIcon
+          name="chevronDown"
+          :size="18"
+        />
+      </label>
     </template>
 
-    <section
-      class="block"
-      :style="{
-        backgroundColor: $themeTokens.surface,
-        borderColor: $themeTokens.fineLine,
-      }"
-    >
-      <h2 class="section-title">
-        {{ exportCertificatesTitle$() }}
-      </h2>
-      <KButton
-        :text="downloadCsvAction$()"
-        :primary="false"
-        :href="certificatesCsvHref"
-      />
-      <ul
-        v-if="certificates.length"
-        class="cert-list"
+    <template #head>
+      <th scope="col">
+        {{ colLearner$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-cell-grow"
       >
-        <li
-          v-for="cert in certificates"
-          :key="cert.id"
-          class="cert-row"
-        >
-          <span>{{ cert.number }} — {{ cert.meta }}</span>
-          <KButton
-            :text="printCertificateAction$()"
-            :primary="true"
-            :href="cert.printHref"
-            target="_blank"
+        {{ colExercise$() }}
+      </th>
+      <th scope="col">
+        {{ colStatus$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-head-wrap"
+      >
+        {{ colScore$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-results-extra"
+      >
+        {{ colTries$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-head-wrap ae-results-extra"
+      >
+        {{ colMastery$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-head-wrap"
+      >
+        {{ colLastActivity$() }}
+      </th>
+    </template>
+    <template #row="{ item }">
+      <td class="ae-list-cell-nowrap">
+        <span class="ae-list-cell-main">
+          <AeAvatar
+            :name="item.learner"
+            :toneKey="item.learnerId"
           />
-        </li>
-      </ul>
-      <p
-        v-else
-        :style="{ color: $themeTokens.annotation }"
-      >
-        {{ certificatesEmpty$() }}
-      </p>
-    </section>
-  </div>
+          <span class="ae-list-cell-name">{{ item.learner }}</span>
+        </span>
+      </td>
+      <td class="ae-list-cell-grow ae-results-exercise-cell">
+        <span class="ae-results-exercise">
+          <span class="ae-list-cell-name">{{ item.exercise }}</span>
+          <span
+            v-if="item.parent"
+            class="ae-results-parent"
+          >{{ item.parent }}</span>
+        </span>
+      </td>
+      <td class="ae-list-cell-nowrap">
+        <span
+          class="ae-results-status"
+          :class="`ae-results-status-${item.status}`"
+        >{{ item.statusLabel }}</span>
+      </td>
+      <td class="ae-list-cell-nowrap">
+        {{ item.scoreLabel }}
+      </td>
+      <td class="ae-list-cell-nowrap ae-results-extra">
+        {{ item.tries }}
+      </td>
+      <td class="ae-list-cell-nowrap ae-results-extra">
+        {{ item.masteryLabel }}
+      </td>
+      <td class="ae-list-cell-nowrap">
+        {{ item.lastActivityLabel }}
+      </td>
+    </template>
+  </AeListPage>
+
 </template>
 
+
 <script>
-  import { computed, onMounted, ref } from 'vue';
+
+  import { computed, onMounted, reactive, ref } from 'vue';
+  import { useRoute } from 'vue-router/composables';
+  import { currentLanguage } from 'kolibri/utils/i18n';
   import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
   import { portalStrings } from '../../strings';
   import { useAePermissions } from '../../composables/useAePermissions';
-  import { useTrainingApi } from '../../composables/useTrainingApi';
+  import { useTrainingApi, withTimeout } from '../../composables/useTrainingApi';
+  import { useAsyncPageLoad } from '../../composables/useAsyncPageLoad';
+  import AeAvatar from '../AeAvatar';
+  import AeIcon from '../AeIcon';
+  import AeListPage from '../AeListPage';
+
+  const STATUS_ORDER = ['completed', 'started', 'not-started'];
 
   export default {
     name: 'AeCoachResultsPage',
+    components: { AeAvatar, AeIcon, AeListPage },
     setup() {
       const {
         resultsTitle$,
         resultsIntro$,
+        resultsCount$,
         resultsEmpty$,
         resultsPartialError$,
         resultsLoadError$,
@@ -231,10 +156,8 @@
         filterTrainingLabel$,
         filterExerciseLabel$,
         filterAllOption$,
-        applyFiltersAction$,
         colLearner$,
         colExercise$,
-        colParent$,
         colStatus$,
         colScore$,
         colTries$,
@@ -244,272 +167,268 @@
         statusStarted$,
         statusCompleted$,
         scoreUnavailable$,
-        exportCertificatesTitle$,
-        downloadCsvAction$,
-        certificatesEmpty$,
-        printCertificateAction$,
+        sortByActivity$,
+        sortByName$,
+        loadTimeout$,
       } = portalStrings;
 
+      const route = useRoute();
       const { userFacilityId } = useAePermissions();
       const api = useTrainingApi();
+      const {
+        isLoading: isLoadingResults,
+        loadError,
+        runLoad,
+      } = useAsyncPageLoad('isLoadingResults');
 
-      const loading = ref(true);
-      const loadError = ref(false);
       const partialError = ref(false);
-      const rows = ref([]);
+      const results = ref([]);
       const learnerOptions = ref([]);
       const classroomOptions = ref([]);
       const trainingOptions = ref([]);
       const contentOptions = ref([]);
-      const certificates = ref([]);
-      const filters = ref({
-        learner: '',
+      // "Voir les résultats" of a learner opens this page already filtered.
+      const filters = reactive({
+        learner: route.query.learner ? String(route.query.learner) : '',
         classroom: '',
         training: '',
         content_id: '',
       });
 
-      const certificatesCsvHref = computed(() => api.certificatesExportUrl());
+      const errorMessage = computed(() => {
+        if (!loadError.value) {
+          return '';
+        }
+        if (loadError.value.code === 'AE_REQUEST_TIMEOUT') {
+          return loadTimeout$();
+        }
+        return resultsLoadError$();
+      });
 
-      function statusLabel(status) {
-        if (status === 'completed') {
-          return statusCompleted$();
+      const filterFields = computed(() => [
+        { key: 'learner', label: filterLearnerLabel$(), options: learnerOptions.value },
+        { key: 'classroom', label: filterClassroomLabel$(), options: classroomOptions.value },
+        { key: 'training', label: filterTrainingLabel$(), options: trainingOptions.value },
+        { key: 'content_id', label: filterExerciseLabel$(), options: contentOptions.value },
+      ]);
+
+      const dateFormat = new Intl.DateTimeFormat(currentLanguage, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+
+      function statusOf(status) {
+        if (status === 'completed' || status === 'started') {
+          return status;
         }
-        if (status === 'started') {
-          return statusStarted$();
-        }
-        return statusNotStarted$();
+        return 'not-started';
       }
 
-      function scoreLabel(row) {
-        if (!row.score_available) {
-          return scoreUnavailable$();
+      const STATUS_LABELS = {
+        completed: statusCompleted$,
+        started: statusStarted$,
+        'not-started': statusNotStarted$,
+      };
+
+      const rows = computed(() =>
+        results.value.map(row => {
+          const status = statusOf(row.status);
+          const lastActivity = row.last_activity ? new Date(row.last_activity) : null;
+          return {
+            id: `${row.learner_id}-${row.content_id}`,
+            learnerId: String(row.learner_id),
+            learner: row.learner_name,
+            exercise: row.content_title,
+            parent: row.parent_title || '',
+            status,
+            statusLabel: STATUS_LABELS[status](),
+            scoreLabel: row.score_available
+              ? `${row.num_correct || 0} / ${row.num_answered || 0}`
+              : scoreUnavailable$(),
+            tries: row.tries,
+            masteryLabel: row.mastery_level != null ? row.mastery_level : scoreUnavailable$(),
+            lastActivity: lastActivity ? lastActivity.getTime() : 0,
+            lastActivityLabel: lastActivity ? dateFormat.format(lastActivity) : scoreUnavailable$(),
+          };
+        }),
+      );
+
+      const collator = new Intl.Collator(currentLanguage, { sensitivity: 'base' });
+      const sortOptions = [
+        {
+          value: 'activity',
+          label: sortByActivity$(),
+          compare: (a, b) => b.lastActivity - a.lastActivity,
+        },
+        {
+          value: 'learner',
+          label: sortByName$(),
+          compare: (a, b) => collator.compare(a.learner, b.learner),
+        },
+        {
+          value: 'status',
+          label: colStatus$(),
+          compare: (a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status),
+        },
+      ];
+
+      function applyResultsPayload(data) {
+        results.value = (data && data.results) || [];
+        if (data && data.learners) {
+          learnerOptions.value = data.learners.map(learner => ({
+            value: learner.id,
+            label: learner.full_name || learner.username,
+          }));
         }
-        const correct = row.num_correct != null ? row.num_correct : 0;
-        const answered = row.num_answered != null ? row.num_answered : 0;
-        return `${correct} / ${answered}`;
+        if (data && data.contents) {
+          contentOptions.value = data.contents.map(content => ({
+            value: content.content_id,
+            label: content.title,
+          }));
+        }
       }
 
-      function formatDate(value) {
-        if (!value) {
-          return scoreUnavailable$();
-        }
-        try {
-          return new Date(value).toLocaleString();
-        } catch (e) {
-          return String(value);
-        }
-      }
-
-      function loadResults() {
-        loading.value = true;
-        loadError.value = false;
+      function activeFilters() {
         const params = {};
-        Object.keys(filters.value).forEach(key => {
-          if (filters.value[key]) {
-            params[key] = filters.value[key];
+        Object.keys(filters).forEach(key => {
+          if (filters[key]) {
+            params[key] = filters[key];
           }
         });
-        return api
-          .fetchLearnerResults(params)
-          .then(data => {
-            rows.value = data.results || [];
-            if (!learnerOptions.value.length && data.learners) {
-              learnerOptions.value = (data.learners || []).map(l => ({
-                id: l.id,
-                label: l.full_name || l.username,
+        return params;
+      }
+
+      async function loadResults() {
+        try {
+          await runLoad(async () => {
+            applyResultsPayload(await api.fetchLearnerResults(activeFilters()));
+          });
+        } catch (e) {
+          results.value = [];
+        }
+      }
+
+      async function refresh() {
+        partialError.value = false;
+        try {
+          await runLoad(async () => {
+            const facilityId = userFacilityId.value;
+            const loaded = await Promise.allSettled([
+              api.fetchTrainings(),
+              facilityId
+                ? withTimeout(
+                  ClassroomResource.fetchCollection({ getParams: { parent: facilityId } }),
+                )
+                : Promise.resolve([]),
+              api.fetchLearnerResults(activeFilters()),
+            ]);
+            partialError.value = loaded.some(result => result.status === 'rejected');
+            if (loaded[0].status === 'fulfilled') {
+              trainingOptions.value = (loaded[0].value || []).map(training => ({
+                value: training.id,
+                label: training.title,
               }));
             }
-            if (data.contents && data.contents.length) {
-              contentOptions.value = data.contents;
+            if (loaded[1].status === 'fulfilled') {
+              classroomOptions.value = (loaded[1].value || []).map(classroom => ({
+                value: classroom.id,
+                label: classroom.name,
+              }));
             }
-          })
-          .catch(() => {
-            loadError.value = true;
-            rows.value = [];
-          })
-          .finally(() => {
-            loading.value = false;
+            if (loaded[2].status === 'rejected') {
+              results.value = [];
+              throw loaded[2].reason || new Error('learnerresults failed');
+            }
+            applyResultsPayload(loaded[2].value || {});
           });
+        } catch (e) {
+          // loadError is set by runLoad.
+        }
       }
 
-      onMounted(() => {
-        Promise.allSettled([
-          api.fetchTrainings(),
-          api.fetchCertificates(),
-          ClassroomResource.fetchCollection({
-            getParams: { facility: userFacilityId.value },
-          }),
-          api.fetchLearnerResults({}),
-        ]).then(results => {
-          partialError.value = results.some(r => r.status === 'rejected');
-          if (results[0].status === 'fulfilled') {
-            trainingOptions.value = results[0].value || [];
-          }
-          if (results[1].status === 'fulfilled') {
-            const certList = results[1].value || [];
-            const tmap = {};
-            (trainingOptions.value || []).forEach(t => {
-              tmap[t.id] = t;
-            });
-            certificates.value = certList.map(c => ({
-              id: c.id,
-              number: c.certificate_number,
-              meta: [c.learner, tmap[c.training] && tmap[c.training].title]
-                .filter(Boolean)
-                .join(' · '),
-              printHref: api.certificatePrintUrl(c.id),
-            }));
-          }
-          if (results[2].status === 'fulfilled') {
-            classroomOptions.value = results[2].value || [];
-          }
-          if (results[3].status === 'fulfilled') {
-            const data = results[3].value || {};
-            rows.value = data.results || [];
-            learnerOptions.value = (data.learners || []).map(l => ({
-              id: l.id,
-              label: l.full_name || l.username,
-            }));
-            contentOptions.value = data.contents || [];
-          } else {
-            loadError.value = true;
-          }
-          loading.value = false;
-        });
-      });
+      onMounted(refresh);
 
       return {
         resultsTitle$,
         resultsIntro$,
+        resultsCount$,
         resultsEmpty$,
         resultsPartialError$,
-        resultsLoadError$,
-        filterLearnerLabel$,
-        filterClassroomLabel$,
-        filterTrainingLabel$,
-        filterExerciseLabel$,
         filterAllOption$,
-        applyFiltersAction$,
         colLearner$,
         colExercise$,
-        colParent$,
         colStatus$,
         colScore$,
         colTries$,
         colLastActivity$,
         colMastery$,
-        scoreUnavailable$,
-        exportCertificatesTitle$,
-        downloadCsvAction$,
-        certificatesEmpty$,
-        printCertificateAction$,
-        loading,
-        loadError,
+        isLoadingResults,
+        errorMessage,
         partialError,
-        rows,
         filters,
-        learnerOptions,
-        classroomOptions,
-        trainingOptions,
-        contentOptions,
-        certificates,
-        certificatesCsvHref,
-        statusLabel,
-        scoreLabel,
-        formatDate,
+        filterFields,
+        rows,
+        sortOptions,
         loadResults,
+        refresh,
       };
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
-  .ae-page {
-    max-width: 1100px;
-    margin: 0 auto;
+
+  // The exercise column truncates, but never disappears.
+  .ae-results-exercise-cell {
+    min-width: 100px;
   }
 
-  .title {
-    margin: 0 0 8px;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .intro {
-    margin: 0 0 16px;
-  }
-
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: flex-end;
-    margin-bottom: 16px;
-    padding: 16px;
-    border: 1px solid;
-    border-radius: 8px;
-  }
-
-  .filter {
+  .ae-results-exercise {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    min-width: 140px;
+    min-width: 0;
+    line-height: 1.3;
   }
 
-  .select {
-    min-height: 36px;
-    padding: 4px 8px;
+  .ae-results-parent {
+    overflow: hidden;
+    font-size: 14px;
+    color: var(--ae-text-subtle);
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .banner {
-    margin: 0 0 12px;
+  .ae-results-status {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 999px;
   }
 
-  .table-wrap {
-    overflow-x: auto;
-    margin-bottom: 24px;
+  .ae-results-status-completed {
+    color: #1b6e3c;
+    background: var(--ae-kpi-green);
   }
 
-  .results-table {
-    width: 100%;
-    border-collapse: collapse;
+  .ae-results-status-started {
+    color: var(--ae-orange-deep);
+    background: var(--ae-orange-wash);
   }
 
-  .results-table th,
-  .results-table td {
-    padding: 8px 10px;
-    text-align: start;
-    border-bottom: 1px solid;
-    border-color: inherit;
-    vertical-align: top;
+  .ae-results-status-not-started {
+    color: var(--ae-text-muted);
+    background: var(--ae-surface-muted);
   }
 
-  .block {
-    margin-top: 24px;
-    padding: 16px;
-    border: 1px solid;
-    border-radius: 8px;
+  // Narrower computers keep the essential columns.
+  @media (max-width: 1365px) {
+    .ae-results-extra {
+      display: none;
+    }
   }
 
-  .section-title {
-    margin: 0 0 12px;
-    font-weight: 600;
-  }
-
-  .cert-list {
-    margin: 16px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .cert-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
 </style>

@@ -1,490 +1,261 @@
 <template>
-  <div
-    class="ae-page"
-    :style="{ color: $themeTokens.text }"
+
+  <AeDashboard
+    :title="learnDashTitle$()"
+    :welcomeTitle="welcomeTitle"
+    :welcomeSubtitle="learnWelcomeSubtitle$()"
+    :bannerSrc="bannerSrc"
+    :loading="isLoading"
+    :cards="cards"
+    :activityTitle="resumeItems.length ? learnResumeTitle$() : learnDiscoverTitle$()"
+    :activityTo="{ name: 'AeLearnFormations' }"
+    :activityItems="activityItems"
+    :activityEmpty="emptyFormationsLearner$()"
+    :actionsTitle="adminQuickActionsTitle$()"
+    :actions="quickActions"
+    :footerLink="{ to: { name: 'AeLearnHelp' }, icon: 'help', label: learnHelpLink$() }"
   >
-    <header class="welcome">
-      <h1 class="welcome-title">
-        {{ greeting }}
-      </h1>
-      <p
-        class="tagline"
-        :style="{ color: $themeTokens.annotation }"
+    <template #notice>
+      <div
+        v-if="loadError"
+        class="ae-learn-home-notice"
+        role="alert"
       >
-        {{ tagline$() }}
-      </p>
-      <p
-        class="status-line"
-        :style="{ color: $themeTokens.annotation }"
-      >
-        {{ connectionStatus }}
-      </p>
-    </header>
-
-    <p
-      v-if="loadFailed"
-      role="alert"
-      class="error"
-      :style="{ color: $themeTokens.error }"
-    >
-      {{ loadError$() }}
-      <KButton
-        :text="retryAction$()"
-        appearance="flat-button"
-        @click="loadHome"
-      />
-    </p>
-
-    <section
-      v-if="completedLabel || globalProgressLabel"
-      class="stats"
-      :style="{
-        backgroundColor: $themeTokens.surface,
-        borderColor: $themeTokens.fineLine,
-      }"
-    >
-      <p v-if="completedLabel">
-        {{ completedLabel }}
-      </p>
-      <p v-if="globalProgressLabel">
-        {{ globalProgressLabel }}
-      </p>
-    </section>
-
-    <section
-      class="continue-card"
-      :style="{
-        backgroundColor: $themeTokens.surface,
-        borderColor: $themeTokens.fineLine,
-      }"
-      aria-labelledby="continue-heading"
-    >
-      <h2
-        id="continue-heading"
-        class="section-title"
-      >
-        {{ continueTitle$() }}
-      </h2>
-
-      <KCircularLoader
-        v-if="loading"
-        :delay="false"
-      />
-
-      <template v-else-if="resumeItem">
-        <p class="resume-title">
-          {{ resumeItem.title }}
-        </p>
-        <p
-          v-if="resumeProgressLabel"
-          class="resume-meta"
-          :style="{ color: $themeTokens.annotation }"
+        <p>{{ errorMessage }}</p>
+        <button
+          type="button"
+          class="ae-learn-home-retry"
+          @click="refresh"
         >
-          {{ resumeProgressLabel }}
-        </p>
-        <KButton
-          :text="continueAction$()"
-          :primary="true"
-          :href="resumeHref"
-        />
-      </template>
-
-      <template v-else>
-        <p :style="{ color: $themeTokens.annotation }">
-          {{ continueEmpty$() }}
-        </p>
-        <router-link
-          :to="{ name: 'AeLearnFormations' }"
-          class="explore-link"
-          :style="{
-            backgroundColor: $themeTokens.primary,
-            color: $themeTokens.textInverted,
-          }"
-        >
-          {{ exploreTrainings$() }}
-        </router-link>
-      </template>
-    </section>
-
-    <section
-      v-if="recentItems.length"
-      class="recent"
-      aria-labelledby="recent-heading"
-    >
-      <h2
-        id="recent-heading"
-        class="section-title"
-      >
-        {{ recentTitle$() }}
-      </h2>
-      <div class="cards">
-        <ContentCard
-          v-for="item in recentItems"
-          :key="item.id"
-          :title="item.title"
-          :href="item.href"
-          :icon="item.icon"
-          :thumbnail="item.thumbnail"
-          :progressLabel="item.progressLabel"
-        />
+          {{ retryAction$() }}
+        </button>
       </div>
-    </section>
+    </template>
+  </AeDashboard>
 
-    <section
-      class="shortcuts"
-      :aria-label="shortcutsLabel$()"
-    >
-      <router-link
-        v-for="item in shortcuts"
-        :key="item.id"
-        :to="item.to"
-        class="shortcut"
-        :style="{
-          backgroundColor: $themeTokens.surface,
-          borderColor: $themeTokens.fineLine,
-          color: $themeTokens.text,
-        }"
-      >
-        <KIcon
-          :icon="item.icon"
-          class="shortcut-icon"
-          :style="{ fill: $themeTokens.primary }"
-        />
-        <span class="shortcut-text">
-          <span class="shortcut-title">{{ item.title }}</span>
-          <span
-            class="shortcut-desc"
-            :style="{ color: $themeTokens.annotation }"
-          >
-            {{ item.description }}
-          </span>
-        </span>
-      </router-link>
-    </section>
-  </div>
 </template>
 
+
 <script>
+
   import { computed, onMounted, ref } from 'vue';
-  import client from 'kolibri/client';
   import urls from 'kolibri/urls';
   import { portalStrings } from '../../strings';
   import { useAePermissions } from '../../composables/useAePermissions';
-  import { useAeConnection } from '../../composables/useAeConnection';
-  import { useLearnContent } from '../../composables/useLearnContent';
-  import ContentCard from '../ContentCard';
+  import { useTrainingApi } from '../../composables/useTrainingApi';
+  import { useAsyncPageLoad } from '../../composables/useAsyncPageLoad';
+  import AeDashboard from '../AeDashboard';
 
+  const ACTIVITY_LIMIT = 5;
+
+  /** Learner home: where they stand, the courses to pick up again, shortcuts. */
   export default {
     name: 'AeLearnHomePage',
-    components: {
-      ContentCard,
-    },
+    components: { AeDashboard },
     setup() {
       const {
+        learnDashTitle$,
         greetingNamed$,
         greetingGeneric$,
-        tagline$,
-        localOnline$,
-        offlineAvailable$,
-        connectionOffline$,
-        continueTitle$,
-        continueEmpty$,
-        exploreTrainings$,
-        continueAction$,
-        shortcutTrainings$,
-        shortcutTrainingsDesc$,
-        shortcutExplore$,
-        shortcutExploreDesc$,
-        shortcutQuizzes$,
-        shortcutQuizzesDesc$,
-        shortcutsLabel$,
-        recentTitle$,
-        completedCount$,
-        globalProgress$,
-        progressPercent$,
-        loadError$,
+        learnWelcomeSubtitle$,
+        learnResumeTitle$,
+        learnDiscoverTitle$,
+        emptyFormationsLearner$,
+        adminQuickActionsTitle$,
+        learnHelpLink$,
         retryAction$,
+        learnKpiActive$,
+        learnKpiCompleted$,
+        learnKpiQuizzesPassed$,
+        learnKpiCertificates$,
+        learnResumeMeta$,
+        learnCourseStatusNew$,
+        myCourses$,
+        myQuizzes$,
+        libraryTitle$,
+        progressTitle$,
+        loadError$,
+        loadTimeout$,
       } = portalStrings;
 
-      const { displayName, isUserLoggedIn } = useAePermissions();
-      const { isOnline } = useAeConnection();
-      const { contentHref, progressFraction } = useLearnContent();
+      const { displayName } = useAePermissions();
+      const api = useTrainingApi();
+      const { isLoading, loadError, runLoad } = useAsyncPageLoad('isLoadingLearnerHome');
 
-      const loading = ref(true);
-      const loadFailed = ref(false);
-      const resumeItem = ref(null);
-      const recentItems = ref([]);
-      const completedLabel = ref('');
-      const globalProgressLabel = ref('');
+      const trainings = ref([]);
+      const progress = ref([]);
 
-      const greeting = computed(() => {
-        const name = displayName.value;
-        return name ? greetingNamed$({ name }) : greetingGeneric$();
-      });
-
-      const connectionStatus = computed(() => {
-        if (!isOnline.value) {
-          return connectionOffline$();
-        }
-        return `${localOnline$()} · ${offlineAvailable$()}`;
-      });
-
-      const resumeHref = computed(() => {
-        if (!resumeItem.value || !resumeItem.value.id) {
+      const errorMessage = computed(() => {
+        if (!loadError.value) {
           return '';
         }
-        return contentHref(resumeItem.value.id);
+        return loadError.value.code === 'AE_REQUEST_TIMEOUT' ? loadTimeout$() : loadError$();
       });
 
-      const resumeProgressLabel = computed(() => {
-        const progress = resumeItem.value && resumeItem.value.progress_fraction;
-        if (typeof progress !== 'number') {
-          return '';
-        }
-        return progressPercent$({ percent: Math.round(progress * 100) });
+      const welcomeTitle = computed(() =>
+        displayName.value ? greetingNamed$({ name: displayName.value }) : greetingGeneric$(),
+      );
+
+      const rows = computed(() => {
+        const byTraining = {};
+        progress.value.forEach(row => {
+          byTraining[row.training] = row;
+        });
+        // `course`, not `training`: progress rows already hold the course id there.
+        return trainings.value.map(training => ({
+          ...(byTraining[training.id] || { percent: 0 }),
+          course: training,
+        }));
       });
 
-      const shortcuts = computed(() => [
+      const cards = computed(() => [
         {
-          id: 'formations',
+          id: 'active',
+          value: rows.value.filter(row => row.started && !row.completed).length,
+          label: learnKpiActive$(),
           icon: 'lesson',
-          title: shortcutTrainings$(),
-          description: shortcutTrainingsDesc$(),
-          to: { name: 'AeLearnFormations' },
+          tone: 'blue',
         },
         {
-          id: 'library',
-          icon: 'library',
-          title: shortcutExplore$(),
-          description: shortcutExploreDesc$(),
-          to: { name: 'AeLearnLibrary' },
+          id: 'completed',
+          value: rows.value.filter(row => row.completed).length,
+          label: learnKpiCompleted$(),
+          icon: 'correct',
+          tone: 'green',
         },
         {
           id: 'quizzes',
+          value: rows.value.reduce((total, row) => total + (row.quizzes_passed || 0), 0),
+          label: learnKpiQuizzesPassed$(),
           icon: 'quiz',
-          title: shortcutQuizzes$(),
-          description: shortcutQuizzesDesc$(),
-          to: { name: 'AeLearnQuizzes' },
+          tone: 'purple',
+        },
+        {
+          id: 'certificates',
+          value: rows.value.filter(row => row.certificate_number).length,
+          label: learnKpiCertificates$(),
+          icon: 'star',
+          tone: 'yellow',
         },
       ]);
 
-      function buildProgressMap(progressList) {
-        const map = {};
-        (progressList || []).forEach(item => {
-          if (item && item.content_id != null) {
-            map[item.content_id] = item;
-          }
-        });
-        return map;
-      }
+      const courseRoute = training => ({
+        name: 'AeLearnCourseDetail',
+        params: { trainingId: training.id },
+      });
 
-      function loadHome() {
-        if (!isUserLoggedIn.value) {
-          loading.value = false;
-          return;
+      // Courses started and not finished, the latest first.
+      const resumeItems = computed(() =>
+        rows.value
+          .filter(row => row.started && !row.completed)
+          .sort((a, b) => new Date(b.last_activity || 0) - new Date(a.last_activity || 0))
+          .slice(0, ACTIVITY_LIMIT)
+          .map(row => ({
+            id: row.course.id,
+            title: row.course.title,
+            meta: learnResumeMeta$({ percent: row.percent }),
+            icon: 'lesson',
+            tone: 'blue',
+            to: courseRoute(row.course),
+          })),
+      );
+
+      // Nothing to resume: the courses not started yet.
+      const activityItems = computed(() => {
+        if (resumeItems.value.length) {
+          return resumeItems.value;
         }
-        loading.value = true;
-        loadFailed.value = false;
-        client({ url: urls['kolibri:kolibri.plugins.learn:homehydrate']() })
-          .then(response => {
-            const payload = response.data || {};
-            const resources = payload.resumable_resources || {};
-            const nodes = resources.results || [];
-            const progressList = payload.resumable_resources_progress || [];
-            const progressMap = buildProgressMap(progressList);
+        return rows.value
+          .filter(row => !row.started)
+          .slice(0, ACTIVITY_LIMIT)
+          .map(row => ({
+            id: row.course.id,
+            title: row.course.title,
+            meta: learnCourseStatusNew$(),
+            icon: 'lesson',
+            tone: 'green',
+            to: courseRoute(row.course),
+          }));
+      });
 
-            const fractions = [];
-            let completed = 0;
-            (progressList || []).forEach(entry => {
-              const fraction = progressFraction(entry);
-              if (typeof fraction === 'number') {
-                fractions.push(fraction);
-                if (fraction >= 1) {
-                  completed += 1;
-                }
-              }
-            });
+      const quickActions = [
+        { id: 'courses', icon: 'lesson', title: myCourses$(), to: { name: 'AeLearnFormations' } },
+        { id: 'quizzes', icon: 'quiz', title: myQuizzes$(), to: { name: 'AeLearnQuizzes' } },
+        { id: 'library', icon: 'library', title: libraryTitle$(), to: { name: 'AeLearnLibrary' } },
+        {
+          id: 'progress',
+          icon: 'inProgress',
+          title: progressTitle$(),
+          to: { name: 'AeLearnProgress' },
+        },
+      ];
 
-            completedLabel.value = completed
-              ? completedCount$({ count: completed })
-              : '';
-            if (fractions.length) {
-              const avg =
-                fractions.reduce((sum, value) => sum + value, 0) / fractions.length;
-              globalProgressLabel.value = globalProgress$({
-                percent: Math.round(avg * 100),
-              });
-            } else {
-              globalProgressLabel.value = '';
-            }
-
-            const list = Array.isArray(nodes) ? nodes : [];
-            const first = list[0] || null;
-            if (first) {
-              const progressEntry = progressList.find(
-                item =>
-                  item.content_id === first.content_id ||
-                  item.contentnode_id === first.id ||
-                  item.id === first.id,
-              );
-              resumeItem.value = {
-                id: first.id,
-                title: first.title,
-                progress_fraction: progressFraction(progressEntry),
-              };
-            } else {
-              resumeItem.value = null;
-            }
-
-            recentItems.value = list.slice(0, 3).map(node => {
-              const progressEntry = progressMap[node.content_id];
-              const fraction = progressFraction(progressEntry);
-              return {
-                id: node.id,
-                title: node.title,
-                href: contentHref(node.id),
-                icon: 'lesson',
-                thumbnail: node.thumbnail || node.thumbnail_url || '',
-                progressLabel:
-                  typeof fraction === 'number'
-                    ? progressPercent$({ percent: Math.round(fraction * 100) })
-                    : '',
-              };
-            });
-          })
-          .catch(() => {
-            loadFailed.value = true;
-          })
-          .finally(() => {
-            loading.value = false;
+      async function refresh() {
+        try {
+          await runLoad(async () => {
+            const [list, mine] = await Promise.all([
+              api.fetchTrainings(),
+              api.fetchMyProgress().catch(() => []),
+            ]);
+            trainings.value = (list || []).filter(training => training.status === 'published');
+            progress.value = mine || [];
           });
+        } catch (e) {
+          // loadError is set by runLoad.
+        }
       }
 
-      onMounted(loadHome);
+      onMounted(refresh);
 
       return {
-        greeting,
-        tagline$,
-        connectionStatus,
-        continueTitle$,
-        continueEmpty$,
-        exploreTrainings$,
-        continueAction$,
-        shortcutsLabel$,
-        recentTitle$,
-        loadError$,
+        learnDashTitle$,
+        learnWelcomeSubtitle$,
+        learnResumeTitle$,
+        learnDiscoverTitle$,
+        emptyFormationsLearner$,
+        adminQuickActionsTitle$,
+        learnHelpLink$,
         retryAction$,
-        loading,
-        loadFailed,
-        loadHome,
-        resumeItem,
-        resumeHref,
-        resumeProgressLabel,
-        recentItems,
-        completedLabel,
-        globalProgressLabel,
-        shortcuts,
+        bannerSrc: urls.static('action_education_portal/ae-admin-banner.png'),
+        welcomeTitle,
+        isLoading,
+        loadError,
+        errorMessage,
+        cards,
+        resumeItems,
+        activityItems,
+        quickActions,
+        refresh,
       };
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
-  .ae-page {
-    max-width: 960px;
-    margin: 0 auto;
-  }
 
-  .welcome-title {
-    margin: 0 0 8px;
-    font-size: 1.75rem;
-    font-weight: 700;
-  }
+  @import '../../styles/components';
 
-  .tagline,
-  .status-line {
-    margin: 0 0 8px;
-    font-size: 1rem;
-  }
-
-  .error {
-    margin: 12px 0;
-  }
-
-  .stats,
-  .continue-card {
-    margin: 20px 0;
-    padding: 16px;
-    border: 1px solid;
-    border-radius: 8px;
-  }
-
-  .section-title {
-    margin: 0 0 12px;
-    font-size: 1.25rem;
-  }
-
-  .resume-title {
-    margin: 0 0 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-
-  .resume-meta {
-    margin: 0 0 16px;
-  }
-
-  .cards {
-    display: grid;
-    gap: 12px;
-  }
-
-  .shortcuts {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
-    margin-top: 24px;
-  }
-
-  .shortcut {
+  .ae-learn-home-notice {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-height: 120px;
-    padding: 16px;
-    text-decoration: none;
-    border: 1px solid;
-    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    align-items: center;
+    padding: 14px 18px;
+    margin: 0;
+    color: var(--ae-danger);
+    background: var(--ae-danger-soft);
+    border-radius: var(--ae-radius-md);
+
+    p {
+      margin: 0;
+      font-weight: 700;
+    }
   }
 
-  .shortcut:focus {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
+  .ae-learn-home-retry {
+    @include ae-button-outline;
   }
 
-  .shortcut-icon {
-    width: 28px;
-    height: 28px;
-  }
-
-  .shortcut-title {
-    display: block;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-
-  .shortcut-desc {
-    display: block;
-    margin-top: 4px;
-    font-size: 0.875rem;
-  }
-
-  .explore-link {
-    display: inline-block;
-    min-height: 44px;
-    padding: 10px 16px;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 4px;
-  }
 </style>

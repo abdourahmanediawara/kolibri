@@ -1,233 +1,282 @@
+/**
+ * Navigation items per AE space — one menu definition per layout.
+ * Paths are the sole source of truth for in-app side navigation.
+ */
 import { computed } from 'vue';
 import { useRoute } from 'vue-router/composables';
 import { portalStrings } from '../strings';
 import { useAePermissions } from './useAePermissions';
 
-/**
- * Role-filtered AE navigation items (single active item by route name / path prefix).
- */
-export function useAeNav() {
-  const route = useRoute();
-  const perms = useAePermissions();
+function activeIdFromItems(items, route) {
+  const name = route.name;
+  const path = route.path || '';
+  const byName = items.find(item => item.name === name);
+  if (byName) {
+    return byName.id;
+  }
+  const byPath = [...items]
+    .sort((a, b) => b.to.length - a.to.length)
+    .find(item => path === item.to || path.startsWith(`${item.to}/`));
+  return byPath ? byPath.id : items[0] && items[0].id;
+}
 
-  const learnerItems = computed(() => [
+export function useAeLearnerNav() {
+  const route = useRoute();
+  const items = computed(() => [
     {
       id: 'learn-home',
       label: portalStrings.$tr('homeNavLabel'),
       icon: 'dashboard',
-      to: '/ae/learn',
+      to: '/apprenant',
       name: 'AeLearnHome',
     },
     {
       id: 'learn-formations',
-      label: portalStrings.$tr('myTrainingsTitle'),
+      label: portalStrings.$tr('myCourses'),
       icon: 'lesson',
-      to: '/ae/learn/formations',
+      to: '/apprenant/cours',
       name: 'AeLearnFormations',
     },
     {
       id: 'learn-library',
       label: portalStrings.$tr('libraryTitle'),
       icon: 'library',
-      to: '/ae/learn/library',
+      to: '/apprenant/bibliotheque',
       name: 'AeLearnLibrary',
     },
     {
       id: 'learn-quizzes',
-      label: portalStrings.$tr('quizzesTitle'),
+      label: portalStrings.$tr('myQuizzes'),
       icon: 'quiz',
-      to: '/ae/learn/quizzes',
+      to: '/apprenant/quiz',
       name: 'AeLearnQuizzes',
     },
     {
       id: 'learn-progress',
       label: portalStrings.$tr('progressTitle'),
       icon: 'inProgress',
-      to: '/ae/learn/progress',
+      to: '/apprenant/progression',
       name: 'AeLearnProgress',
+    },
+    {
+      id: 'learn-profile',
+      label: portalStrings.$tr('myProfile'),
+      icon: 'person',
+      to: '/apprenant/profil',
+      name: 'AeLearnProfile',
     },
     {
       id: 'learn-help',
       label: portalStrings.$tr('helpPageTitle'),
       icon: 'help',
-      to: '/ae/learn/help',
+      to: '/apprenant/aide',
       name: 'AeLearnHelp',
     },
   ]);
+  const activeId = computed(() => activeIdFromItems(items.value, route));
+  return { items, activeId };
+}
 
-  const coachItems = computed(() => [
+export function useAeCoachNav() {
+  const route = useRoute();
+  const items = computed(() => [
     {
       id: 'coach-home',
       label: portalStrings.$tr('coachDashTitle'),
       icon: 'dashboard',
-      to: '/ae/coach',
+      to: '/formateur',
       name: 'AeCoachHome',
     },
     {
-      id: 'coach-formations',
-      label: portalStrings.$tr('dashTrainingsLabel'),
-      icon: 'lesson',
-      to: '/ae/coach/formations',
-      name: 'AeCoachFormations',
+      id: 'coach-classes',
+      label: portalStrings.$tr('myClasses'),
+      icon: 'classes',
+      to: '/formateur/classes',
+      name: 'AeCoachClasses',
     },
     {
       id: 'coach-learners',
-      label: portalStrings.$tr('learnersTitle'),
+      label: portalStrings.$tr('myLearners'),
       icon: 'people',
-      to: '/ae/coach/learners',
+      to: '/formateur/eleves',
       name: 'AeCoachLearners',
     },
     {
+      id: 'coach-formations',
+      label: portalStrings.$tr('myCourses'),
+      icon: 'lesson',
+      to: '/formateur/cours',
+      name: 'AeCoachFormations',
+    },
+    {
       id: 'coach-sessions',
-      label: portalStrings.$tr('trainerSessionsTitle'),
-      icon: 'classes',
-      to: '/ae/coach/sessions',
+      label: portalStrings.$tr('sessions'),
+      icon: 'schedule',
+      to: '/formateur/sessions',
       name: 'AeCoachSessions',
     },
     {
       id: 'coach-results',
       label: portalStrings.$tr('resultsTitle'),
       icon: 'reports',
-      to: '/ae/coach/results',
+      to: '/formateur/resultats',
       name: 'AeCoachResults',
     },
     {
       id: 'coach-library',
       label: portalStrings.$tr('libraryTitle'),
       icon: 'library',
-      to: '/ae/coach/library',
+      to: '/formateur/bibliotheque',
       name: 'AeCoachLibrary',
     },
   ]);
+  const activeId = computed(() => activeIdFromItems(items.value, route));
+  return { items, activeId };
+}
 
-  const adminItems = computed(() => [
-    {
-      id: 'admin-home',
-      label: portalStrings.$tr('adminDashTitle'),
-      icon: 'dashboard',
-      to: '/ae/admin',
-      name: 'AeAdminHome',
-    },
-    {
-      id: 'admin-content',
-      label: portalStrings.$tr('contentManageTitle'),
-      icon: 'channel',
-      to: '/ae/admin/content',
-      name: 'AeAdminContent',
-    },
-    {
-      id: 'admin-users',
-      label: portalStrings.$tr('dashUsersLabel'),
-      icon: 'people',
-      to: '/ae/admin/users',
-      name: 'AeAdminUsers',
-    },
-    {
-      id: 'admin-classes',
-      label: portalStrings.$tr('classesTitle'),
-      icon: 'classes',
-      to: '/ae/admin/classes',
-      name: 'AeAdminClasses',
-    },
-    {
-      id: 'admin-coaches',
-      label: portalStrings.$tr('coachesTitle'),
-      icon: 'coach',
-      to: '/ae/admin/coaches',
-      name: 'AeAdminCoaches',
-    },
-    {
-      id: 'admin-reports',
-      label: portalStrings.$tr('reportsTitle'),
-      icon: 'reports',
-      to: '/ae/admin/reports',
-      name: 'AeAdminReports',
-    },
-    {
-      id: 'admin-sync',
-      label: portalStrings.$tr('syncTitle'),
-      icon: 'device',
-      to: '/ae/admin/sync',
-      name: 'AeAdminSync',
-    },
-    {
+export function useAeAdminNav() {
+  const route = useRoute();
+  const perms = useAePermissions();
+  const items = computed(() => {
+    const list = [
+      {
+        id: 'admin-home',
+        label: portalStrings.$tr('dashboardTitle'),
+        icon: 'dashboard',
+        to: '/administrateur',
+        name: 'AeAdminHome',
+      },
+      {
+        id: 'admin-users',
+        label: portalStrings.$tr('dashUsersLabel'),
+        icon: 'people',
+        to: '/administrateur/utilisateurs',
+        name: 'AeAdminUsers',
+      },
+      {
+        id: 'admin-classes',
+        label: portalStrings.$tr('classesTitle'),
+        icon: 'classes',
+        to: '/administrateur/classes',
+        name: 'AeAdminClasses',
+      },
+      {
+        id: 'admin-courses',
+        label: portalStrings.$tr('coursesTitle'),
+        icon: 'lesson',
+        to: '/administrateur/cours',
+        name: 'AeAdminCourses',
+      },
+      {
+        id: 'admin-coaches',
+        label: portalStrings.$tr('coachesTitle'),
+        icon: 'coach',
+        to: '/administrateur/formateurs',
+        name: 'AeAdminCoaches',
+      },
+      {
+        id: 'admin-content',
+        label: portalStrings.$tr('contentManageTitle'),
+        icon: 'channel',
+        to: '/administrateur/contenus',
+        name: 'AeAdminContent',
+      },
+      {
+        id: 'admin-reports',
+        label: portalStrings.$tr('monitoringTitle'),
+        icon: 'reports',
+        to: '/administrateur/suivi',
+        name: 'AeAdminReports',
+      },
+    ];
+    if (perms.canSyncFacility.value) {
+      list.push({
+        id: 'admin-sync',
+        label: portalStrings.$tr('syncTitle'),
+        icon: 'refresh',
+        to: '/administrateur/synchronisation',
+        name: 'AeAdminSync',
+      });
+    }
+    list.push({
       id: 'admin-settings',
       label: portalStrings.$tr('settingsTitle'),
       icon: 'settings',
-      to: '/ae/admin/settings',
+      to: '/administrateur/parametres',
       name: 'AeAdminSettings',
-    },
-  ]);
+    });
+    return list;
+  });
+  const activeId = computed(() => activeIdFromItems(items.value, route));
+  return { items, activeId };
+}
+
+/**
+ * @deprecated Prefer space-specific nav composables. Kept for tests that still import it.
+ */
+export function useAeNav() {
+  const route = useRoute();
+  const perms = useAePermissions();
+  const learner = useAeLearnerNav();
+  const coach = useAeCoachNav();
+  const admin = useAeAdminNav();
 
   const area = computed(() => {
     const p = route.path || '';
-    if (p.startsWith('/ae/admin')) {
+    if (p.startsWith('/administrateur') || p.startsWith('/ae/admin')) {
       return 'admin';
     }
-    if (p.startsWith('/ae/coach')) {
+    if (p.startsWith('/formateur') || p.startsWith('/ae/coach')) {
       return 'coach';
     }
     return 'learn';
   });
 
   const items = computed(() => {
-    if (area.value === 'admin' && perms.canViewAdminDashboard.value) {
-      return adminItems.value.filter(item => {
-        if (item.id === 'admin-content') {
-          return perms.canManageContent.value;
-        }
-        if (item.id === 'admin-sync') {
-          return perms.canAccessDeviceAdministration.value;
-        }
-        return true;
-      });
+    if (area.value === 'admin') {
+      return admin.items.value;
     }
-    if (area.value === 'coach' && perms.canViewCoachArea.value) {
-      return coachItems.value;
+    if (area.value === 'coach') {
+      return coach.items.value;
     }
-    return learnerItems.value;
+    return learner.items.value;
   });
 
   const activeId = computed(() => {
-    const name = route.name;
-    const path = route.path || '';
-    const byName = items.value.find(item => item.name === name);
-    if (byName) {
-      return byName.id;
+    if (area.value === 'admin') {
+      return admin.activeId.value;
     }
-    const byPath = [...items.value]
-      .sort((a, b) => b.to.length - a.to.length)
-      .find(item => path === item.to || path.startsWith(`${item.to}/`));
-    return byPath ? byPath.id : items.value[0] && items.value[0].id;
+    if (area.value === 'coach') {
+      return coach.activeId.value;
+    }
+    return learner.activeId.value;
   });
 
+  /** Intentionally empty for ordinary users — spaces are separate. */
   const switcherLinks = computed(() => {
-    const links = [];
-    if (perms.canViewLearnerArea.value) {
-      links.push({
+    if (!perms.isSuperuser.value) {
+      return [];
+    }
+    return [
+      {
         id: 'sw-learn',
         label: portalStrings.$tr('spaceLearner'),
-        to: '/ae/learn',
+        to: '/apprenant',
         active: area.value === 'learn',
-      });
-    }
-    if (perms.canViewCoachArea.value) {
-      links.push({
+      },
+      {
         id: 'sw-coach',
         label: portalStrings.$tr('spaceCoach'),
-        to: '/ae/coach',
+        to: '/formateur',
         active: area.value === 'coach',
-      });
-    }
-    if (perms.canViewAdminDashboard.value) {
-      links.push({
+      },
+      {
         id: 'sw-admin',
         label: portalStrings.$tr('spaceAdmin'),
-        to: '/ae/admin',
+        to: '/administrateur',
         active: area.value === 'admin',
-      });
-    }
-    return links;
+      },
+    ];
   });
 
   return {
@@ -235,8 +284,8 @@ export function useAeNav() {
     items,
     activeId,
     switcherLinks,
-    learnerItems,
-    coachItems,
-    adminItems,
+    learnerItems: learner.items,
+    coachItems: coach.items,
+    adminItems: admin.items,
   };
 }

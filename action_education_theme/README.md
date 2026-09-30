@@ -6,17 +6,14 @@ Package: `action_education_theme`
 
 - Product name: **AE Apprendre**
 - Organization: Action Éducation
-- Primary `#29217E`, accent `#F15A24`
+- Primary `#F15A24` (orange), navy `#29217E` for text
 - Logo (PNG wordmark)
 - Sign-in, app bar, and side nav branding
 
 ## Enable (dev)
 
-```bash
-cd /home/owner/kolibri
-source .venv/bin/activate
-export KOLIBRI_HOME="$HOME/.kolibri-action-education-dev"
-export KOLIBRI_RUN_MODE="dev"
+```powershell
+. .\scripts\ae_env_windows.ps1  # see AE_DEVELOPMENT.md
 
 python -m pip install -e ./action_education_theme
 kolibri plugin disable kolibri.plugins.default_theme

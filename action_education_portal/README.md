@@ -11,11 +11,8 @@ Provides a simplified learner home at `/fr-fr/portal/` with:
 
 ## Enable
 
-```bash
-cd /home/owner/kolibri
-source .venv/bin/activate
-export KOLIBRI_HOME="$HOME/.kolibri-action-education-dev"
-export KOLIBRI_RUN_MODE="dev"
+```powershell
+. .\scripts\ae_env_windows.ps1  # see AE_DEVELOPMENT.md
 
 python -m pip install -e ./action_education_portal
 kolibri plugin enable action_education_portal

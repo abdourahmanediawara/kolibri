@@ -21,10 +21,15 @@ export function useAePermissions() {
     userFacilityId,
   } = useUser();
 
+  /** Staff roles that own a dedicated non-learner space. */
+  const isStaff = computed(() => isCoach.value || isAdmin.value || isSuperuser.value);
+
+  /**
+   * Learner space: pure learners, or superuser preview.
+   * Coaches/admins do not share the learner menu.
+   */
   const canViewLearnerArea = computed(
-    () =>
-      isUserLoggedIn.value &&
-      (isLearner.value || isCoach.value || isAdmin.value || isSuperuser.value),
+    () => isUserLoggedIn.value && ((isLearner.value && !isStaff.value) || isSuperuser.value),
   );
 
   const canViewCoachArea = computed(
@@ -45,31 +50,34 @@ export function useAePermissions() {
    */
   const canManageContent = computed(
     () =>
-      isUserLoggedIn.value &&
-      (sessionCanManageContent.value || isAdmin.value || isSuperuser.value),
+      isUserLoggedIn.value && (sessionCanManageContent.value || isAdmin.value || isSuperuser.value),
   );
 
   /**
-   * Technical Device administration (name, sync, import, settings).
+   * Kolibri Device plugin: superusers see everything (name, settings, facilities),
+   * content managers see the channels to import. AE admins manage content with
+   * their role (see action_education_portal/signals.py).
    * Based only on real Kolibri DevicePermissions session flags — never isAdmin alone.
    */
   const canAccessDeviceAdministration = computed(
-    () =>
-      isUserLoggedIn.value && (isSuperuser.value || Boolean(sessionCanManageContent.value)),
+    () => isUserLoggedIn.value && (isSuperuser.value || Boolean(sessionCanManageContent.value)),
   );
+
+  /** Kolibri lets facility admins sync their own facility (Facility › Data). */
+  const canSyncFacility = computed(() => canViewAdminDashboard.value);
 
   /** @deprecated Prefer canAccessDeviceAdministration — kept as alias for existing templates. */
   const canAccessTechnicalAdministration = canAccessDeviceAdministration;
 
-  /** Post-login landing hash path inside /portal/ */
+  /** Post-login landing hash path inside /portal/ — based on real role, never UI choice. */
   const defaultLandingPath = computed(() => {
     if (canViewAdminDashboard.value) {
-      return '/ae/admin';
+      return '/administrateur';
     }
     if (canViewCoachArea.value) {
-      return '/ae/coach';
+      return '/formateur';
     }
-    return '/ae/learn';
+    return '/apprenant';
   });
 
   const displayName = computed(() => {
@@ -88,6 +96,7 @@ export function useAePermissions() {
     isAdmin,
     isSuperuser,
     isFacilityAdmin,
+    isStaff,
     userKind,
     currentUserId,
     userFacilityId,
@@ -100,6 +109,7 @@ export function useAePermissions() {
     canManageContent,
     canAccessDeviceAdministration,
     canAccessTechnicalAdministration,
+    canSyncFacility,
     defaultLandingPath,
   };
 }

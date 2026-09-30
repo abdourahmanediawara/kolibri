@@ -1,39 +1,45 @@
 """
 Brand color scales and accessibility helpers for AE Apprendre.
 
-Primary (#29217E) and accent (#F15A24) follow Material-style v_100…v_600
-scales expected by Kolibri Design System / ThemeHook.
+Primary (#F15A24 orange) matches Action Éducation chrome / hero.
+Navy (#29217E) is used for text and secondary accents on white.
+Scales follow Material-style v_100…v_600 expected by Kolibri Design System.
 """
 
 PLATFORM_NAME = "AE Apprendre"
 ORGANIZATION_NAME = "Action Éducation"
 LOGO_ALT_TEXT = "Action Éducation"
 
-PRIMARY_HEX = "#29217E"
-ACCENT_HEX = "#F15A24"
+# Brand orange — app bar, CTAs, hero chrome (Action Éducation).
+PRIMARY_HEX = "#F15A24"
+# Brand navy — body / title text on white surfaces.
+NAVY_HEX = "#29217E"
+# Alias kept for older imports / docs.
+ACCENT_HEX = PRIMARY_HEX
 SURFACE_HEX = "#FFFFFF"
-APP_BAR_TEXT_HEX = "#FFFFFF"
+# Navy labels on orange app bar (Action Éducation).
+APP_BAR_TEXT_HEX = NAVY_HEX
 
-# Primary scale — v_500 is the institutional blue/purple.
+# Primary scale — v_500 is Action Éducation orange.
+# White text on v_500 is ~3.4:1 (OK for large UI chrome); use v_600 for
+# filled controls that need WCAG AA normal text with light labels.
 BRAND_PRIMARY = {
-    "v_100": "#DFDEEC",
-    "v_200": "#B4B1D2",
-    "v_300": "#7F7AB2",
-    "v_400": "#544D98",
-    "v_500": PRIMARY_HEX,
-    "v_600": "#1F195E",
-}
-
-# Secondary / accent scale — v_500 is the brand orange.
-# White text on v_500 fails WCAG AA (~3.4:1); use v_600 for filled
-# controls that need light text, or place accent on white with dark text.
-BRAND_SECONDARY = {
     "v_100": "#FDE6DE",
     "v_200": "#FAC5B2",
     "v_300": "#F79C7C",
     "v_400": "#F37345",
-    "v_500": ACCENT_HEX,
+    "v_500": PRIMARY_HEX,
     "v_600": "#9D3A17",
+}
+
+# Secondary scale — v_500 is institutional navy (text / secondary chrome).
+BRAND_SECONDARY = {
+    "v_100": "#DFDEEC",
+    "v_200": "#B4B1D2",
+    "v_300": "#7F7AB2",
+    "v_400": "#544D98",
+    "v_500": NAVY_HEX,
+    "v_600": "#1F195E",
 }
 
 BRAND_COLORS = {
@@ -41,14 +47,13 @@ BRAND_COLORS = {
     "secondary": BRAND_SECONDARY,
 }
 
-# Remap tokens so chrome that expects light text does not sit on orange.
 TOKEN_MAPPING = {
-    # Default KDS maps appBar → brand.secondary.v_400 (would be orange here).
+    # Chrome / hero: brand orange.
     "appBar": "brand.primary.v_500",
     "appBarDark": "brand.primary.v_600",
-    # Secondary token used as fill + light text: use darker orange (AA).
-    "secondary": "brand.secondary.v_600",
-    "secondaryDark": "brand.secondary.v_600",
+    # Primary fill + light text: darker orange (AA).
+    "primary": "brand.primary.v_600",
+    "primaryDark": "brand.primary.v_600",
 }
 
 

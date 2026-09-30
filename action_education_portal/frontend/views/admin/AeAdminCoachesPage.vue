@@ -1,123 +1,257 @@
 <template>
-  <div
-    class="ae-page"
-    :style="{ color: $themeTokens.text }"
+
+  <AeListPage
+    :title="coachesTitle$()"
+    :countLabel="coachesCount$({ count: rows.length })"
+    :subtitle="coachesSubtitle$()"
+    :action="{ label: addCoachAction$(), onClick: openCreatePanel }"
+    :bannerTitle="coachesBannerTitle$()"
+    :bannerSubtitle="coachesBannerSubtitle$()"
+    bannerIcon="coach"
+    :bannerArt="bannerArt"
+    :loading="loading"
+    :items="rows"
+    :searchFields="['fullName', 'username']"
+    :searchLabel="coachesSearchLabel$()"
+    :searchPlaceholder="usersSearchPlaceholder$()"
+    :sortOptions="sortOptions"
+    :emptyText="coachesEmpty$()"
+    :noMatchText="coachesNoMatch$()"
+    :totalLabel="count => coachesCount$({ count })"
   >
-    <h1 class="title">
-      {{ coachesTitle$() }}
-    </h1>
-
-    <KCircularLoader
-      v-if="loading"
-      :delay="false"
-    />
-
-    <p
-      v-else-if="!coaches.length"
-      :style="{ color: $themeTokens.annotation }"
-    >
-      {{ learnersEmpty$() }}
-    </p>
-
-    <ul
-      v-else
-      class="list"
-    >
-      <li
-        v-for="coach in coaches"
-        :key="coach.id"
-        class="row"
-        :style="{
-          backgroundColor: $themeTokens.surface,
-          borderColor: $themeTokens.fineLine,
-        }"
+    <template #head>
+      <th scope="col">
+        {{ columnFullName$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-cell-secondary"
       >
-        <p class="name">
-          {{ coach.full_name || coach.username }}
-        </p>
-        <p :style="{ color: $themeTokens.annotation }">
-          {{ coach.username }}
-        </p>
-      </li>
-    </ul>
-  </div>
+        {{ usernameLabel$() }}
+      </th>
+      <th scope="col">
+        {{ columnRole$() }}
+      </th>
+      <th scope="col">
+        {{ columnGroups$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-cell-shrink"
+      >
+        {{ columnActions$() }}
+      </th>
+    </template>
+    <template #row="{ item, openUp }">
+      <td>
+        <span class="ae-list-cell-main">
+          <AeAvatar
+            :name="item.fullName"
+            :toneKey="item.username"
+          />
+          <span class="ae-list-cell-name">{{ item.fullName }}</span>
+        </span>
+      </td>
+      <td class="ae-list-cell-nowrap ae-list-cell-secondary">
+        {{ item.username }}
+      </td>
+      <td class="ae-list-cell-nowrap">
+        {{ item.role }}
+      </td>
+      <td class="ae-list-cell-nowrap">
+        {{ item.groupCount }}
+      </td>
+      <td class="ae-list-cell-shrink">
+        <AeRowActions
+          :primaryLabel="viewProfile$()"
+          :primaryAriaLabel="viewProfileOf$({ name: item.fullName })"
+          :primaryHref="item.href"
+          :moreLabel="moreActionsFor$({ name: item.fullName })"
+          :menuItems="[
+            { label: editAccount$(), href: item.href },
+            { label: manageAllAccounts$(), href: `${facilityUsersPath}/` },
+          ]"
+          :openUp="openUp"
+        />
+      </td>
+    </template>
+    <template #extra>
+      <AeUserCreatePanel
+        :open="createPanelOpen"
+        :facilityId="userFacilityId"
+        :defaultKind="coachKind"
+        @close="createPanelOpen = false"
+        @created="fetchUsers"
+      />
+    </template>
+  </AeListPage>
+
 </template>
 
+
 <script>
-  import { onMounted, ref } from 'vue';
+
+  import { computed, onMounted, ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
+  import urls from 'kolibri/urls';
   import { UserKinds } from 'kolibri/constants';
+  import { currentLanguage } from 'kolibri/utils/i18n';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
   import { portalStrings } from '../../strings';
   import { useAePermissions } from '../../composables/useAePermissions';
+  import AeAvatar from '../AeAvatar';
+  import AeRowActions from '../AeRowActions';
+  import AeListPage from '../AeListPage';
+  import AeUserCreatePanel from './AeUserCreatePanel';
+
+  const COACH_KINDS = [UserKinds.COACH, UserKinds.ASSIGNABLE_COACH, UserKinds.ADMIN];
 
   export default {
     name: 'AeAdminCoachesPage',
+    components: { AeListPage, AeAvatar, AeRowActions, AeUserCreatePanel },
     setup() {
-      const { coachesTitle$, learnersEmpty$ } = portalStrings;
+      const {
+        coachesTitle$,
+        coachesCount$,
+        coachesSubtitle$,
+        addCoachAction$,
+        coachesBannerTitle$,
+        coachesBannerSubtitle$,
+        coachesSearchLabel$,
+        usersSearchPlaceholder$,
+        sortByName$,
+        sortByGroups$,
+        columnFullName$,
+        usernameLabel$,
+        columnRole$,
+        columnGroups$,
+        columnActions$,
+        viewProfile$,
+        viewProfileOf$,
+        moreActionsFor$,
+        editAccount$,
+        manageAllAccounts$,
+        coachesEmpty$,
+        coachesNoMatch$,
+        spaceAdmin$,
+        spaceCoach$,
+      } = portalStrings;
       const { userFacilityId } = useAePermissions();
-      const loading = ref(true);
-      const coaches = ref([]);
 
-      function isCoachUser(user) {
-        return Boolean(
-          (user.roles || []).find(
-            role =>
-              role.kind === UserKinds.COACH ||
-              role.kind === UserKinds.ASSIGNABLE_COACH ||
-              role.kind === UserKinds.ADMIN,
-          ),
-        );
+      const route = useRoute();
+      const router = useRouter();
+      const loading = ref(true);
+      const users = ref([]);
+      const classrooms = ref([]);
+      const createPanelOpen = ref(false);
+
+      function openCreatePanel() {
+        createPanelOpen.value = true;
+      }
+
+      // Accounts are created and edited in Kolibri facility management.
+      const facilityUsersPath = computed(
+        () =>
+          `${urls['kolibri:kolibri.plugins.facility:facility_management']()}#/${userFacilityId.value}/users`,
+      );
+
+      const groupCounts = computed(() => {
+        const counts = {};
+        classrooms.value.forEach(classroom => {
+          (classroom.coaches || []).forEach(coach => {
+            counts[coach.id] = (counts[coach.id] || 0) + 1;
+          });
+        });
+        return counts;
+      });
+
+      const rows = computed(() =>
+        users.value
+          .filter(user => (user.roles || []).some(role => COACH_KINDS.includes(role.kind)))
+          .map(user => {
+            const isAdmin = user.roles.some(role => role.kind === UserKinds.ADMIN);
+            return {
+              id: user.id,
+              fullName: user.full_name || user.username,
+              username: user.username,
+              role: isAdmin ? spaceAdmin$() : spaceCoach$(),
+              groupCount: groupCounts.value[user.id] || 0,
+              href: `${facilityUsersPath.value}/${user.id}`,
+            };
+          }),
+      );
+
+      const collator = new Intl.Collator(currentLanguage, { sensitivity: 'base' });
+      const sortOptions = [
+        {
+          value: 'name',
+          label: sortByName$(),
+          compare: (a, b) => collator.compare(a.fullName, b.fullName),
+        },
+        { value: 'groups', label: sortByGroups$(), compare: (a, b) => b.groupCount - a.groupCount },
+      ];
+
+      function fetchUsers() {
+        return Promise.allSettled([
+          FacilityUserResource.fetchCollection({
+            getParams: { member_of: userFacilityId.value },
+            force: true,
+          }),
+          ClassroomResource.fetchCollection({
+            getParams: { facility: userFacilityId.value },
+            force: true,
+          }),
+        ]).then(([usersResult, classroomsResult]) => {
+          users.value = usersResult.status === 'fulfilled' ? usersResult.value || [] : [];
+          // Group counts are a bonus: the list still shows if classes fail to load.
+          classrooms.value =
+            classroomsResult.status === 'fulfilled' ? classroomsResult.value || [] : [];
+          loading.value = false;
+        });
       }
 
       onMounted(() => {
-        FacilityUserResource.fetchCollection({
-          getParams: { member_of: userFacilityId.value },
-        })
-          .then(users => {
-            coaches.value = (users || []).filter(isCoachUser);
-          })
-          .finally(() => {
-            loading.value = false;
-          });
+        fetchUsers();
+        if (route.query.creer) {
+          openCreatePanel();
+          router.replace({ query: {} });
+        }
       });
 
       return {
         coachesTitle$,
-        learnersEmpty$,
+        coachesCount$,
+        coachesSubtitle$,
+        addCoachAction$,
+        coachesBannerTitle$,
+        coachesBannerSubtitle$,
+        coachesSearchLabel$,
+        usersSearchPlaceholder$,
+        columnFullName$,
+        usernameLabel$,
+        columnRole$,
+        columnGroups$,
+        columnActions$,
+        viewProfile$,
+        viewProfileOf$,
+        moreActionsFor$,
+        editAccount$,
+        manageAllAccounts$,
+        coachesEmpty$,
+        coachesNoMatch$,
+        bannerArt: urls.static('action_education_portal/ae-users-banner.jpg'),
+        facilityUsersPath,
+        userFacilityId,
+        coachKind: UserKinds.COACH,
+        createPanelOpen,
+        openCreatePanel,
+        fetchUsers,
         loading,
-        coaches,
+        rows,
+        sortOptions,
       };
     },
   };
+
 </script>
-
-<style lang="scss" scoped>
-  .ae-page {
-    max-width: 880px;
-    margin: 0 auto;
-  }
-
-  .title {
-    margin: 0 0 16px;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .row {
-    margin-bottom: 12px;
-    padding: 16px;
-    border: 1px solid;
-    border-radius: 8px;
-  }
-
-  .name {
-    margin: 0 0 4px;
-    font-weight: 600;
-  }
-</style>

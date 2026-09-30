@@ -1,356 +1,465 @@
 <template>
-  <div
-    class="ae-page"
-    :style="{ color: $themeTokens.text }"
+
+  <AeListPage
+    :title="trainerSessionsTitle$()"
+    :countLabel="sessionsCount$({ count: rows.length })"
+    :subtitle="trainerSessionsIntro$()"
+    :action="canManageSessions ? { label: createSessionTitle$(), onClick: openCreatePanel } : null"
+    :bannerTitle="sessionsBannerTitle$()"
+    :bannerSubtitle="sessionsBannerSubtitle$()"
+    bannerIcon="schedule"
+    :bannerArt="bannerArt"
+    :loading="canManageSessions && isLoadingSessions"
+    :errorText="listError"
+    :items="rows"
+    :searchFields="['course', 'location']"
+    :searchLabel="sessionsSearchLabel$()"
+    :searchPlaceholder="sessionsSearchPlaceholder$()"
+    :sortOptions="sortOptions"
+    :emptyText="canManageSessions ? sessionsEmpty$() : trainerStaffOnly$()"
+    :noMatchText="sessionsNoMatch$()"
+    :totalLabel="count => sessionsCount$({ count })"
+    @retry="refresh"
   >
-    <h1 class="title">
-      {{ trainerSessionsTitle$() }}
-    </h1>
-
-    <p
-      v-if="!canManageSessions"
-      role="alert"
-    >
-      {{ trainerStaffOnly$() }}
-    </p>
-
-    <template v-else>
-      <p
-        class="intro"
-        :style="{ color: $themeTokens.annotation }"
+    <template #head>
+      <th
+        scope="col"
+        class="ae-list-cell-grow"
       >
-        {{ trainerSessionsIntro$() }}
-      </p>
-
-      <section
-        class="create-card"
-        :style="{
-          backgroundColor: $themeTokens.surface,
-          borderColor: $themeTokens.fineLine,
-        }"
+        {{ columnCourse$() }}
+      </th>
+      <th scope="col">
+        {{ columnWhen$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-cell-secondary"
       >
-        <h2 class="section-title">
-          {{ createSessionTitle$() }}
-        </h2>
-        <KTextbox
-          v-model="form.title"
-          :label="trainingTitleLabel$()"
-          :floatingLabel="false"
-          autocomplete="off"
-          :invalid="Boolean(formError) && !form.title.trim()"
-          :invalidText="formError"
+        {{ locationLabel$() }}
+      </th>
+      <th scope="col">
+        {{ colStatus$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-cell-shrink"
+      >
+        {{ columnActions$() }}
+      </th>
+    </template>
+    <template #row="{ item }">
+      <td class="ae-list-cell-grow">
+        <span class="ae-list-cell-main">
+          <AeAvatar
+            :name="item.course"
+            :toneKey="item.courseId"
+            icon="schedule"
+          />
+          <span class="ae-list-cell-name">{{ item.course }}</span>
+        </span>
+      </td>
+      <td class="ae-list-cell-nowrap">
+        {{ item.whenLabel }}
+      </td>
+      <td class="ae-list-cell-nowrap ae-list-cell-secondary">
+        {{ item.location }}
+      </td>
+      <td class="ae-list-cell-nowrap">
+        <span
+          class="ae-coach-status"
+          :class="`ae-coach-status-${item.status.replace('_', '-')}`"
+        >{{ item.statusLabel }}</span>
+      </td>
+      <td class="ae-list-cell-shrink">
+        <AeRowActions
+          :primaryLabel="openSessionAction$()"
+          :primaryAriaLabel="openSessionOf$({ name: item.course })"
+          :primaryHref="item.href"
         />
-        <KTextbox
-          v-model="form.location"
-          :label="locationLabel$()"
-          :floatingLabel="false"
-          autocomplete="off"
-        />
-        <div class="datetime-row">
-          <label class="field">
-            <span class="field-label">{{ dateLabel$() }}</span>
-            <input
-              v-model="form.date"
-              class="native-input"
-              type="date"
-              required
-              :style="{
-                borderColor: $themeTokens.fineLine,
-                color: $themeTokens.text,
-                backgroundColor: $themeTokens.surface,
-              }"
+      </td>
+    </template>
+
+    <template #extra>
+      <AeSidePanel
+        :open="createPanelOpen"
+        :title="createSessionTitle$()"
+        :subtitle="createSessionSubtitle$()"
+        icon="plus"
+        titleId="ae-create-session-title"
+        @close="closeCreatePanel"
+      >
+        <form
+          novalidate
+          @submit.prevent="createSession"
+        >
+          <div class="ae-side-panel-field">
+            <label for="ae-cs-course">{{ filterTrainingLabel$() }}</label>
+            <span class="ae-side-panel-affix">
+              <select
+                id="ae-cs-course"
+                ref="courseField"
+                v-model="form.trainingId"
+                :aria-invalid="fieldErrors.training ? 'true' : 'false'"
+                aria-describedby="ae-cs-course-error"
+              >
+                <option value="">
+                  {{ selectCourseOption$() }}
+                </option>
+                <option
+                  v-for="training in trainingOptions"
+                  :key="training.id"
+                  :value="training.id"
+                >
+                  {{ training.title }}
+                </option>
+              </select>
+              <AeIcon
+                name="chevronDown"
+                :size="18"
+              />
+            </span>
+            <p
+              v-if="fieldErrors.training"
+              id="ae-cs-course-error"
+              class="ae-side-panel-error"
             >
-          </label>
-          <label class="field">
-            <span class="field-label">{{ timeLabel$() }}</span>
-            <input
-              v-model="form.time"
-              class="native-input"
-              type="time"
-              required
-              :style="{
-                borderColor: $themeTokens.fineLine,
-                color: $themeTokens.text,
-                backgroundColor: $themeTokens.surface,
-              }"
-            >
-          </label>
-        </div>
-        <p
-          v-if="formError"
-          class="hint"
-          role="alert"
-          :style="{ color: $themeTokens.error }"
-        >
-          {{ formError }}
-        </p>
-        <KButton
-          :text="createSessionAction$()"
-          :primary="true"
-          :disabled="saving"
-          @click="createSession"
-        />
-        <p
-          v-if="saveMessage"
-          role="status"
-        >
-          {{ saveMessage }}
-        </p>
-      </section>
-
-      <KCircularLoader
-        v-if="loading"
-        :delay="false"
-      />
-
-      <p
-        v-else-if="!sessions.length"
-        :style="{ color: $themeTokens.annotation }"
-      >
-        {{ sessionsEmpty$() }}
-      </p>
-
-      <ul
-        v-else
-        class="session-list"
-      >
-        <li
-          v-for="session in sessions"
-          :key="session.id"
-          class="session-item"
-          :style="{
-            backgroundColor: $themeTokens.surface,
-            borderColor: $themeTokens.fineLine,
-          }"
-        >
-          <div>
-            <p class="session-title">
-              {{ trainingTitle(session) }}
+              {{ fieldErrors.training }}
             </p>
-            <p :style="{ color: $themeTokens.annotation }">
-              {{ sessionMeta(session) }}
+            <p
+              v-else-if="!trainingOptions.length"
+              class="ae-coach-sessions-hint"
+            >
+              {{ sessionNeedsCourseHint$() }}
             </p>
           </div>
-          <router-link
-            :to="{ name: 'AeCoachSessionDetail', params: { sessionId: session.id } }"
-            class="attendance-link"
-            :style="{ color: $themeTokens.primary }"
+
+          <div class="ae-side-panel-field">
+            <label for="ae-cs-location">{{ locationLabel$() }}</label>
+            <input
+              id="ae-cs-location"
+              v-model="form.location"
+              type="text"
+              maxlength="200"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="ae-side-panel-row">
+            <div class="ae-side-panel-field">
+              <label for="ae-cs-date">{{ dateLabel$() }}</label>
+              <input
+                id="ae-cs-date"
+                v-model="form.date"
+                type="date"
+                :aria-invalid="fieldErrors.dateTime ? 'true' : 'false'"
+                aria-describedby="ae-cs-datetime-error"
+              >
+            </div>
+            <div class="ae-side-panel-field">
+              <label for="ae-cs-time">{{ timeLabel$() }}</label>
+              <input
+                id="ae-cs-time"
+                v-model="form.time"
+                type="time"
+                :aria-invalid="fieldErrors.dateTime ? 'true' : 'false'"
+                aria-describedby="ae-cs-datetime-error"
+              >
+            </div>
+          </div>
+          <p
+            v-if="fieldErrors.dateTime"
+            id="ae-cs-datetime-error"
+            class="ae-side-panel-error"
           >
-            {{ openSessionAction$() }}
-          </router-link>
-        </li>
-      </ul>
+            {{ fieldErrors.dateTime }}
+          </p>
+
+          <p
+            v-if="formError"
+            class="ae-side-panel-form-error"
+            role="alert"
+          >
+            {{ formError }}
+          </p>
+        </form>
+
+        <template #footer>
+          <div class="ae-side-panel-foot-row">
+            <button
+              type="button"
+              class="ae-side-panel-btn-neutral"
+              @click="closeCreatePanel"
+            >
+              {{ cancelAction$() }}
+            </button>
+            <button
+              type="button"
+              class="ae-side-panel-btn-primary"
+              :disabled="isCreatingSession || !trainingOptions.length"
+              @click="createSession"
+            >
+              {{ createSession$() }}
+            </button>
+          </div>
+        </template>
+      </AeSidePanel>
     </template>
-  </div>
+  </AeListPage>
+
 </template>
 
+
 <script>
-  import { onMounted, reactive, ref } from 'vue';
+
+  import { computed, nextTick, onMounted, reactive, ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
+  import urls from 'kolibri/urls';
+  import { currentLanguage } from 'kolibri/utils/i18n';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { portalStrings } from '../../strings';
   import { useAePermissions } from '../../composables/useAePermissions';
   import { useTrainingApi } from '../../composables/useTrainingApi';
+  import { useAsyncPageLoad } from '../../composables/useAsyncPageLoad';
+  import AeAvatar from '../AeAvatar';
+  import AeIcon from '../AeIcon';
+  import AeListPage from '../AeListPage';
+  import AeRowActions from '../AeRowActions';
+  import AeSidePanel from '../AeSidePanel';
+
+  // Sessions last two hours unless the trainer changes it later.
+  const SESSION_HOURS = 2;
+
+  function pad(n) {
+    return String(n).padStart(2, '0');
+  }
+
+  // Next full hour, in the fields' local format.
+  function defaultDateTime() {
+    const d = new Date();
+    d.setMinutes(0, 0, 0);
+    d.setHours(d.getHours() + 1);
+    return {
+      date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+      time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+    };
+  }
+
+  function parseDateTimeToIso(date, time) {
+    const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date || '');
+    const timeMatch = /^(\d{2}):(\d{2})$/.exec(time || '');
+    if (!dateMatch || !timeMatch) {
+      return null;
+    }
+    const dt = new Date(
+      Number(dateMatch[1]),
+      Number(dateMatch[2]) - 1,
+      Number(dateMatch[3]),
+      Number(timeMatch[1]),
+      Number(timeMatch[2]),
+    );
+    return Number.isNaN(dt.getTime()) ? null : dt.toISOString();
+  }
 
   export default {
     name: 'AeCoachSessionsPage',
+    components: { AeAvatar, AeIcon, AeListPage, AeRowActions, AeSidePanel },
     setup() {
       const {
         trainerSessionsTitle$,
         trainerSessionsIntro$,
         trainerStaffOnly$,
-        createSessionTitle$,
-        trainingTitleLabel$,
-        locationLabel$,
-        dateLabel$,
-        timeLabel$,
-        createSessionAction$,
+        sessionsCount$,
+        sessionsBannerTitle$,
+        sessionsBannerSubtitle$,
+        sessionsSearchLabel$,
+        sessionsSearchPlaceholder$,
         sessionsEmpty$,
+        sessionsNoMatch$,
+        columnCourse$,
+        columnWhen$,
+        locationLabel$,
+        colStatus$,
+        columnActions$,
         openSessionAction$,
-        saveSuccess$,
-        saveError$,
-        sessionDateRequired$,
+        openSessionOf$,
+        sortByDate$,
+        sortByCourse$,
         sessionStatusScheduled$,
         sessionStatusInProgress$,
         sessionStatusCompleted$,
         sessionStatusCancelled$,
+        createSessionTitle$,
+        createSessionSubtitle$,
+        createSession$,
+        filterTrainingLabel$,
+        selectCourseOption$,
+        sessionNeedsCourseHint$,
+        dateLabel$,
+        timeLabel$,
+        sessionCourseRequired$,
+        sessionDateRequired$,
+        sessionCreated$,
+        cancelAction$,
+        saveError$,
+        loadError$,
+        loadTimeout$,
       } = portalStrings;
 
-      const { canManageSessions, currentUserId, userFacilityId } = useAePermissions();
+      const route = useRoute();
+      const router = useRouter();
+      const { createSnackbar } = useSnackbar();
+      const { canManageSessions, currentUserId } = useAePermissions();
       const api = useTrainingApi();
+      const {
+        isLoading: isLoadingSessions,
+        loadError: listLoadError,
+        runLoad,
+      } = useAsyncPageLoad('isLoadingSessions');
 
-      const loading = ref(true);
-      const saving = ref(false);
       const sessions = ref([]);
       const trainingsById = ref({});
+      const createPanelOpen = ref(false);
+      const isCreatingSession = ref(false);
+      const courseField = ref(null);
       const formError = ref('');
-      const saveMessage = ref('');
-      const form = reactive({
-        title: '',
-        location: '',
-        date: '',
-        time: '',
-      });
+      const fieldErrors = reactive({ training: '', dateTime: '' });
+      const form = reactive({ trainingId: '', location: '', date: '', time: '' });
 
-      function pad(n) {
-        return String(n).padStart(2, '0');
-      }
+      const collator = new Intl.Collator(currentLanguage, { sensitivity: 'base' });
 
-      function defaultDateTime() {
-        const d = new Date();
-        d.setMinutes(0, 0, 0);
-        d.setHours(d.getHours() + 1);
-        return {
-          date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
-          time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
-        };
-      }
+      const trainingOptions = computed(() =>
+        Object.values(trainingsById.value).sort((a, b) => collator.compare(a.title, b.title)),
+      );
 
-      function trainingTitle(session) {
-        const training = trainingsById.value[session.training];
-        return (training && training.title) || session.training;
-      }
-
-      function statusLabel(status) {
-        if (status === 'in_progress') {
-          return sessionStatusInProgress$();
-        }
-        if (status === 'completed') {
-          return sessionStatusCompleted$();
-        }
-        if (status === 'cancelled') {
-          return sessionStatusCancelled$();
-        }
-        return sessionStatusScheduled$();
-      }
-
-      function formatWhen(iso) {
-        if (!iso) {
+      const listError = computed(() => {
+        if (!listLoadError.value) {
           return '';
         }
-        const dt = new Date(iso);
-        if (Number.isNaN(dt.getTime())) {
-          return String(iso);
+        if (listLoadError.value.code === 'AE_REQUEST_TIMEOUT') {
+          return loadTimeout$();
         }
-        return dt.toLocaleString('fr-FR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        });
-      }
+        return loadError$();
+      });
 
-      function sessionMeta(session) {
-        const parts = [];
-        const when = formatWhen(session.start_datetime);
-        if (when) {
-          parts.push(when);
-        }
-        if (session.location) {
-          parts.push(session.location);
-        }
-        if (session.status) {
-          parts.push(statusLabel(session.status));
-        }
-        return parts.join(' · ');
-      }
+      const STATUS_LABELS = {
+        scheduled: sessionStatusScheduled$,
+        in_progress: sessionStatusInProgress$,
+        completed: sessionStatusCompleted$,
+        cancelled: sessionStatusCancelled$,
+      };
 
-      function parseDateTimeToIso(date, time) {
-        if (!date || !time) {
-          return null;
-        }
-        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
-        const timeMatch = /^(\d{2}):(\d{2})$/.exec(time);
-        if (!match || !timeMatch) {
-          return null;
-        }
-        const dt = new Date(
-          Number(match[1]),
-          Number(match[2]) - 1,
-          Number(match[3]),
-          Number(timeMatch[1]),
-          Number(timeMatch[2]),
-        );
-        if (Number.isNaN(dt.getTime())) {
-          return null;
-        }
-        return dt.toISOString();
-      }
+      const whenFormat = new Intl.DateTimeFormat(currentLanguage, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
 
-      function refresh() {
-        loading.value = true;
-        return Promise.all([api.fetchTrainings(), api.fetchSessions()])
-          .then(([trainings, sessionList]) => {
+      const rows = computed(() =>
+        sessions.value.map(session => {
+          const training = trainingsById.value[session.training];
+          const start = new Date(session.start_datetime);
+          const status = STATUS_LABELS[session.status] ? session.status : 'scheduled';
+          return {
+            id: session.id,
+            courseId: session.training,
+            course: (training && training.title) || '',
+            start: start.getTime() || 0,
+            whenLabel: Number.isNaN(start.getTime()) ? '' : whenFormat.format(start),
+            location: session.location || '',
+            status,
+            statusLabel: STATUS_LABELS[status](),
+            href: router.resolve({
+              name: 'AeCoachSessionDetail',
+              params: { sessionId: session.id },
+            }).href,
+          };
+        }),
+      );
+
+      const sortOptions = [
+        { value: 'date', label: sortByDate$(), compare: (a, b) => b.start - a.start },
+        {
+          value: 'course',
+          label: sortByCourse$(),
+          compare: (a, b) => collator.compare(a.course, b.course),
+        },
+      ];
+
+      async function refresh() {
+        try {
+          await runLoad(async () => {
+            const [trainings, sessionList] = await Promise.all([
+              api.fetchTrainings(),
+              api.fetchSessions(),
+            ]);
             const map = {};
-            (trainings || []).forEach(t => {
-              map[t.id] = t;
+            (trainings || []).forEach(training => {
+              map[training.id] = training;
             });
             trainingsById.value = map;
             sessions.value = sessionList || [];
-          })
-          .finally(() => {
-            loading.value = false;
           });
+        } catch (e) {
+          sessions.value = [];
+        }
       }
 
-      function createSession() {
+      function openCreatePanel() {
+        Object.assign(form, { trainingId: '', location: '', ...defaultDateTime() });
+        fieldErrors.training = '';
+        fieldErrors.dateTime = '';
         formError.value = '';
-        saveMessage.value = '';
-        if (!form.title.trim()) {
-          formError.value = saveError$();
-          return;
-        }
+        createPanelOpen.value = true;
+        nextTick(() => courseField.value && courseField.value.focus());
+      }
+
+      function closeCreatePanel() {
+        createPanelOpen.value = false;
+      }
+
+      async function createSession() {
+        formError.value = '';
+        fieldErrors.training = form.trainingId ? '' : sessionCourseRequired$();
         const startIso = parseDateTimeToIso(form.date, form.time);
-        if (!startIso) {
-          formError.value = sessionDateRequired$();
+        fieldErrors.dateTime = startIso ? '' : sessionDateRequired$();
+        if (fieldErrors.training || fieldErrors.dateTime) {
           return;
         }
         const end = new Date(startIso);
-        end.setHours(end.getHours() + 2);
-        saving.value = true;
-        api
-          .createTraining({
-            title: form.title.trim(),
-            description: '',
-            facility: userFacilityId.value,
-            status: 'published',
-            responsible: currentUserId.value,
-          })
-          .then(training =>
-            api.createSession({
-              training: training.id,
-              start_datetime: startIso,
-              end_datetime: end.toISOString(),
-              location: form.location.trim(),
-              trainer: currentUserId.value,
-              status: 'scheduled',
-              notes: '',
-            }),
-          )
-          .then(() => {
-            saveMessage.value = saveSuccess$();
-            form.title = '';
-            form.location = '';
-            const defaults = defaultDateTime();
-            form.date = defaults.date;
-            form.time = defaults.time;
-            return refresh();
-          })
-          .catch(() => {
-            formError.value = saveError$();
-          })
-          .finally(() => {
-            saving.value = false;
+        end.setHours(end.getHours() + SESSION_HOURS);
+        isCreatingSession.value = true;
+        try {
+          await api.createSession({
+            training: form.trainingId,
+            start_datetime: startIso,
+            end_datetime: end.toISOString(),
+            location: form.location.trim(),
+            trainer: currentUserId.value,
+            status: 'scheduled',
+            notes: '',
           });
+        } catch (e) {
+          formError.value = saveError$();
+          return;
+        } finally {
+          isCreatingSession.value = false;
+        }
+        closeCreatePanel();
+        createSnackbar(sessionCreated$());
+        await refresh();
       }
 
       onMounted(() => {
-        const defaults = defaultDateTime();
-        form.date = defaults.date;
-        form.time = defaults.time;
-        if (canManageSessions.value) {
-          refresh();
-        } else {
-          loading.value = false;
+        if (!canManageSessions.value) {
+          isLoadingSessions.value = false;
+          return;
+        }
+        refresh();
+        if (route.query.creer) {
+          openCreatePanel();
+          router.replace({ query: {} });
         }
       });
 
@@ -358,106 +467,87 @@
         trainerSessionsTitle$,
         trainerSessionsIntro$,
         trainerStaffOnly$,
-        createSessionTitle$,
-        trainingTitleLabel$,
+        sessionsCount$,
+        sessionsBannerTitle$,
+        sessionsBannerSubtitle$,
+        sessionsSearchLabel$,
+        sessionsSearchPlaceholder$,
+        sessionsEmpty$,
+        sessionsNoMatch$,
+        columnCourse$,
+        columnWhen$,
         locationLabel$,
+        colStatus$,
+        columnActions$,
+        openSessionAction$,
+        openSessionOf$,
+        createSessionTitle$,
+        createSessionSubtitle$,
+        createSession$,
+        filterTrainingLabel$,
+        selectCourseOption$,
+        sessionNeedsCourseHint$,
         dateLabel$,
         timeLabel$,
-        createSessionAction$,
-        sessionsEmpty$,
-        openSessionAction$,
+        cancelAction$,
+        bannerArt: urls.static('action_education_portal/ae-users-banner.jpg'),
         canManageSessions,
-        loading,
-        saving,
-        sessions,
+        isLoadingSessions,
+        listError,
+        rows,
+        sortOptions,
+        trainingOptions,
+        createPanelOpen,
+        isCreatingSession,
+        courseField,
         form,
+        fieldErrors,
         formError,
-        saveMessage,
-        trainingTitle,
-        sessionMeta,
+        openCreatePanel,
+        closeCreatePanel,
         createSession,
+        refresh,
       };
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
-  .ae-page {
-    max-width: 800px;
-    margin: 0 auto;
-  }
 
-  .title {
-    margin: 0 0 8px;
-    font-size: 1.5rem;
+  .ae-coach-status {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 14px;
     font-weight: 700;
+    border-radius: 999px;
   }
 
-  .intro,
-  .hint {
-    margin: 0 0 16px;
+  .ae-coach-status-scheduled {
+    color: #0b5aa3;
+    background: var(--ae-kpi-blue);
   }
 
-  .create-card,
-  .session-item {
-    margin-bottom: 16px;
-    padding: 16px;
-    border: 1px solid;
-    border-radius: 8px;
+  .ae-coach-status-in-progress {
+    color: var(--ae-orange-deep);
+    background: var(--ae-orange-wash);
   }
 
-  .section-title,
-  .session-title {
-    margin: 0 0 12px;
-    font-size: 1.15rem;
-    font-weight: 600;
+  .ae-coach-status-completed {
+    color: #1b6e3c;
+    background: var(--ae-kpi-green);
   }
 
-  .datetime-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 12px;
+  .ae-coach-status-cancelled {
+    color: var(--ae-text-muted);
+    background: var(--ae-surface-muted);
   }
 
-  .field {
-    display: flex;
-    flex: 1 1 140px;
-    flex-direction: column;
-    gap: 6px;
+  .ae-coach-sessions-hint {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--ae-text-subtle);
   }
 
-  .field-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-  }
-
-  .native-input {
-    min-height: 44px;
-    padding: 8px 10px;
-    font-size: 1rem;
-    border: 1px solid;
-    border-radius: 4px;
-  }
-
-  .session-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .session-item {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .attendance-link {
-    min-height: 44px;
-    padding: 8px 0;
-    font-weight: 600;
-    text-decoration: none;
-  }
 </style>

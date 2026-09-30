@@ -1,102 +1,242 @@
 <template>
-  <div
-    class="ae-page"
-    :style="{ color: $themeTokens.text }"
+
+  <AeListPage
+    :title="libraryTitle$()"
+    :countLabel="channelsCount$({ count: rows.length })"
+    :subtitle="contentSubtitle$()"
+    :note="libraryOpenInKolibriHint$()"
+    :bannerTitle="libraryBannerTitle$()"
+    :bannerSubtitle="libraryBannerSubtitle$()"
+    bannerIcon="library"
+    :bannerArt="bannerArt"
+    :loading="isLoadingLibrary"
+    :errorText="errorMessage"
+    :items="rows"
+    :searchFields="['name', 'description', 'language']"
+    :searchLabel="channelsSearchLabel$()"
+    :searchPlaceholder="channelsSearchPlaceholder$()"
+    :sortOptions="sortOptions"
+    :emptyText="catalogEmpty$()"
+    :noMatchText="channelsNoMatch$()"
+    :totalLabel="count => channelsCount$({ count })"
+    @retry="refresh"
   >
-    <h1 class="title">
-      {{ libraryTitle$() }}
-    </h1>
+    <template #head>
+      <th
+        scope="col"
+        class="ae-list-cell-grow"
+      >
+        {{ columnChannel$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-cell-secondary"
+      >
+        {{ columnLanguage$() }}
+      </th>
+      <th scope="col">
+        {{ columnResources$() }}
+      </th>
+      <th
+        scope="col"
+        class="ae-list-cell-shrink"
+      >
+        {{ columnActions$() }}
+      </th>
+    </template>
+    <template #row="{ item }">
+      <td class="ae-list-cell-grow">
+        <span class="ae-list-cell-main">
+          <img
+            v-if="item.thumbnail"
+            class="ae-library-thumb"
+            :src="item.thumbnail"
+            alt=""
+          >
+          <AeAvatar
+            v-else
+            :name="item.name"
+            :toneKey="item.id"
+            icon="channel"
+          />
+          <span class="ae-library-text">
+            <span class="ae-list-cell-name">{{ item.name }}</span>
+            <span
+              v-if="item.description"
+              class="ae-library-description"
+            >{{ item.description }}</span>
+          </span>
+        </span>
+      </td>
+      <td class="ae-list-cell-nowrap ae-list-cell-secondary">
+        {{ item.language }}
+      </td>
+      <td class="ae-list-cell-nowrap">
+        {{ item.resources }}
+      </td>
+      <td class="ae-list-cell-shrink">
+        <AeRowActions
+          :primaryLabel="browseChannel$()"
+          :primaryAriaLabel="browseChannelOf$({ name: item.name })"
+          :primaryHref="item.href"
+          primaryTarget="_blank"
+        />
+      </td>
+    </template>
+  </AeListPage>
 
-    <KCircularLoader
-      v-if="loading"
-      :delay="false"
-    />
-
-    <p
-      v-else-if="!items.length"
-      :style="{ color: $themeTokens.annotation }"
-    >
-      {{ catalogEmpty$() }}
-    </p>
-
-    <div
-      v-else
-      class="cards"
-    >
-      <ContentCard
-        v-for="item in items"
-        :key="item.id"
-        :title="item.title"
-        :href="item.href"
-        icon="library"
-        :thumbnail="item.thumbnail"
-        :meta="item.meta"
-      />
-    </div>
-  </div>
 </template>
 
+
 <script>
-  import { onMounted, ref } from 'vue';
+
+  import { computed, onMounted, ref } from 'vue';
+  import urls from 'kolibri/urls';
+  import { currentLanguage } from 'kolibri/utils/i18n';
   import { portalStrings } from '../../strings';
   import { useLearnContent } from '../../composables/useLearnContent';
-  import ContentCard from '../ContentCard';
+  import { useAsyncPageLoad } from '../../composables/useAsyncPageLoad';
+  import { withTimeout } from '../../composables/useTrainingApi';
+  import AeAvatar from '../AeAvatar';
+  import AeListPage from '../AeListPage';
+  import AeRowActions from '../AeRowActions';
 
   export default {
     name: 'AeCoachLibraryPage',
-    components: {
-      ContentCard,
-    },
+    components: { AeAvatar, AeListPage, AeRowActions },
     setup() {
-      const { libraryTitle$, catalogEmpty$, channelMeta$ } = portalStrings;
+      const {
+        libraryTitle$,
+        channelsCount$,
+        contentSubtitle$,
+        libraryOpenInKolibriHint$,
+        libraryBannerTitle$,
+        libraryBannerSubtitle$,
+        channelsSearchLabel$,
+        channelsSearchPlaceholder$,
+        catalogEmpty$,
+        channelsNoMatch$,
+        columnChannel$,
+        columnLanguage$,
+        columnResources$,
+        columnActions$,
+        browseChannel$,
+        browseChannelOf$,
+        sortByName$,
+        sortByResources$,
+        loadError$,
+        loadTimeout$,
+      } = portalStrings;
       const { fetchChannels, channelHref, topicHref } = useLearnContent();
+      const {
+        isLoading: isLoadingLibrary,
+        loadError,
+        runLoad,
+      } = useAsyncPageLoad('isLoadingLibrary');
+      const channels = ref([]);
 
-      const loading = ref(true);
-      const items = ref([]);
-
-      onMounted(() => {
-        fetchChannels()
-          .then(channels =>
-            (channels || []).map(channel => ({
-              id: channel.id,
-              title: channel.name || channel.title,
-              href: channel.root ? topicHref(channel.root) : channelHref(channel.id),
-              thumbnail: channel.thumbnail || channel.thumbnail_url || '',
-              meta: channelMeta$({ count: channel.total_resource_count || 0 }),
-            })),
-          )
-          .then(result => {
-            items.value = result;
-          })
-          .finally(() => {
-            loading.value = false;
-          });
+      const errorMessage = computed(() => {
+        if (!loadError.value) {
+          return '';
+        }
+        if (loadError.value.code === 'AE_REQUEST_TIMEOUT') {
+          return loadTimeout$();
+        }
+        return loadError$();
       });
+
+      const rows = computed(() =>
+        channels.value.map(channel => ({
+          id: channel.id,
+          name: channel.name || channel.title,
+          description: channel.description || '',
+          language: channel.lang_name || '',
+          resources: channel.total_resource_count || 0,
+          thumbnail: channel.thumbnail || channel.thumbnail_url || '',
+          href: channel.root ? topicHref(channel.root) : channelHref(channel.id),
+        })),
+      );
+
+      const collator = new Intl.Collator(currentLanguage, { sensitivity: 'base' });
+      const sortOptions = [
+        {
+          value: 'name',
+          label: sortByName$(),
+          compare: (a, b) => collator.compare(a.name, b.name),
+        },
+        {
+          value: 'resources',
+          label: sortByResources$(),
+          compare: (a, b) => b.resources - a.resources,
+        },
+      ];
+
+      async function refresh() {
+        try {
+          await runLoad(async () => {
+            channels.value = (await withTimeout(fetchChannels())) || [];
+          });
+        } catch (e) {
+          channels.value = [];
+        }
+      }
+
+      onMounted(refresh);
 
       return {
         libraryTitle$,
+        channelsCount$,
+        contentSubtitle$,
+        libraryOpenInKolibriHint$,
+        libraryBannerTitle$,
+        libraryBannerSubtitle$,
+        channelsSearchLabel$,
+        channelsSearchPlaceholder$,
         catalogEmpty$,
-        loading,
-        items,
+        channelsNoMatch$,
+        columnChannel$,
+        columnLanguage$,
+        columnResources$,
+        columnActions$,
+        browseChannel$,
+        browseChannelOf$,
+        bannerArt: urls.static('action_education_portal/ae-users-banner.jpg'),
+        isLoadingLibrary,
+        errorMessage,
+        rows,
+        sortOptions,
+        refresh,
       };
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
-  .ae-page {
-    max-width: 960px;
-    margin: 0 auto;
+
+  .ae-library-thumb {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    background: var(--ae-surface-muted);
+    border-radius: var(--ae-radius-sm);
   }
 
-  .title {
-    margin: 0 0 16px;
-    font-size: 1.5rem;
-    font-weight: 700;
+  .ae-library-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.3;
   }
 
-  .cards {
-    display: grid;
-    gap: 12px;
+  .ae-library-description {
+    overflow: hidden;
+    font-size: 14px;
+    color: var(--ae-text-subtle);
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
+
 </style>

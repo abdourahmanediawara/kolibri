@@ -53,8 +53,7 @@
                   @click="toggleNav"
                 />
               </div>
-              <!-- display user details -->
-              <TotalPoints class="points" />
+              <!-- AE Apprendre: hide Kolibri points in side nav too -->
               <b>{{ fullName }}</b>
               <p
                 :style="{
@@ -281,7 +280,6 @@
   import useTour from 'kolibri/composables/useTour';
   import SyncStatusDisplay from '../../../SyncStatusDisplay';
   import LearnOnlyDeviceNotice from './LearnOnlyDeviceNotice';
-  import TotalPoints from './TotalPoints';
   import SideNavDivider from './SideNavDivider';
   import BottomNavigationBar from './BottomNavigationBar';
 
@@ -306,7 +304,6 @@
       SyncStatusDisplay,
       SideNavDivider,
       PrivacyInfoModal,
-      TotalPoints,
       LanguageSwitcherModal,
       BottomNavigationBar,
       TooltipTour,

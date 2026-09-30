@@ -1,5 +1,5 @@
 <template>
-  <AppBarPage :title="platformTitle$()">
+  <AppBarPage title="">
     <div
       class="ae-shell"
       :class="{ 'ae-shell--small': windowIsSmall }"

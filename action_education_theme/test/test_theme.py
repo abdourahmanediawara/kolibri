@@ -23,15 +23,19 @@ def test_brand_scales_have_required_material_keys():
 
 
 def test_primary_and_accent_anchors():
+    from action_education_theme.brand_colors import NAVY_HEX
+
     assert BRAND_PRIMARY["v_500"] == PRIMARY_HEX
-    assert BRAND_SECONDARY["v_500"] == ACCENT_HEX
+    assert BRAND_PRIMARY["v_500"] == ACCENT_HEX
+    assert BRAND_SECONDARY["v_500"] == NAVY_HEX
 
 
-def test_token_mapping_keeps_app_bar_on_primary():
+def test_token_mapping_keeps_app_bar_on_orange_primary():
     assert TOKEN_MAPPING["appBar"] == "brand.primary.v_500"
     assert TOKEN_MAPPING["appBarDark"] == "brand.primary.v_600"
     # Orange v_500 is not used as a light-text fill token.
-    assert TOKEN_MAPPING["secondary"] == "brand.secondary.v_600"
+    assert TOKEN_MAPPING["primary"] == "brand.primary.v_600"
+    assert TOKEN_MAPPING["primaryDark"] == "brand.primary.v_600"
 
 
 def test_theme_hook_returns_ae_apprendre_identity():
@@ -51,8 +55,11 @@ def test_theme_hook_returns_ae_apprendre_identity():
     assert theme["brandColors"] == BRAND_COLORS
     assert theme["tokenMapping"] == TOKEN_MAPPING
 
+    from action_education_theme.brand_colors import NAVY_HEX
+
     assert theme["appBar"]["background"] == PRIMARY_HEX
-    assert theme["appBar"]["textColor"] == "#FFFFFF"
+    assert theme["appBar"]["textColor"] == NAVY_HEX
+    assert theme["appBar"]["topLogo"]["href"]
 
     for section in ("appBar", "sideNav", "signIn"):
         logo = (

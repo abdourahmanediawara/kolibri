@@ -1,4 +1,5 @@
 from kolibri.core.auth.constants.user_kinds import ADMIN
+from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.auth.constants.user_kinds import LEARNER
@@ -26,10 +27,34 @@ class ActionEducationPortalPlugin(KolibriPluginBase):
 class PortalAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"
 
+    @property
+    def plugin_data(self):
+        """Sign-in page options, mirrored from Kolibri's own auth settings."""
+        from kolibri.core.auth.models import Facility
+        from kolibri.core.device.utils import get_device_setting
+
+        facility = Facility.get_default_facility()
+        return {
+            "defaultFacilityId": facility.id if facility else None,
+            "allowGuestAccess": get_device_setting("allow_guest_access"),
+            "allowLearnerSignUp": bool(facility and facility.dataset.learner_can_sign_up),
+        }
+
 
 @register_hook
 class PortalNavItem(NavigationHook):
     bundle_id = "side_nav"
+
+
+@register_hook
+class SignInPortalRedirect(RoleBasedRedirectHook):
+    """Visitors who are not signed in open the AE sign-in page first."""
+
+    roles = (ANONYMOUS,)
+
+    @property
+    def url(self):
+        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/connexion"
 
 
 @register_hook
@@ -40,7 +65,7 @@ class PortalRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/ae/learn"
+        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/apprenant"
 
 
 @register_hook
@@ -53,7 +78,7 @@ class CoachPortalRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/ae/coach"
+        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/formateur"
 
 
 @register_hook
@@ -66,4 +91,4 @@ class AdminPortalRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/ae/admin"
+        return self.plugin_url(ActionEducationPortalPlugin, "portal") + "#/administrateur"

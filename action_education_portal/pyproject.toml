@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "action-education-portal"
-version = "0.1.0"
+version = "0.1.16"
 description = "AE Apprendre learner portal for Kolibri (Action Éducation)"
 requires-python = ">=3.6"
 license = { text = "MIT" }

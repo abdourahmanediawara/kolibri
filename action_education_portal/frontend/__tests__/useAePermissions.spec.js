@@ -2,6 +2,9 @@
  * @jest-environment jsdom
  */
 
+import useUser from 'kolibri/composables/useUser';
+import { useAePermissions } from '../composables/useAePermissions';
+
 jest.mock('kolibri/composables/useUser', () => {
   const { ref, computed } = require('vue');
   const kind = ref(['admin']);
@@ -29,29 +32,28 @@ jest.mock('kolibri/composables/useUser', () => {
   };
 });
 
-import useUser from 'kolibri/composables/useUser';
-import { useAePermissions } from '../composables/useAePermissions';
-
 describe('useAePermissions', () => {
-  it('grants session management to facility admins', () => {
+  it('lands facility admins on /administrateur', () => {
     const user = useUser();
     user.__setKind(['admin']);
     const perms = useAePermissions();
     expect(perms.canManageSessions.value).toBe(true);
     expect(perms.canViewAdminDashboard.value).toBe(true);
-    expect(perms.defaultLandingPath.value).toBe('/ae/admin');
+    expect(perms.canViewLearnerArea.value).toBe(false);
+    expect(perms.defaultLandingPath.value).toBe('/administrateur');
   });
 
-  it('grants coach area to coaches but not admin dashboard', () => {
+  it('lands coaches on /formateur without admin dashboard', () => {
     const user = useUser();
     user.__setKind(['coach', 'learner']);
     const perms = useAePermissions();
     expect(perms.canViewCoachArea.value).toBe(true);
     expect(perms.canViewAdminDashboard.value).toBe(false);
-    expect(perms.defaultLandingPath.value).toBe('/ae/coach');
+    expect(perms.canViewLearnerArea.value).toBe(false);
+    expect(perms.defaultLandingPath.value).toBe('/formateur');
   });
 
-  it('keeps learners in the learner area only', () => {
+  it('keeps pure learners on /apprenant only', () => {
     const user = useUser();
     user.__setKind(['learner']);
     const perms = useAePermissions();
@@ -59,17 +61,17 @@ describe('useAePermissions', () => {
     expect(perms.canManageSessions.value).toBe(false);
     expect(perms.canViewAdminDashboard.value).toBe(false);
     expect(perms.canAccessTechnicalAdministration.value).toBe(false);
-    expect(perms.defaultLandingPath.value).toBe('/ae/learn');
+    expect(perms.defaultLandingPath.value).toBe('/apprenant');
   });
 
-  it('grants technical administration to superusers', () => {
+  it('grants technical administration to superusers and learner preview', () => {
     const user = useUser();
     user.__setKind(['superuser', 'can_manage_content']);
     const perms = useAePermissions();
     expect(perms.canViewAdminDashboard.value).toBe(true);
+    expect(perms.canViewLearnerArea.value).toBe(true);
     expect(perms.canAccessDeviceAdministration.value).toBe(true);
-    expect(perms.canAccessTechnicalAdministration.value).toBe(true);
-    expect(perms.defaultLandingPath.value).toBe('/ae/admin');
+    expect(perms.defaultLandingPath.value).toBe('/administrateur');
   });
 
   it('denies device administration to facility admins without DevicePermissions', () => {
@@ -79,7 +81,6 @@ describe('useAePermissions', () => {
     expect(perms.canViewAdminDashboard.value).toBe(true);
     expect(perms.canManageContent.value).toBe(true);
     expect(perms.canAccessDeviceAdministration.value).toBe(false);
-    expect(perms.canAccessTechnicalAdministration.value).toBe(false);
   });
 
   it('grants device administration when session can_manage_content is set', () => {
@@ -87,5 +88,19 @@ describe('useAePermissions', () => {
     user.__setKind(['admin', 'can_manage_content']);
     const perms = useAePermissions();
     expect(perms.canAccessDeviceAdministration.value).toBe(true);
+  });
+
+  it('lets facility admins sync their facility without device permissions', () => {
+    const user = useUser();
+    user.__setKind(['admin']);
+    const perms = useAePermissions();
+    expect(perms.canSyncFacility.value).toBe(true);
+  });
+
+  it('does not let coaches sync the facility', () => {
+    const user = useUser();
+    user.__setKind(['coach', 'learner']);
+    const perms = useAePermissions();
+    expect(perms.canSyncFacility.value).toBe(false);
   });
 });

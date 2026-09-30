@@ -148,6 +148,9 @@ importers:
       kolibri-design-system:
         specifier: 'catalog:'
         version: 5.7.0
+      kolibri-plugin-data:
+        specifier: workspace:*
+        version: link:../packages/kolibri-plugin-data
       vue:
         specifier: 'catalog:'
         version: 2.7.16

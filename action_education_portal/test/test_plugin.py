@@ -1,7 +1,13 @@
+from django.test import TestCase
+
 from action_education_portal.kolibri_plugin import ActionEducationPortalPlugin
 from action_education_portal.kolibri_plugin import AdminPortalRedirect
 from action_education_portal.kolibri_plugin import CoachPortalRedirect
+from action_education_portal.kolibri_plugin import PortalAsset
 from action_education_portal.kolibri_plugin import PortalRedirect
+from kolibri.core.auth.test.helpers import clear_process_cache
+from kolibri.core.auth.test.helpers import setup_device
+from kolibri.core.device.models import DeviceSettings
 
 
 def test_portal_url_slug():
@@ -44,6 +50,7 @@ def test_portal_frontend_routes_cover_ae_spaces():
 
     routes = Path(__file__).resolve().parents[1].joinpath("frontend/routes.js").read_text()
     for name in (
+        "AeSignIn",
         "AeLearnHome",
         "AeCoachHome",
         "AeAdminHome",
@@ -52,15 +59,24 @@ def test_portal_frontend_routes_cover_ae_spaces():
         "AeLearnQuizzes",
         "AeLearnProgress",
         "AeLearnHelp",
+        "AeLearnProfile",
         "AeCoachSessions",
         "AeCoachSessionDetail",
+        "AeCoachClasses",
         "AeAdminReports",
         "AeForbidden",
+        "AeLearnerLayout",
+        "AeCoachLayout",
+        "AeAdminLayout",
     ):
         assert name in routes
+    assert "path: '/apprenant'" in routes
+    assert "path: '/formateur'" in routes
+    assert "path: '/administrateur'" in routes
+    assert "path: '/connexion'" in routes
 
 
-def test_portal_side_nav_filters_role_routes():
+def test_portal_side_nav_has_single_portal_entry():
     from pathlib import Path
 
     text = (
@@ -70,14 +86,53 @@ def test_portal_side_nav_filters_role_routes():
         .joinpath("frontend/views/PortalSideNavEntry.js")
         .read_text()
     )
-    assert "portalSubRoutes" in text
-    assert "isCoach.value" in text
-    assert "isAdmin.value" in text
+    assert "portalLandingRoute" in text
+    assert "portalSubRoutes" not in text
+    assert "/ae/learn" not in text
+    assert "/ae/coach" not in text
 
 
-def test_route_guards_redirect_anonymous_to_signin():
+def test_route_guards_send_anonymous_to_ae_signin():
     from pathlib import Path
 
     text = Path(__file__).resolve().parents[1].joinpath("frontend/routeGuards.js").read_text()
-    assert "redirectToSignIn" in text
+    assert "AeSignIn" in text
     assert "isUserLoggedIn" in text
+    assert "defaultLandingPath" in text
+
+
+def test_layouts_exist_without_global_switcher():
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1].joinpath("frontend/views/layouts")
+    for name in ("AeLearnerLayout.vue", "AeCoachLayout.vue", "AeAdminLayout.vue", "AeSpaceLayout.vue"):
+        assert (root / name).exists()
+    shell = root.joinpath("AeSpaceLayout.vue").read_text()
+    assert "ae-switcher" not in shell
+    assert "previewLinks" in shell
+
+
+class PortalAssetPluginDataTests(TestCase):
+    def setUp(self):
+        # Device provisioning state is cached across tests.
+        clear_process_cache()
+
+    def test_unprovisioned_device_hides_sign_up(self):
+        data = PortalAsset().plugin_data
+        self.assertIsNone(data["defaultFacilityId"])
+        self.assertFalse(data["allowLearnerSignUp"])
+        self.assertIn("allowGuestAccess", data)
+
+    def test_mirrors_default_facility_and_device_settings(self):
+        facility, _ = setup_device()
+        facility.dataset.learner_can_sign_up = False
+        facility.dataset.save()
+        device_settings = DeviceSettings.objects.get()
+        device_settings.allow_guest_access = False
+        device_settings.save()
+
+        data = PortalAsset().plugin_data
+
+        self.assertEqual(data["defaultFacilityId"], facility.id)
+        self.assertFalse(data["allowLearnerSignUp"])
+        self.assertFalse(data["allowGuestAccess"])

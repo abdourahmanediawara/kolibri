@@ -1,107 +1,70 @@
 <template>
-  <div
-    class="ae-page"
-    :style="{ color: $themeTokens.text }"
-  >
-    <h1 class="title">
-      {{ adminDashTitle$() }}
-    </h1>
-    <p
-      class="intro"
-      :style="{ color: $themeTokens.annotation }"
-    >
-      {{ adminDashIntro$() }}
-    </p>
 
-    <KCircularLoader
-      v-if="loading"
-      :delay="false"
-    />
+  <AeDashboard
+    :title="dashboardTitle$()"
+    :welcomeTitle="adminWelcomeTitle$()"
+    :welcomeSubtitle="adminWelcomeSubtitle$()"
+    :bannerSrc="bannerSrc"
+    :loading="loading"
+    :cards="summaryCards"
+    :activityTitle="adminRecentActivityTitle$()"
+    :activityTo="{ name: 'AeAdminUsers' }"
+    :activityItems="activityItems"
+    :activityEmpty="adminRecentActivityEmpty$()"
+    :actionsTitle="adminQuickActionsTitle$()"
+    :actions="quickActions"
+    :footerLink="{
+      to: { name: 'AeAdminSettings' },
+      icon: 'settings',
+      label: adminQuickOpenSettings$(),
+    }"
+  />
 
-    <div
-      v-else
-      class="cards"
-    >
-      <div
-        v-for="card in summaryCards"
-        :key="card.id"
-        class="card"
-        :style="{
-          backgroundColor: $themeTokens.surface,
-          borderColor: $themeTokens.fineLine,
-        }"
-      >
-        <p class="card-value">
-          {{ card.value }}
-        </p>
-        <p class="card-label">
-          {{ card.label }}
-        </p>
-      </div>
-    </div>
-
-    <section class="links">
-      <router-link
-        v-for="link in quickLinks"
-        :key="link.id"
-        :to="link.to"
-        class="link-card"
-        :style="{
-          backgroundColor: $themeTokens.surface,
-          borderColor: $themeTokens.fineLine,
-          color: $themeTokens.text,
-        }"
-      >
-        <KIcon
-          :icon="link.icon"
-          class="link-icon"
-          :style="{ fill: $themeTokens.primary }"
-        />
-        <span class="link-title">{{ link.title }}</span>
-      </router-link>
-    </section>
-
-    <p class="preview">
-      <router-link
-        to="/ae/learn"
-        :style="{ color: $themeTokens.primary }"
-      >
-        {{ previewLearner$() }}
-      </router-link>
-    </p>
-  </div>
 </template>
 
+
 <script>
+
   import { computed, onMounted, ref } from 'vue';
   import { UserKinds } from 'kolibri/constants';
+  import urls from 'kolibri/urls';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import { portalStrings } from '../../strings';
   import { useAePermissions } from '../../composables/useAePermissions';
   import { useTrainingApi } from '../../composables/useTrainingApi';
+  import AeDashboard from '../AeDashboard';
 
   export default {
     name: 'AeAdminHomePage',
+    components: { AeDashboard },
     setup() {
       const {
-        adminDashTitle$,
-        adminDashIntro$,
-        previewLearner$,
+        dashboardTitle$,
+        adminWelcomeTitle$,
+        adminWelcomeSubtitle$,
+        adminRecentActivityTitle$,
+        adminRecentActivityEmpty$,
+        adminQuickActionsTitle$,
+        adminQuickAddUser$,
+        adminQuickCreateGroup$,
+        adminQuickCreateTraining$,
+        adminQuickConfigureChannel$,
+        adminQuickOpenSettings$,
+        activityTypeUser$,
+        activityTypeGroup$,
+        activityTypeTraining$,
         dashUsersLabel$,
-        dashLearnersLabel$,
+        dashUsersBreakdown$,
         dashChannelsLabel$,
         dashTrainingsLabel$,
         dashSessionsLabel$,
         coachesTitle$,
         classesTitle$,
-        adminLinkContentsTitle$,
-        adminLinkUsersTitle$,
-        syncTitle$,
       } = portalStrings;
 
-      const { userFacilityId, canAccessDeviceAdministration } = useAePermissions();
+      const { userFacilityId } = useAePermissions();
       const api = useTrainingApi();
       const loading = ref(true);
       const counts = ref({
@@ -113,44 +76,104 @@
         trainings: null,
         sessions: null,
       });
+      const usersRaw = ref([]);
+      const classroomsRaw = ref([]);
+      const trainingsRaw = ref([]);
 
-      const summaryCards = computed(() =>
-        [
-          { id: 'users', value: counts.value.users, label: dashUsersLabel$() },
-          { id: 'learners', value: counts.value.learners, label: dashLearnersLabel$() },
-          { id: 'coaches', value: counts.value.coaches, label: coachesTitle$() },
-          { id: 'classes', value: counts.value.classes, label: classesTitle$() },
-          { id: 'channels', value: counts.value.channels, label: dashChannelsLabel$() },
-          { id: 'trainings', value: counts.value.trainings, label: dashTrainingsLabel$() },
-          { id: 'sessions', value: counts.value.sessions, label: dashSessionsLabel$() },
-        ].filter(card => typeof card.value === 'number' && card.value > 0),
-      );
-
-      const quickLinks = computed(() => {
-        const links = [
-          {
-            id: 'content',
-            icon: 'channel',
-            title: adminLinkContentsTitle$(),
-            to: { name: 'AeAdminContent' },
-          },
+      const summaryCards = computed(() => {
+        const { users, learners, coaches, classes, channels, trainings, sessions } = counts.value;
+        const hasBreakdown = typeof learners === 'number' && typeof coaches === 'number';
+        return [
           {
             id: 'users',
+            value: users,
+            label: dashUsersLabel$(),
+            detail: hasBreakdown ? dashUsersBreakdown$({ learners, coaches }) : '',
             icon: 'people',
-            title: adminLinkUsersTitle$(),
-            to: { name: 'AeAdminUsers' },
+            tone: 'orange',
           },
-        ];
-        if (canAccessDeviceAdministration.value) {
-          links.push({
-            id: 'sync',
-            icon: 'device',
-            title: syncTitle$(),
-            to: { name: 'AeAdminSync' },
-          });
-        }
-        return links;
+          { id: 'classes', value: classes, label: classesTitle$(), icon: 'people', tone: 'purple' },
+          {
+            id: 'trainings',
+            value: trainings,
+            label: dashTrainingsLabel$(),
+            icon: 'lesson',
+            tone: 'orange',
+          },
+          {
+            id: 'channels',
+            value: channels,
+            label: dashChannelsLabel$(),
+            icon: 'channel',
+            tone: 'blue',
+          },
+          {
+            id: 'sessions',
+            value: sessions,
+            label: dashSessionsLabel$(),
+            icon: 'classes',
+            tone: 'indigo',
+          },
+          { id: 'coaches', value: coaches, label: coachesTitle$(), icon: 'coach', tone: 'green' },
+        ].filter(card => typeof card.value === 'number');
       });
+
+      const activityItems = computed(() => {
+        const users = usersRaw.value.slice(0, 3).map((user, index) => ({
+          id: `user-${user.id || index}`,
+          title: user.full_name || user.username,
+          meta: user.username ? `${activityTypeUser$()} · ${user.username}` : activityTypeUser$(),
+          icon: 'person',
+          tone: 'orange',
+          to: { name: 'AeAdminUsers' },
+        }));
+        const groups = classroomsRaw.value.slice(0, 2).map((classroom, index) => ({
+          id: `class-${classroom.id || index}`,
+          title: classroom.name,
+          meta: activityTypeGroup$(),
+          icon: 'people',
+          tone: 'blue',
+          to: { name: 'AeAdminClasses' },
+        }));
+        const trainings = trainingsRaw.value.slice(0, 2).map((training, index) => ({
+          id: `training-${training.id || index}`,
+          title: training.title || training.name || '',
+          meta: activityTypeTraining$(),
+          icon: 'lesson',
+          tone: 'green',
+          to: { name: 'AeAdminCourseDetail', params: { trainingId: training.id } },
+        }));
+        return [...users, ...groups, ...trainings].slice(0, 5);
+      });
+
+      const quickActions = [
+        {
+          id: 'add-user',
+          icon: 'person',
+          title: adminQuickAddUser$(),
+          // Opens the users page with the create panel already open.
+          to: { name: 'AeAdminUsers', query: { creer: '1' } },
+        },
+        {
+          id: 'create-group',
+          icon: 'people',
+          title: adminQuickCreateGroup$(),
+          to: { name: 'AeAdminClasses', query: { creer: '1' } },
+        },
+        {
+          id: 'create-training',
+          icon: 'lesson',
+          title: adminQuickCreateTraining$(),
+          // Admins create the courses, then assign each one to a trainer.
+          to: { name: 'AeAdminCourses', query: { creer: '1' } },
+        },
+        {
+          id: 'configure-channel',
+          icon: 'channel',
+          title: adminQuickConfigureChannel$(),
+          to: { name: 'AeAdminContent' },
+        },
+      ];
 
       function isStaffUser(user) {
         return Boolean(
@@ -161,6 +184,14 @@
               role.kind === UserKinds.ADMIN,
           ),
         );
+      }
+
+      function sortByNewest(list, dateKey) {
+        return [...list].sort((a, b) => {
+          const da = a[dateKey] ? new Date(a[dateKey]).getTime() : 0;
+          const db = b[dateKey] ? new Date(b[dateKey]).getTime() : 0;
+          return db - da;
+        });
       }
 
       onMounted(() => {
@@ -175,16 +206,11 @@
           api.fetchTrainings(),
           api.fetchSessions(),
         ]).then(results => {
-          const users =
-            results[0].status === 'fulfilled' ? results[0].value || [] : null;
-          const classrooms =
-            results[1].status === 'fulfilled' ? results[1].value || [] : null;
-          const channelsRaw =
-            results[2].status === 'fulfilled' ? results[2].value : null;
-          const trainings =
-            results[3].status === 'fulfilled' ? results[3].value || [] : null;
-          const sessions =
-            results[4].status === 'fulfilled' ? results[4].value || [] : null;
+          const users = results[0].status === 'fulfilled' ? results[0].value || [] : null;
+          const classrooms = results[1].status === 'fulfilled' ? results[1].value || [] : null;
+          const channelsRaw = results[2].status === 'fulfilled' ? results[2].value : null;
+          const trainings = results[3].status === 'fulfilled' ? results[3].value || [] : null;
+          const sessions = results[4].status === 'fulfilled' ? results[4].value || [] : null;
 
           let channelList = null;
           if (channelsRaw != null) {
@@ -195,6 +221,10 @@
 
           const staff = users ? users.filter(isStaffUser) : null;
           const learners = users ? users.filter(user => !isStaffUser(user)) : null;
+
+          usersRaw.value = users ? sortByNewest(users, 'date_joined') : [];
+          classroomsRaw.value = classrooms ? sortByNewest(classrooms, 'last_updated') : [];
+          trainingsRaw.value = trainings ? sortByNewest(trainings, 'date_updated') : [];
 
           counts.value = {
             users: users ? users.length : null,
@@ -210,74 +240,20 @@
       });
 
       return {
-        adminDashTitle$,
-        adminDashIntro$,
-        previewLearner$,
+        dashboardTitle$,
+        adminWelcomeTitle$,
+        adminWelcomeSubtitle$,
+        adminRecentActivityTitle$,
+        adminRecentActivityEmpty$,
+        adminQuickActionsTitle$,
+        adminQuickOpenSettings$,
+        bannerSrc: urls.static('action_education_portal/ae-admin-banner.png'),
         loading,
         summaryCards,
-        quickLinks,
+        activityItems,
+        quickActions,
       };
     },
   };
+
 </script>
-
-<style lang="scss" scoped>
-  .ae-page {
-    max-width: 960px;
-    margin: 0 auto;
-  }
-
-  .title {
-    margin: 0 0 8px;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .intro {
-    margin: 0 0 16px;
-  }
-
-  .cards,
-  .links {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .card,
-  .link-card {
-    padding: 16px;
-    border: 1px solid;
-    border-radius: 8px;
-  }
-
-  .card-value {
-    margin: 0;
-    font-size: 1.75rem;
-    font-weight: 700;
-  }
-
-  .card-label,
-  .link-title {
-    margin: 4px 0 0;
-    font-weight: 600;
-  }
-
-  .link-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-height: 100px;
-    text-decoration: none;
-  }
-
-  .link-icon {
-    width: 28px;
-    height: 28px;
-  }
-
-  .preview {
-    margin: 0;
-  }
-</style>

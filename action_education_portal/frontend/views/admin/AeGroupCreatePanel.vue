@@ -6,6 +6,7 @@
     :subtitle="createGroupSubtitle$()"
     icon="users"
     titleId="ae-create-group-title"
+    :alert="panelAlert"
     @close="close"
   >
     <form
@@ -95,14 +96,6 @@
         :loading="loadingPeople"
       />
 
-      <p
-        v-if="formError"
-        class="ae-side-panel-form-error"
-        role="alert"
-      >
-        {{ formError }}
-      </p>
-
       <!-- Lets Enter in the name field submit the form ("save and close"). -->
       <button
         type="submit"
@@ -147,9 +140,10 @@
 <script>
 
   import { computed, nextTick, reactive, ref, watch } from 'vue';
-  import { UserKinds } from 'kolibri/constants';
+  import { ERROR_CONSTANTS, UserKinds } from 'kolibri/constants';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { currentLanguage } from 'kolibri/utils/i18n';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
@@ -193,6 +187,9 @@
         saveAndClose$,
         fieldRequired$,
         groupNameTaken$,
+        groupCreatedAddAnother$,
+        groupNameTakenAlert$,
+        formHasErrors$,
         createGroupError$,
         groupMembersError$,
         groupCreated$,
@@ -205,7 +202,8 @@
       const form = reactive(emptyForm());
       const pickerKey = ref(0);
       const nameError = ref('');
-      const formError = ref('');
+      // Outcome of the last save, shown at the top of the panel.
+      const panelAlert = ref(null);
       const saving = ref(false);
       const loadingPeople = ref(false);
       const users = ref([]);
@@ -245,7 +243,7 @@
         Object.assign(form, emptyForm());
         pickerKey.value += 1;
         nameError.value = '';
-        formError.value = '';
+        panelAlert.value = null;
       }
 
       function focusName() {
@@ -295,6 +293,10 @@
           nameError.value = '';
         }
         if (nameError.value) {
+          panelAlert.value = {
+            kind: 'error',
+            text: nameError.value === groupNameTaken$() ? groupNameTakenAlert$() : formHasErrors$(),
+          };
           nameField.value.focus();
           return false;
         }
@@ -325,7 +327,7 @@
       }
 
       async function save(closeAfter) {
-        formError.value = '';
+        panelAlert.value = null;
         if (!validate()) {
           return;
         }
@@ -337,7 +339,13 @@
           });
         } catch (error) {
           saving.value = false;
-          formError.value = createGroupError$();
+          if (CatchErrors(error, [ERROR_CONSTANTS.UNIQUE])) {
+            nameError.value = groupNameTaken$();
+            panelAlert.value = { kind: 'error', text: groupNameTakenAlert$() };
+            nameField.value.focus();
+          } else {
+            panelAlert.value = { kind: 'error', text: createGroupError$() };
+          }
           return;
         }
         // A second try must not create the same group twice.
@@ -354,7 +362,7 @@
         // The group exists either way; refresh the list once its members are saved.
         emit('created', classroom);
         if (membersFailed) {
-          formError.value = groupMembersError$();
+          panelAlert.value = { kind: 'error', text: groupMembersError$() };
           return;
         }
         createSnackbar(groupCreated$({ name: classroom.name }));
@@ -362,6 +370,10 @@
           close();
         } else {
           resetForm();
+          panelAlert.value = {
+            kind: 'success',
+            text: groupCreatedAddAnother$({ name: classroom.name }),
+          };
           focusName();
         }
       }
@@ -383,7 +395,7 @@
         form,
         pickerKey,
         nameError,
-        formError,
+        panelAlert,
         saving,
         loadingPeople,
         staff,

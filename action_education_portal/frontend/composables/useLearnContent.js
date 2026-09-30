@@ -13,6 +13,11 @@ export function useLearnContent() {
     return `${learnBase()}#/topics/c/${nodeId}`;
   }
 
+  // Exercises still play in Kolibri Learn: the flag keeps Learn from sending people back to AE.
+  function exerciseHref(nodeId) {
+    return `${learnBase()}?ae_exercise=1#/topics/c/${nodeId}`;
+  }
+
   function topicHref(nodeId) {
     return `${learnBase()}#/topics/t/${nodeId}`;
   }
@@ -92,6 +97,7 @@ export function useLearnContent() {
     ContentNodeKinds,
     learnBase,
     contentHref,
+    exerciseHref,
     topicHref,
     channelHref,
     libraryHref,

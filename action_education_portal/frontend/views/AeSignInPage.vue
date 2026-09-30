@@ -111,7 +111,10 @@
 
       <section
         class="ae-signin-card"
-        :class="{ 'ae-signin-card-password': step === 'password' }"
+        :class="{
+          'ae-signin-card-password': step === 'password',
+          'ae-signin-card-signup': step === 'signup',
+        }"
         aria-labelledby="ae-signin-card-title"
       >
         <span
@@ -128,10 +131,10 @@
           id="ae-signin-card-title"
           class="ae-signin-card-title"
         >
-          {{ signInCardTitle$() }}
+          {{ step === 'signup' ? signUpCardTitle$() : signInCardTitle$() }}
         </h2>
         <p class="ae-signin-card-subtitle">
-          {{ signInCardSubtitle$() }}
+          {{ step === 'signup' ? signUpCardSubtitle$() : signInCardSubtitle$() }}
         </p>
 
         <form
@@ -209,11 +212,103 @@
                   :size="22"
                 />
               </button>
-              <a
+              <button
                 v-if="allowLearnerSignUp"
-                :href="signUpUrl"
+                type="button"
                 class="ae-signin-btn ae-signin-btn-outline"
-              >{{ signInCreateAccount$() }}</a>
+                @click="startSignUp"
+              >
+                {{ signInCreateAccount$() }}
+              </button>
+            </div>
+
+            <div
+              v-else-if="step === 'signup'"
+              key="signup"
+            >
+              <div
+                v-for="field in signUpFields"
+                :key="field.id"
+              >
+                <label
+                  :for="`ae-signup-${field.id}`"
+                  class="ae-signin-label"
+                >{{ field.label }}</label>
+                <div
+                  class="ae-signin-field"
+                  :class="{ 'ae-signin-field-invalid': signUpErrors[field.id] }"
+                >
+                  <AeIcon
+                    :name="field.icon"
+                    class="ae-signin-field-icon"
+                    :size="22"
+                  />
+                  <input
+                    :id="`ae-signup-${field.id}`"
+                    v-model="signUp[field.id]"
+                    class="ae-signin-input"
+                    :type="field.secret && !showPassword ? 'password' : 'text'"
+                    :autocomplete="field.autocomplete"
+                    autocapitalize="none"
+                    spellcheck="false"
+                    :placeholder="field.placeholder"
+                    :aria-invalid="signUpErrors[field.id] ? 'true' : 'false'"
+                    :aria-describedby="signUpErrors[field.id] ? `ae-signup-${field.id}-error` : null"
+                    @input="signUpErrors[field.id] = ''"
+                  >
+                  <button
+                    v-if="field.id === 'password'"
+                    type="button"
+                    class="ae-signin-field-action"
+                    :aria-label="showPassword ? signInHidePassword$() : signInShowPassword$()"
+                    :aria-pressed="showPassword ? 'true' : 'false'"
+                    @click="showPassword = !showPassword"
+                  >
+                    <AeIcon
+                      :name="showPassword ? 'eyeOff' : 'eye'"
+                      :size="22"
+                    />
+                  </button>
+                </div>
+                <p
+                  v-if="signUpErrors[field.id]"
+                  :id="`ae-signup-${field.id}-error`"
+                  class="ae-signin-field-error"
+                >
+                  <AeIcon
+                    name="circleAlert"
+                    :size="16"
+                  />
+                  <span>{{ signUpErrors[field.id] }}</span>
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                class="ae-signin-btn ae-signin-btn-primary"
+                :disabled="submitting"
+                :aria-busy="submitting ? 'true' : 'false'"
+              >
+                <span>{{ signUpSubmit$() }}</span>
+                <span
+                  v-if="submitting"
+                  class="ae-signin-spinner"
+                  aria-hidden="true"
+                ></span>
+                <AeIcon
+                  v-else
+                  name="arrowRight"
+                  class="ae-signin-btn-trailing"
+                  :size="22"
+                />
+              </button>
+              <button
+                type="button"
+                class="ae-signin-btn ae-signin-btn-outline"
+                @click="changeUser"
+              >
+                {{ signUpHaveAccount$() }}
+              </button>
             </div>
 
             <div
@@ -401,7 +496,7 @@
 
 <script>
 
-  import { computed, nextTick, onMounted, ref } from 'vue';
+  import { computed, nextTick, onMounted, reactive, ref } from 'vue';
   import { useRouter } from 'vue-router/composables';
   import useUser from 'kolibri/composables/useUser';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -409,12 +504,15 @@
   import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import themeConfig from 'kolibri/styles/themeConfig';
-  import { LoginErrors } from 'kolibri/constants';
+  import { ERROR_CONSTANTS, LoginErrors } from 'kolibri/constants';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import { validateUsername } from 'kolibri/utils/validators';
   import { availableLanguages, currentLanguage } from 'kolibri/utils/i18n';
   import urls from 'kolibri/urls';
   import plugin_data from 'kolibri-plugin-data';
   import { portalStrings } from '../strings';
   import { useAePermissions } from '../composables/useAePermissions';
+  import { SignUpResource } from '../apiResources';
   import AeIcon from './AeIcon';
 
   const UNEXPECTED_ERROR = 'UNEXPECTED_ERROR';
@@ -467,7 +565,30 @@
         usernameLabel$,
         passwordLabel$,
         signInAction$,
+        signUpCardTitle$,
+        signUpCardSubtitle$,
+        signUpSubmit$,
+        signUpHaveAccount$,
+        signUpClosed$,
+        fullNameLabel$,
+        fullNamePlaceholder$,
+        confirmPasswordLabel$,
+        newPasswordPlaceholder$,
+        fieldRequired$,
+        usernameInvalid$,
+        usernameTaken$,
+        passwordMismatch$,
       } = portalStrings;
+
+      // Learner sign-up, in the same card as signing in.
+      const signUp = reactive({ fullName: '', username: '', password: '', confirm: '' });
+      const signUpErrors = reactive({ fullName: '', username: '', password: '', confirm: '' });
+      const signUpFields = [
+        { id: 'fullName', label: fullNameLabel$(), icon: 'user', autocomplete: 'name', placeholder: fullNamePlaceholder$() },
+        { id: 'username', label: usernameLabel$(), icon: 'user', autocomplete: 'username', placeholder: signInUsernamePlaceholder$() },
+        { id: 'password', label: passwordLabel$(), icon: 'lock', autocomplete: 'new-password', placeholder: newPasswordPlaceholder$(), secret: true },
+        { id: 'confirm', label: confirmPasswordLabel$(), icon: 'lock', autocomplete: 'new-password', placeholder: '', secret: true },
+      ];
 
       const facilityId = plugin_data.defaultFacilityId || null;
       const allowGuestAccess = Boolean(plugin_data.allowGuestAccess);
@@ -503,6 +624,13 @@
       const usernameInitial = computed(() => username.value.charAt(0).toUpperCase());
 
       function focusCurrentStep() {
+        if (step.value === 'signup') {
+          const first = document.getElementById('ae-signup-fullName');
+          if (first) {
+            first.focus();
+          }
+          return;
+        }
         const input = step.value === 'username' ? usernameInput.value : passwordInput.value;
         if (input) {
           input.focus();
@@ -517,7 +645,7 @@
 
       function goToSetPassword() {
         const query = `username=${encodeURIComponent(username.value)}&facility=${facilityId}`;
-        window.location.assign(`${authUrl}#/set-password?${query}`);
+        window.location.assign(`${authUrl}?ae_auth=1#/set-password?${query}`);
       }
 
       // Kolibri answers a password-less attempt with PASSWORD_MISSING when the
@@ -593,11 +721,78 @@
         }
       }
 
+      function startSignUp() {
+        clearErrors();
+        Object.keys(signUpErrors).forEach(key => {
+          signUpErrors[key] = '';
+        });
+        showPassword.value = false;
+        step.value = 'signup';
+      }
+
+      function validateSignUp() {
+        signUpErrors.fullName = signUp.fullName.trim() ? '' : fieldRequired$();
+        if (!signUp.username.trim()) {
+          signUpErrors.username = fieldRequired$();
+        } else {
+          signUpErrors.username = validateUsername(signUp.username.trim()) ? '' : usernameInvalid$();
+        }
+        signUpErrors.password = signUp.password ? '' : fieldRequired$();
+        if (!signUp.confirm) {
+          signUpErrors.confirm = fieldRequired$();
+        } else {
+          signUpErrors.confirm = signUp.confirm === signUp.password ? '' : passwordMismatch$();
+        }
+        const invalid = signUpFields.find(field => signUpErrors[field.id]);
+        if (invalid) {
+          document.getElementById(`ae-signup-${invalid.id}`).focus();
+          return false;
+        }
+        return true;
+      }
+
+      async function submitSignUp() {
+        if (!validateSignUp()) {
+          return;
+        }
+        submitting.value = true;
+        try {
+          await SignUpResource.saveModel({
+            data: {
+              full_name: signUp.fullName.trim(),
+              username: signUp.username.trim(),
+              password: signUp.password,
+              facility: facilityId,
+            },
+          });
+        } catch (error) {
+          submitting.value = false;
+          const status = error && error.response && error.response.status;
+          if (CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS])) {
+            signUpErrors.username = usernameTaken$();
+            document.getElementById('ae-signup-username').focus();
+          } else if (CatchErrors(error, [ERROR_CONSTANTS.INVALID_USERNAME])) {
+            signUpErrors.username = usernameInvalid$();
+            document.getElementById('ae-signup-username').focus();
+          } else if (status === 403) {
+            formError.value = signUpClosed$();
+          } else {
+            formError.value = signInUnexpectedError$();
+          }
+          return;
+        }
+        // Signed up and signed in: reloading sends the new learner to their space.
+        window.location.reload();
+      }
+
       function submit() {
         if (submitting.value) {
           return;
         }
         clearErrors();
+        if (step.value === 'signup') {
+          return submitSignUp();
+        }
         return step.value === 'username' ? submitUsername() : submitPassword();
       }
 
@@ -624,7 +819,6 @@
         platformName: themeConfig.siteTitle,
         logoSrc: urls.static('action_education_portal/action-education-logo.png'),
         illustrationSrc: urls.static('action_education_portal/ae-signin-illustration.jpg'),
-        signUpUrl: `${authUrl}#/create_account`,
         guestUrl: urls['kolibri:core:guest'](),
         allowGuestAccess,
         allowLearnerSignUp,
@@ -649,6 +843,14 @@
         clearErrors,
         submit,
         changeUser,
+        startSignUp,
+        signUp,
+        signUpErrors,
+        signUpFields,
+        signUpCardTitle$,
+        signUpCardSubtitle$,
+        signUpSubmit$,
+        signUpHaveAccount$,
         usageAndPrivacyLabel$,
         closeAction$,
         signInEyebrow$,
@@ -1212,6 +1414,18 @@
     margin: 32px 0 24px;
     background: var(--ae-line);
     border: 0;
+  }
+
+  // Sign-up has four fields: the card drops its badge and footnote to stay in view.
+  .ae-signin-card-signup {
+    .ae-signin-card-badge,
+    .ae-signin-footnote {
+      display: none;
+    }
+
+    .ae-signin-label {
+      margin-top: 6px;
+    }
   }
 
   .ae-signin-guest {

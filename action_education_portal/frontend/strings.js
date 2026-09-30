@@ -3366,4 +3366,565 @@ export const portalStrings = createTranslator('ActionEducationPortalStrings', {
     message: 'Imprimer le certificat : {name}',
     context: 'Accessible name of the print certificate link.',
   },
+  usernameAvailable: {
+    message: 'Identifiant disponible.',
+    context: 'Shown under the username field when nobody uses it yet.',
+  },
+  usernameChecking: {
+    message: 'Vérification de l’identifiant…',
+    context: 'Shown while checking whether a username is free.',
+  },
+  usernameTakenAlert: {
+    message:
+      'Le compte n’a pas été créé : l’identifiant « {username} » est déjà utilisé. Choisissez-en un autre, par exemple en ajoutant un chiffre.',
+    context: 'Alert when creating an account with a username already used.',
+  },
+  formHasErrors: {
+    message: 'Rien n’a été enregistré : corrigez les champs signalés en rouge.',
+    context: 'Alert when a form has fields to correct.',
+  },
+  userCreatedAddAnother: {
+    message: 'Compte créé : {name}. Vous pouvez en ajouter un autre.',
+    context: 'Success alert after creating an account, panel kept open.',
+  },
+  groupCreatedAddAnother: {
+    message: 'Groupe créé : {name}. Vous pouvez en créer un autre.',
+    context: 'Success alert after creating a group, panel kept open.',
+  },
+  classNameTaken: {
+    message: 'Une classe porte déjà ce nom.',
+    context: 'Error under the class name field when the name is already used.',
+  },
+  classNameTakenAlert: {
+    message:
+      'La classe n’a pas été créée : une classe porte déjà ce nom. Choisissez un autre nom.',
+    context: 'Alert when a class name is already used.',
+  },
+  groupNameTakenAlert: {
+    message:
+      'Le groupe n’a pas été créé : un groupe porte déjà ce nom. Choisissez un autre nom.',
+    context: 'Alert when a group name is already used.',
+  },
+  filesFailed: {
+    message:
+      '{count, plural, one {# fichier n’a pas pu être ajouté} other {# fichiers n’ont pas pu être ajoutés}} : vérifiez le type et la taille (500 Mo au maximum), puis réessayez.',
+    context: 'Error after uploading course files.',
+  },
+  learnersEnrollFailed: {
+    message:
+      '{count, plural, one {# apprenant n’a pas pu être inscrit} other {# apprenants n’ont pas pu être inscrits}} : réessayez.',
+    context: 'Error after enrolling learners in a course.',
+  },
+  allClassesLink: {
+    message: 'Toutes les classes',
+    context: 'Link back to the list of classes.',
+  },
+  classDetailSubtitle: {
+    message: 'Gérez les formateurs et les apprenants de cette classe.',
+    context: 'Sentence under the class name.',
+  },
+  classOptions: {
+    message: 'Options',
+    context: 'Button opening the menu of class actions.',
+  },
+  copyClass: {
+    message: 'Copier la classe',
+    context: 'Menu action: duplicate a class.',
+  },
+  renameClass: {
+    message: 'Renommer la classe',
+    context: 'Menu action and dialog title: rename a class.',
+  },
+  deleteClass: {
+    message: 'Supprimer la classe',
+    context: 'Menu action: delete a class.',
+  },
+  classCoachesLabel: {
+    message: '{count, plural, one {Formateur} other {Formateurs}}',
+    context: 'Label under the number of trainers of a class.',
+  },
+  classLearnersLabel: {
+    message: '{count, plural, one {Apprenant} other {Apprenants}}',
+    context: 'Label under the number of learners of a class.',
+  },
+  assignCoachAction: {
+    message: 'Affecter un formateur',
+    context: 'Button opening the trainer picker.',
+  },
+  noCoachAssignedTitle: {
+    message: 'Aucun formateur affecté',
+    context: 'Empty state of the trainers of a class.',
+  },
+  noCoachAssignedText: {
+    message: 'Affectez un formateur pour accompagner cette classe.',
+    context: 'Empty state of the trainers of a class.',
+  },
+  noLearnerEnrolledTitle: {
+    message: 'Aucun apprenant inscrit',
+    context: 'Empty state of the learners of a class.',
+  },
+  noLearnerEnrolledText: {
+    message: 'Inscrivez des apprenants pour qu’ils rejoignent cette classe.',
+    context: 'Empty state of the learners of a class.',
+  },
+  searchLearnerPlaceholder: {
+    message: 'Rechercher un apprenant…',
+    context: 'Search field of the learners of a class.',
+  },
+  roleColumn: {
+    message: 'Rôle',
+    context: 'Table column header: role.',
+  },
+  accountRoleColumn: {
+    message: 'Rôle du compte',
+    context: 'Table column header: role of the account.',
+  },
+  roleSuperuser: {
+    message: 'Super admin',
+    context: 'Role of an account.',
+  },
+  roleAdmin: {
+    message: 'Administrateur',
+    context: 'Role of an account.',
+  },
+  roleCoach: {
+    message: 'Formateur',
+    context: 'Role of an account.',
+  },
+  roleFacilityCoach: {
+    message: 'Formateur de l’établissement',
+    context: 'Role of a trainer of the whole facility.',
+  },
+  roleClassCoach: {
+    message: 'Formateur de classe',
+    context: 'Role of a trainer who can only coach given classes.',
+  },
+  roleLearner: {
+    message: 'Apprenant',
+    context: 'Role of an account.',
+  },
+  removeFromClass: {
+    message: 'Retirer de la classe',
+    context: 'Button removing someone from a class.',
+  },
+  removeFromClassOf: {
+    message: 'Retirer {name} de la classe',
+    context: 'Accessible name of the button removing someone from a class.',
+  },
+  removedFromClass: {
+    message: '{name} ne fait plus partie de la classe. Son compte est conservé.',
+    context: 'Confirmation after removing someone from a class.',
+  },
+  removeKeepsAccount: {
+    message: 'Retirer une personne de la classe ne supprime pas son compte.',
+    context: 'Note under the learners of a class.',
+  },
+  assignCoachesTitle: {
+    message: 'Affecter des formateurs',
+    context: 'Title of the trainer picker.',
+  },
+  assignCoachesIntro: {
+    message: 'Sélectionnez les personnes à affecter à cette classe.',
+    context: 'Sentence of the trainer picker.',
+  },
+  assignCoachesNote: {
+    message: 'Les personnes déjà affectées ne figurent pas dans cette liste.',
+    context: 'Note of the trainer picker.',
+  },
+  assignCoachesConfirm: {
+    message:
+      '{count, plural, =0 {Affecter} one {Affecter # formateur} other {Affecter # formateurs}}',
+    context: 'Confirm button of the trainer picker.',
+  },
+  coachesAssigned: {
+    message:
+      '{count, plural, one {# formateur affecté à la classe.} other {# formateurs affectés à la classe.}}',
+    context: 'Confirmation after assigning trainers.',
+  },
+  assignCoachesError: {
+    message:
+      'Les formateurs n’ont pas été affectés : réessayez. Si cela recommence, vérifiez la connexion.',
+    context: 'Error of the trainer picker.',
+  },
+  enrollLearnersIntro: {
+    message: 'Sélectionnez les personnes à inscrire dans cette classe.',
+    context: 'Sentence of the learner picker.',
+  },
+  enrollLearnersNote: {
+    message: 'Les personnes déjà inscrites ne figurent pas dans cette liste.',
+    context: 'Note of the learner picker.',
+  },
+  enrollLearnersConfirm: {
+    message:
+      '{count, plural, =0 {Inscrire} one {Inscrire # apprenant} other {Inscrire # apprenants}}',
+    context: 'Confirm button of the learner picker.',
+  },
+  learnersEnrolledInClass: {
+    message:
+      '{count, plural, one {# apprenant inscrit dans la classe.} other {# apprenants inscrits dans la classe.}}',
+    context: 'Confirmation after enrolling learners in a class.',
+  },
+  enrollLearnersError: {
+    message:
+      'Les apprenants n’ont pas été inscrits : réessayez. Si cela recommence, vérifiez la connexion.',
+    context: 'Error of the learner picker.',
+  },
+  searchPeopleLabel: {
+    message: 'Rechercher un nom ou un identifiant…',
+    context: 'Search field of the people picker.',
+  },
+  filterByRoleLabel: {
+    message: 'Filtrer par rôle',
+    context: 'Role filter of the people picker.',
+  },
+  allRolesOption: {
+    message: 'Tous les rôles',
+    context: 'Role filter option: every role.',
+  },
+  selectAllLabel: {
+    message: 'Tout sélectionner',
+    context: 'Checkbox selecting every person of the page.',
+  },
+  noPeopleMatch: {
+    message: 'Personne ne correspond à votre recherche.',
+    context: 'Shown when a people search finds nobody.',
+  },
+  noPeopleAvailable: {
+    message: 'Tout le monde fait déjà partie de cette classe.',
+    context: 'Shown when nobody can be added.',
+  },
+  peopleAvailableCount: {
+    message: '{count, plural, one {# personne disponible} other {# personnes disponibles}}',
+    context: 'Number of people who can be picked.',
+  },
+  peopleSelectedCount: {
+    message:
+      '{count, plural, =0 {aucune sélectionnée} one {# sélectionnée} other {# sélectionnées}}',
+    context: 'Number of people picked.',
+  },
+  copyAction: {
+    message: 'Copier',
+    context: 'Confirm button of the copy dialog.',
+  },
+  copyClassText: {
+    message: 'Une nouvelle classe est créée ; choisissez ce qu’elle reprend de celle-ci.',
+    context: 'Sentence of the copy class dialog.',
+  },
+  copyClassDefaultName: {
+    message: '{name} (copie)',
+    context: 'Default name of a copied class.',
+  },
+  copyCoachesLabel: {
+    message:
+      '{count, plural, =0 {Copier les formateurs (aucun)} one {Copier le formateur} other {Copier les # formateurs}}',
+    context: 'Checkbox of the copy class dialog.',
+  },
+  copyLearnersLabel: {
+    message:
+      '{count, plural, =0 {Copier les apprenants (aucun)} one {Copier l’apprenant} other {Copier les # apprenants}}',
+    context: 'Checkbox of the copy class dialog.',
+  },
+  classCopied: {
+    message: 'Classe copiée : {name}',
+    context: 'Confirmation after copying a class.',
+  },
+  classRenamed: {
+    message: 'Classe renommée : {name}',
+    context: 'Confirmation after renaming a class.',
+  },
+  deleteClassTitle: {
+    message: 'Supprimer cette classe ?',
+    context: 'Title of the delete class dialog.',
+  },
+  deleteClassText: {
+    message:
+      'La classe « {name} » sera supprimée. Les comptes de ses formateurs et de ses apprenants sont conservés.',
+    context: 'Sentence of the delete class dialog.',
+  },
+  classDeleted: {
+    message: 'Classe supprimée : {name}',
+    context: 'Confirmation after deleting a class.',
+  },
+  editAccountSubtitle: {
+    message: 'Changez le nom, l’identifiant, le rôle ou le mot de passe de ce compte.',
+    context: 'Sentence under the edit account panel title.',
+  },
+  roleLockedHint: {
+    message: 'Vous ne pouvez pas changer votre propre rôle, ni celui d’un super admin.',
+    context: 'Hint when the role cannot be changed.',
+  },
+  resetPasswordSection: {
+    message: 'Nouveau mot de passe',
+    context: 'Section of the edit account panel.',
+  },
+  resetPasswordHint: {
+    message: 'Laissez vide pour garder le mot de passe actuel.',
+    context: 'Hint of the new password fields.',
+  },
+  deleteAccountTitle: {
+    message: 'Supprimer ce compte',
+    context: 'Title of the delete account area and dialog.',
+  },
+  deleteAccountHint: {
+    message: 'La personne ne pourra plus se connecter. Ses résultats ne sont plus suivis.',
+    context: 'Hint of the delete account area.',
+  },
+  deleteAccountAction: {
+    message: 'Supprimer le compte',
+    context: 'Button deleting an account.',
+  },
+  deleteAccountConfirm: {
+    message: 'Supprimer le compte de {name} ? Cette personne ne pourra plus se connecter.',
+    context: 'Question of the delete account dialog.',
+  },
+  accountSaved: {
+    message: 'Compte enregistré : {name}',
+    context: 'Confirmation after saving an account.',
+  },
+  accountDeleted: {
+    message: 'Compte supprimé : {name}',
+    context: 'Confirmation after deleting an account.',
+  },
+  profileFacilityLabel: {
+    message: 'Établissement',
+    context: 'Label: facility of the account.',
+  },
+  profileEditNameTitle: {
+    message: 'Modifier mon nom',
+    context: 'Heading of the name form of the profile.',
+  },
+  profilePasswordTitle: {
+    message: 'Mot de passe',
+    context: 'Heading of the password card of the profile.',
+  },
+  profilePasswordText: {
+    message:
+      'Choisissez un mot de passe facile à retenir pour vous, difficile à deviner pour les autres.',
+    context: 'Sentence of the password card of the profile.',
+  },
+  profileChangePasswordAction: {
+    message: 'Changer mon mot de passe',
+    context: 'Button saving a new password.',
+  },
+  profileNameSaved: {
+    message: 'Votre nom a été enregistré.',
+    context: 'Confirmation after changing one\'s name.',
+  },
+  profilePasswordSaved: {
+    message: 'Votre mot de passe a été changé. Utilisez-le à la prochaine connexion.',
+    context: 'Confirmation after changing one\'s password.',
+  },
+  profileNotAllowed: {
+    message: 'Votre centre ne permet pas cette modification. Demandez à un administrateur.',
+    context: 'Error when the facility does not allow a change.',
+  },
+  libraryCount: {
+    message: '{count, plural, one {# élément} other {# éléments}}',
+    context: 'Number of items in the library.',
+  },
+  learnLibrarySubtitle: {
+    message: 'Les ressources installées sur cet appareil : vidéos, documents, audios et activités.',
+    context: 'Sentence under the library title.',
+  },
+  libraryFilterLabel: {
+    message: 'Type de ressource',
+    context: 'Accessible name of the library filters.',
+  },
+  librarySearchLabel: {
+    message: 'Rechercher dans la bibliothèque…',
+    context: 'Search field of the library.',
+  },
+  libraryCollections: {
+    message: 'Collections',
+    context: 'Library filter: channels.',
+  },
+  libraryOpenAction: {
+    message: 'Ouvrir',
+    context: 'Button opening a library item.',
+  },
+  libraryOpenOf: {
+    message: 'Ouvrir {name}',
+    context: 'Accessible name of the button opening a library item.',
+  },
+  signUpCardTitle: {
+    message: 'Créer mon compte',
+    context: 'Title of the sign-up card.',
+  },
+  signUpCardSubtitle: {
+    message: 'Quelques informations suffisent pour commencer à apprendre.',
+    context: 'Sentence of the sign-up card.',
+  },
+  signUpSubmit: {
+    message: 'Créer mon compte',
+    context: 'Button creating an account.',
+  },
+  signUpHaveAccount: {
+    message: 'J’ai déjà un compte',
+    context: 'Button going back to sign in.',
+  },
+  signUpClosed: {
+    message:
+      'Les inscriptions sont fermées sur cet appareil. Demandez un compte à votre formateur.',
+    context: 'Error when sign-up is not allowed.',
+  },
+  learnHelpIntro: {
+    message: 'Tout ce qu’il faut pour suivre un cours, de la connexion au certificat.',
+    context: 'Sentence under the help title.',
+  },
+  learnHelpSigninTitle: {
+    message: 'Se connecter',
+    context: 'Help step title.',
+  },
+  learnHelpSigninBody: {
+    message:
+      'Saisissez votre nom d’utilisateur, puis votre mot de passe. Pas de compte ? Demandez-le à votre formateur.',
+    context: 'Help step text.',
+  },
+  learnHelpCoursesTitle: {
+    message: 'Ouvrir un cours',
+    context: 'Help step title.',
+  },
+  learnHelpCoursesBody: {
+    message: 'Dans « Mes cours », choisissez un cours et touchez Commencer ou Continuer.',
+    context: 'Help step text.',
+  },
+  learnHelpSupportsTitle: {
+    message: 'Suivre le parcours',
+    context: 'Help step title.',
+  },
+  learnHelpSupportsBody: {
+    message:
+      'Le parcours est à gauche : vidéos, audios, documents. Chaque étape ouverte est cochée.',
+    context: 'Help step text.',
+  },
+  learnHelpDownloadTitle: {
+    message: 'Garder un support',
+    context: 'Help step title.',
+  },
+  learnHelpDownloadBody: {
+    message:
+      'Le bouton Télécharger enregistre le support sur votre appareil pour le revoir plus tard.',
+    context: 'Help step text.',
+  },
+  learnHelpQuizTitle: {
+    message: 'Faire les mini-quiz',
+    context: 'Help step title.',
+  },
+  learnHelpQuizBody: {
+    message:
+      'Répondez question par question. Après l’envoi, lisez la correction et retentez si besoin.',
+    context: 'Help step text.',
+  },
+  learnHelpExamTitle: {
+    message: 'Passer l’examen final',
+    context: 'Help step title.',
+  },
+  learnHelpExamBody: {
+    message:
+      'Réussissez l’examen final du cours : vous obtenez votre certificat, à imprimer dans Ma progression.',
+    context: 'Help step text.',
+  },
+  learnHelpProgressTitle: {
+    message: 'Voir ma progression',
+    context: 'Help step title.',
+  },
+  learnHelpProgressBody: {
+    message: 'Ma progression montre où vous en êtes dans chaque cours et vos certificats.',
+    context: 'Help step text.',
+  },
+  learnHelpOfflineTitle: {
+    message: 'Sans Internet',
+    context: 'Help step title.',
+  },
+  learnHelpOfflineBody: {
+    message:
+      'La plateforme marche sans Internet. Seules les vidéos YouTube ont besoin d’une connexion.',
+    context: 'Help step text.',
+  },
+  learnHelpStuckTitle: {
+    message: 'Toujours bloqué ?',
+    context: 'Heading of the help contact card.',
+  },
+  learnHelpStuckText: {
+    message: 'Votre formateur peut vous aider : notez ce qui ne marche pas et montrez-lui l’écran.',
+    context: 'Sentence of the help contact card.',
+  },
+  typeExercise: {
+    message: 'Exercice',
+    context: 'Kind of library resource: exercise.',
+  },
+  libraryExerciseText: {
+    message:
+      'Cet exercice interactif s’ouvre dans le lecteur d’exercices de Kolibri, avec votre progression.',
+    context: 'Text shown for a library exercise.',
+  },
+  libraryExerciseAction: {
+    message: 'Faire l’exercice',
+    context: 'Button opening a library exercise.',
+  },
+  libraryResourceDone: {
+    message: 'Terminé ! Votre progression est enregistrée.',
+    context: 'Shown when a library resource is completed.',
+  },
+  facilityRulesTitle: {
+    message: 'Règles pour les apprenants',
+    context: 'Heading of the facility rules card.',
+  },
+  facilityRulesText: {
+    message: 'Ce que les apprenants peuvent faire eux-mêmes sur cette plateforme.',
+    context: 'Sentence of the facility rules card.',
+  },
+  facilityRulesSaved: {
+    message: 'Règles enregistrées.',
+    context: 'Confirmation after saving the facility rules.',
+  },
+  ruleLearnerCanSignUp: {
+    message: 'Inscription libre',
+    context: 'Facility rule.',
+  },
+  ruleLearnerCanSignUpHint: {
+    message: 'Les apprenants peuvent créer leur compte depuis la page de connexion.',
+    context: 'Facility rule hint.',
+  },
+  ruleLearnerCanEditName: {
+    message: 'Modifier son nom',
+    context: 'Facility rule.',
+  },
+  ruleLearnerCanEditNameHint: {
+    message: 'Les apprenants peuvent changer leur nom dans Mon profil.',
+    context: 'Facility rule hint.',
+  },
+  ruleLearnerCanEditUsername: {
+    message: 'Modifier son identifiant',
+    context: 'Facility rule.',
+  },
+  ruleLearnerCanEditUsernameHint: {
+    message: 'Les apprenants peuvent changer leur nom d’utilisateur.',
+    context: 'Facility rule hint.',
+  },
+  ruleLearnerCanEditPassword: {
+    message: 'Modifier son mot de passe',
+    context: 'Facility rule.',
+  },
+  ruleLearnerCanEditPasswordHint: {
+    message: 'Les apprenants peuvent changer leur mot de passe dans Mon profil.',
+    context: 'Facility rule hint.',
+  },
+  ruleLearnerCanLoginWithNoPassword: {
+    message: 'Connexion sans mot de passe',
+    context: 'Facility rule.',
+  },
+  ruleLearnerCanLoginWithNoPasswordHint: {
+    message:
+      'Les apprenants se connectent avec leur seul identifiant (utile pour les jeunes enfants).',
+    context: 'Facility rule hint.',
+  },
+  ruleShowDownloadButtonInLearn: {
+    message: 'Bouton Télécharger',
+    context: 'Facility rule.',
+  },
+  ruleShowDownloadButtonInLearnHint: {
+    message: 'Les apprenants peuvent télécharger les ressources de la bibliothèque.',
+    context: 'Facility rule hint.',
+  },
 });

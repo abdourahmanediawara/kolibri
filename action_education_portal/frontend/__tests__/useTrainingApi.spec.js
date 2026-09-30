@@ -65,6 +65,7 @@ describe('useTrainingApi URL resolution', () => {
     const list = await api.fetchTrainings();
     expect(mockClient).toHaveBeenCalledWith({
       url: '/action_education_training/api/training/',
+      params: {},
     });
     expect(list).toEqual([{ id: '1', title: 'Cours' }]);
   });
@@ -77,6 +78,7 @@ describe('useTrainingApi URL resolution', () => {
     const list = await api.fetchTrainings();
     expect(mockClient).toHaveBeenCalledWith({
       url: '/action_education_training/api/training/',
+      params: {},
     });
     expect(list).toEqual([{ id: '1', title: 'Cours' }]);
   });

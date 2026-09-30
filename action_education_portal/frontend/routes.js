@@ -7,11 +7,12 @@ import AeLearnHomePage from './views/learn/AeLearnHomePage';
 import AeLearnFormationsPage from './views/learn/AeLearnFormationsPage';
 import AeLearnCourseDetailPage from './views/learn/AeLearnCourseDetailPage';
 import AeLearnLibraryPage from './views/learn/AeLearnLibraryPage';
+import AeLearnResourcePage from './views/learn/AeLearnResourcePage';
 import AeLearnQuizzesPage from './views/learn/AeLearnQuizzesPage';
 import AeLearnProgressPage from './views/learn/AeLearnProgressPage';
 import AeLearnHelpPage from './views/learn/AeLearnHelpPage';
 import AeLearnQuizPage from './views/learn/AeLearnQuizPage';
-import AeLearnProfilePage from './views/learn/AeLearnProfilePage';
+import AeProfilePage from './views/AeProfilePage';
 import AeCoachHomePage from './views/coach/AeCoachHomePage';
 import AeCoachFormationsPage from './views/coach/AeCoachFormationsPage';
 import AeCourseManagePage from './views/course/AeCourseManagePage';
@@ -26,12 +27,13 @@ import AeAdminHomePage from './views/admin/AeAdminHomePage';
 import AeAdminContentPage from './views/admin/AeAdminContentPage';
 import AeAdminUsersPage from './views/admin/AeAdminUsersPage';
 import AeAdminClassesPage from './views/admin/AeAdminClassesPage';
+import AeAdminClassDetailPage from './views/admin/AeAdminClassDetailPage';
 import AeAdminCoachesPage from './views/admin/AeAdminCoachesPage';
 import AeAdminReportsPage from './views/admin/AeAdminReportsPage';
 import AeAdminSyncPage from './views/admin/AeAdminSyncPage';
 import AeAdminSettingsPage from './views/admin/AeAdminSettingsPage';
 import AeAdminCoursesPage from './views/admin/AeAdminCoursesPage';
-import { redirectRoot, requirePerm, requireAnonymousOrRedirect } from './routeGuards';
+import { allowGuests, redirectRoot, requirePerm, requireAnonymousOrRedirect } from './routeGuards';
 
 export default [
   {
@@ -52,7 +54,7 @@ export default [
         name: 'AeLearnHome',
         path: '',
         component: AeLearnHomePage,
-        beforeEnter: requirePerm('canViewLearnerArea'),
+        beforeEnter: allowGuests('canViewLearnerArea', { guestPage: false }),
       },
       {
         name: 'AeLearnFormations',
@@ -76,13 +78,19 @@ export default [
         name: 'AeLearnLibrary',
         path: 'bibliotheque',
         component: AeLearnLibraryPage,
-        beforeEnter: requirePerm('canViewLearnerArea'),
+        beforeEnter: allowGuests('canViewLearnerArea'),
+      },
+      {
+        name: 'AeLearnResource',
+        path: 'bibliotheque/:nodeId',
+        component: AeLearnResourcePage,
+        meta: { libraryRoute: 'AeLearnLibrary', resourceRoute: 'AeLearnResource' },
       },
       {
         name: 'AeLearnQuizzes',
         path: 'quiz',
         component: AeLearnQuizzesPage,
-        beforeEnter: requirePerm('canViewLearnerArea'),
+        beforeEnter: allowGuests('canViewLearnerArea'),
       },
       {
         name: 'AeLearnProgress',
@@ -93,14 +101,14 @@ export default [
       {
         name: 'AeLearnProfile',
         path: 'profil',
-        component: AeLearnProfilePage,
+        component: AeProfilePage,
         beforeEnter: requirePerm('canViewLearnerArea'),
       },
       {
         name: 'AeLearnHelp',
         path: 'aide',
         component: AeLearnHelpPage,
-        beforeEnter: requirePerm('canViewLearnerArea'),
+        beforeEnter: allowGuests('canViewLearnerArea'),
       },
     ],
   },
@@ -113,6 +121,11 @@ export default [
         path: '',
         component: AeCoachHomePage,
         beforeEnter: requirePerm('canViewCoachArea'),
+      },
+      {
+        name: 'AeCoachProfile',
+        path: 'profil',
+        component: AeProfilePage,
       },
       {
         name: 'AeCoachClasses',
@@ -168,6 +181,12 @@ export default [
         component: AeCoachLibraryPage,
         beforeEnter: requirePerm('canViewCoachArea'),
       },
+      {
+        name: 'AeCoachResource',
+        path: 'bibliotheque/:nodeId',
+        component: AeLearnResourcePage,
+        meta: { libraryRoute: 'AeCoachLibrary', resourceRoute: 'AeCoachResource' },
+      },
     ],
   },
   {
@@ -187,9 +206,20 @@ export default [
         beforeEnter: requirePerm('canManageUsers'),
       },
       {
+        name: 'AeAdminProfile',
+        path: 'profil',
+        component: AeProfilePage,
+      },
+      {
         name: 'AeAdminClasses',
         path: 'classes',
         component: AeAdminClassesPage,
+        beforeEnter: requirePerm('canManageUsers'),
+      },
+      {
+        name: 'AeAdminClassDetail',
+        path: 'classes/:classId',
+        component: AeAdminClassDetailPage,
         beforeEnter: requirePerm('canManageUsers'),
       },
       {
@@ -221,6 +251,12 @@ export default [
         path: 'contenus',
         component: AeAdminContentPage,
         beforeEnter: requirePerm('canManageContent'),
+      },
+      {
+        name: 'AeAdminResource',
+        path: 'contenus/:nodeId',
+        component: AeLearnResourcePage,
+        meta: { libraryRoute: 'AeAdminContent', resourceRoute: 'AeAdminResource' },
       },
       {
         name: 'AeAdminReports',

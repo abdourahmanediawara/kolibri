@@ -1,43 +1,74 @@
 <template>
+
   <div
-    class="ae-page"
-    :style="{ color: $themeTokens.text }"
+    class="ae-forbidden"
+    :style="themeVars"
   >
-    <h1 class="title">
-      {{ forbiddenTitle$() }}
-    </h1>
-    <p :style="{ color: $themeTokens.annotation }">
-      {{ accessDenied$() }}
-    </p>
-    <p v-if="!isUserLoggedIn">
+    <section
+      class="ae-forbidden-card"
+      aria-labelledby="ae-forbidden-title"
+    >
+      <span
+        class="ae-forbidden-icon"
+        aria-hidden="true"
+      >
+        <AeIcon
+          name="lock"
+          :size="40"
+        />
+      </span>
+      <h1
+        id="ae-forbidden-title"
+        class="ae-forbidden-title"
+      >
+        {{ forbiddenTitle$() }}
+      </h1>
+      <p class="ae-forbidden-text">
+        {{ accessDenied$() }}
+      </p>
       <a
-        class="home-link"
+        v-if="!isUserLoggedIn"
+        class="ae-forbidden-primary"
         :href="signInHref"
-        :style="{ color: $themeTokens.primary }"
       >
         {{ signInAction$() }}
       </a>
-    </p>
-    <router-link
-      v-else
-      :to="homePath"
-      class="home-link"
-      :style="{ color: $themeTokens.primary }"
-    >
-      {{ backHome$() }}
-    </router-link>
+      <router-link
+        v-else
+        :to="homePath"
+        class="ae-forbidden-primary"
+      >
+        <AeIcon
+          name="arrowLeft"
+          :size="18"
+        />
+        <span>{{ backHome$() }}</span>
+      </router-link>
+    </section>
   </div>
+
 </template>
 
+
 <script>
-  import { computed } from 'vue';
+
+  import { computed, getCurrentInstance } from 'vue';
   import { portalStrings } from '../strings';
   import { useAePermissions } from '../composables/useAePermissions';
   import { signInUrl } from '../routeGuards';
+  import AeIcon from './AeIcon';
 
+  /** Shown when a page belongs to another space than the one of the account. */
   export default {
     name: 'AeForbiddenPage',
+    components: { AeIcon },
     setup() {
+      // Brand colors of the AE theme, as in the space layouts.
+      const { proxy } = getCurrentInstance();
+      const themeVars = computed(() => ({
+        '--ae-orange': proxy.$themeBrand.primary.v_500,
+        '--ae-navy': proxy.$themeBrand.secondary.v_500,
+      }));
       const { forbiddenTitle$, accessDenied$, backHome$, signInAction$ } = portalStrings;
       const { isUserLoggedIn, defaultLandingPath } = useAePermissions();
       const homePath = computed(() => defaultLandingPath.value);
@@ -51,35 +82,73 @@
         isUserLoggedIn,
         homePath,
         signInHref,
+        themeVars,
       };
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
-  .ae-page {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 24px 8px;
+
+  @import '../styles/tokens';
+  @import '../styles/components';
+
+  .ae-forbidden {
+    @include ae-tokens;
+    @include ae-font;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px 16px;
+    color: var(--ae-text);
+    background: var(--ae-page);
   }
 
-  .title {
-    margin: 0 0 12px;
-    font-size: 1.5rem;
-    font-weight: 700;
+  .ae-forbidden-card {
+    @include ae-card;
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+    width: 520px;
+    max-width: 100%;
+    padding: 36px 32px;
+    text-align: center;
   }
 
-  .home-link {
-    display: inline-block;
-    min-height: 44px;
-    margin-top: 16px;
-    padding: 8px 0;
-    font-weight: 600;
-    text-decoration: none;
+  .ae-forbidden-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    color: var(--ae-orange);
+    background: var(--ae-orange-wash);
+    border-radius: 50%;
   }
 
-  .home-link:focus {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
+  .ae-forbidden-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--ae-navy);
   }
+
+  .ae-forbidden-text {
+    margin: 0;
+    font-size: 17px;
+    color: var(--ae-text-muted);
+  }
+
+  .ae-forbidden-primary {
+    @include ae-button-primary;
+
+    margin-top: 8px;
+  }
+
 </style>

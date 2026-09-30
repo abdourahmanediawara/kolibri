@@ -82,6 +82,7 @@
         :subtitle="createClassSubtitle$()"
         icon="users"
         titleId="ae-create-class-title"
+        :alert="formError ? { kind: 'error', text: formError } : null"
         @close="closeCreatePanel"
       >
         <form
@@ -108,13 +109,6 @@
               {{ fieldError }}
             </p>
           </div>
-          <p
-            v-if="formError"
-            class="ae-side-panel-form-error"
-            role="alert"
-          >
-            {{ formError }}
-          </p>
         </form>
 
         <template #footer>
@@ -188,6 +182,9 @@
         createClassSubtitle$,
         createClassAction$,
         classNameRequired$,
+        classNameTaken$,
+        classNameTakenAlert$,
+        formHasErrors$,
         classCreated$,
         cancelAction$,
         saveError$,
@@ -283,6 +280,14 @@
         const name = form.name.trim();
         if (!name) {
           fieldError.value = classNameRequired$();
+        } else if (
+          classrooms.value.some(classroom => classroom.name.trim().toLowerCase() === name.toLowerCase())
+        ) {
+          fieldError.value = classNameTaken$();
+        }
+        if (fieldError.value) {
+          formError.value =
+            fieldError.value === classNameTaken$() ? classNameTakenAlert$() : formHasErrors$();
           nameField.value.focus();
           return;
         }
@@ -290,7 +295,14 @@
         try {
           await api.createClassroom({ name });
         } catch (e) {
-          formError.value = saveError$();
+          const data = e && e.response && e.response.data;
+          if (Array.isArray(data) && data[0] && data[0].id === 'UNIQUE') {
+            fieldError.value = classNameTaken$();
+            formError.value = classNameTakenAlert$();
+            nameField.value.focus();
+          } else {
+            formError.value = saveError$();
+          }
           return;
         } finally {
           isCreating.value = false;

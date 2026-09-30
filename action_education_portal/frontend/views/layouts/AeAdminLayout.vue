@@ -3,8 +3,9 @@
   <AeSpaceLayout
     :spaceLabel="spaceHeadingAdmin$()"
     :items="items"
+    :profileTo="{ name: 'AeAdminProfile' }"
     :activeId="activeId"
-    :showDeviceLink="canAccessDeviceAdministration"
+    :showDeviceLink="isSuperuser"
     :previewLinks="previewLinks"
     :promoText="adminSidebarTagline$()"
     :showBackLink="false"
@@ -35,7 +36,7 @@
       // Start of every page breadcrumb (see AePageHeader).
       provide('aeSpaceRoot', { label: breadcrumbAdmin$(), to: { name: 'AeAdminHome' } });
       const { items, activeId } = useAeAdminNav();
-      const { isSuperuser, canAccessDeviceAdministration } = useAePermissions();
+      const { isSuperuser } = useAePermissions();
       const previewLinks = computed(() => {
         if (!isSuperuser.value) {
           return [];
@@ -50,7 +51,7 @@
         adminSidebarTagline$,
         items,
         activeId,
-        canAccessDeviceAdministration,
+        isSuperuser,
         previewLinks,
       };
     },

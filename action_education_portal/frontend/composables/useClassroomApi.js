@@ -65,6 +65,16 @@ export function useClassroomApi() {
     ).then(r => r.data);
   }
 
+  /** { valid, available } for a new account's username (staff only). */
+  function checkUsername(username) {
+    return withTimeout(
+      client({
+        url: resolveTrainingUrl('aeusername_available'),
+        params: { username },
+      }),
+    ).then(r => r.data);
+  }
+
   function isStaffUser(user) {
     return Boolean(
       (user.roles || []).find(
@@ -82,6 +92,7 @@ export function useClassroomApi() {
     fetchUsersInCollection,
     fetchFacilityUsers,
     createLearner,
+    checkUsername,
     isStaffUser,
   };
 }

@@ -35,6 +35,7 @@ const FALLBACK_URLS = {
   aelearnerresults: () => '/action_education_training/api/learnerresults/',
   aecoach_classroom: () => '/action_education_training/api/coach/classroom/',
   aecoach_learner: () => '/action_education_training/api/coach/learner/',
+  aeusername_available: () => '/action_education_training/api/username-available/',
   aeresource_list: () => '/action_education_training/api/resource/',
   aeresource_detail: id => `/action_education_training/api/resource/${id}/`,
   aeresource_upload: () => '/action_education_training/api/resource/upload/',

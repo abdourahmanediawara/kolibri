@@ -91,6 +91,7 @@
 <script>
 
   import { computed, onMounted, ref } from 'vue';
+  import { useRouter } from 'vue-router/composables';
   import urls from 'kolibri/urls';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import { portalStrings } from '../../strings';
@@ -105,6 +106,7 @@
     name: 'AeCoachLibraryPage',
     components: { AeAvatar, AeListPage, AeRowActions },
     setup() {
+      const router = useRouter();
       const {
         libraryTitle$,
         channelsCount$,
@@ -127,7 +129,7 @@
         loadError$,
         loadTimeout$,
       } = portalStrings;
-      const { fetchChannels, channelHref, topicHref } = useLearnContent();
+      const { fetchChannels } = useLearnContent();
       const {
         isLoading: isLoadingLibrary,
         loadError,
@@ -153,7 +155,7 @@
           language: channel.lang_name || '',
           resources: channel.total_resource_count || 0,
           thumbnail: channel.thumbnail || channel.thumbnail_url || '',
-          href: channel.root ? topicHref(channel.root) : channelHref(channel.id),
+          href: router.resolve({ name: 'AeCoachResource', params: { nodeId: channel.root } }).href,
         })),
       );
 

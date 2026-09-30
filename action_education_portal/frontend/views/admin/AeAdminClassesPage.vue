@@ -62,10 +62,7 @@
           :primaryAriaLabel="viewGroupOf$({ name: item.name })"
           :primaryHref="item.href"
           :moreLabel="moreActionsFor$({ name: item.name })"
-          :menuItems="[
-            { label: editGroup$(), href: item.href },
-            { label: manageAllGroups$(), href: `${facilityClassesPath}/` },
-          ]"
+          :menuItems="[{ label: editGroup$(), href: item.href }]"
           :openUp="openUp"
         />
       </td>
@@ -120,7 +117,6 @@
         viewGroupOf$,
         moreActionsFor$,
         editGroup$,
-        manageAllGroups$,
         groupsEmpty$,
         groupsNoMatch$,
         noCoachAssigned$,
@@ -137,11 +133,6 @@
         createPanelOpen.value = true;
       }
 
-      // Classes are created and edited in Kolibri facility management.
-      const facilityClassesPath = computed(
-        () =>
-          `${urls['kolibri:kolibri.plugins.facility:facility_management']()}#/${userFacilityId.value}/classes`,
-      );
 
       const rows = computed(() =>
         classrooms.value.map(classroom => ({
@@ -151,7 +142,8 @@
           coachNames: (classroom.coaches || [])
             .map(coach => coach.full_name || coach.username)
             .join(', '),
-          href: `${facilityClassesPath.value}/${classroom.id}`,
+          href: router.resolve({ name: 'AeAdminClassDetail', params: { classId: classroom.id } })
+            .href,
         })),
       );
 
@@ -210,12 +202,10 @@
         viewGroupOf$,
         moreActionsFor$,
         editGroup$,
-        manageAllGroups$,
         groupsEmpty$,
         groupsNoMatch$,
         noCoachAssigned$,
         bannerArt: urls.static('action_education_portal/ae-users-banner.jpg'),
-        facilityClassesPath,
         userFacilityId,
         createPanelOpen,
         openCreatePanel,

@@ -3,6 +3,7 @@
   <AeSpaceLayout
     :spaceLabel="spaceHeadingCoach$()"
     :items="items"
+    :profileTo="{ name: 'AeCoachProfile' }"
     :activeId="activeId"
     :previewLinks="previewLinks"
     :promoText="adminSidebarTagline$()"

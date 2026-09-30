@@ -53,17 +53,19 @@
         <AeRowActions
           :primaryLabel="viewProfile$()"
           :primaryAriaLabel="viewProfileOf$({ name: item.fullName })"
-          :primaryHref="item.href"
           :moreLabel="moreActionsFor$({ name: item.fullName })"
-          :menuItems="[
-            { label: editAccount$(), href: item.href },
-            { label: manageAllAccounts$(), href: `${facilityUsersPath}/` },
-          ]"
+          :menuItems="[{ label: editAccount$(), onClick: () => (editing = item.user) }]"
           :openUp="openUp"
+          @primary="editing = item.user"
         />
       </td>
     </template>
     <template #extra>
+      <AeUserEditPanel
+        :user="editing"
+        @close="editing = null"
+        @saved="onAccountSaved"
+      />
       <AeUserCreatePanel
         :open="createPanelOpen"
         :facilityId="userFacilityId"
@@ -91,10 +93,11 @@
   import AeRowActions from '../AeRowActions';
   import AeListPage from '../AeListPage';
   import AeUserCreatePanel from './AeUserCreatePanel';
+  import AeUserEditPanel from './AeUserEditPanel';
 
   export default {
     name: 'AeAdminUsersPage',
-    components: { AeListPage, AeAvatar, AeRowActions, AeUserCreatePanel },
+    components: { AeListPage, AeAvatar, AeRowActions, AeUserCreatePanel, AeUserEditPanel },
     setup() {
       const {
         dashUsersLabel$,
@@ -115,7 +118,6 @@
         viewProfileOf$,
         moreActionsFor$,
         editAccount$,
-        manageAllAccounts$,
         usersTotal$,
         usersNoMatch$,
         learnersEmpty$,
@@ -132,11 +134,8 @@
         createPanelOpen.value = true;
       }
 
-      // Account pages live in Kolibri facility management.
-      const facilityUsersPath = computed(
-        () =>
-          `${urls['kolibri:kolibri.plugins.facility:facility_management']()}#/${userFacilityId.value}/users`,
-      );
+      // The account being changed in the edit panel.
+      const editing = ref(null);
 
       const rows = computed(() =>
         users.value.map(user => ({
@@ -144,7 +143,7 @@
           fullName: user.full_name || user.username,
           username: user.username,
           dateJoined: user.date_joined ? new Date(user.date_joined).getTime() : 0,
-          href: `${facilityUsersPath.value}/${user.id}`,
+          user,
         })),
       );
 
@@ -162,6 +161,11 @@
         },
         { value: 'newest', label: sortByNewest$(), compare: (a, b) => b.dateJoined - a.dateJoined },
       ];
+
+      function onAccountSaved() {
+        editing.value = null;
+        fetchUsers();
+      }
 
       function fetchUsers() {
         return FacilityUserResource.fetchCollection({
@@ -201,12 +205,12 @@
         viewProfileOf$,
         moreActionsFor$,
         editAccount$,
-        manageAllAccounts$,
         usersTotal$,
         usersNoMatch$,
         learnersEmpty$,
         bannerArt: urls.static('action_education_portal/ae-users-banner.jpg'),
-        facilityUsersPath,
+        editing,
+        onAccountSaved,
         userFacilityId,
         learnerKind: UserKinds.LEARNER,
         createPanelOpen,

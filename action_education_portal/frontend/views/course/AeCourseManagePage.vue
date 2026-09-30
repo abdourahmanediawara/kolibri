@@ -320,6 +320,7 @@
         :subtitle="addSupportsSubtitle$()"
         icon="upload"
         titleId="ae-add-supports-title"
+        :alert="addAlert"
         @close="closeAddPanel"
       >
         <div
@@ -437,6 +438,7 @@
         :subtitle="enrollCourseSubtitle$()"
         icon="userPlus"
         titleId="ae-enroll-course-title"
+        :alert="enrollAlert"
         @close="enrollPanelOpen = false"
       >
         <div class="ae-course-enroll">
@@ -662,6 +664,8 @@
         linkInvalid$,
         learnersEnrolled$,
         saveError$,
+        filesFailed$,
+        learnersEnrollFailed$,
         loadError$,
         loadTimeout$,
       } = portalStrings;
@@ -927,7 +931,12 @@
       const linkIsYoutube = computed(() => Boolean(youtubeId(link.url)));
       const readyFiles = computed(() => files.value.filter(item => item.status !== 'done'));
 
+      // Outcome of the last action of each panel, shown at the top of the panel.
+      const addAlert = ref(null);
+      const enrollAlert = ref(null);
+
       function openAddPanel() {
+        addAlert.value = null;
         addMode.value = 'files';
         files.value = [];
         link.url = '';
@@ -943,6 +952,7 @@
       }
 
       async function uploadFiles() {
+        addAlert.value = null;
         uploading.value = true;
         let added = 0;
         // One at a time: course videos can be large.
@@ -961,6 +971,10 @@
           }
         }
         uploading.value = false;
+        const failed = files.value.filter(item => item.status === 'failed').length;
+        if (failed) {
+          addAlert.value = { kind: 'error', text: filesFailed$({ count: failed }) };
+        }
         if (added) {
           createSnackbar(filesAdded$({ count: added }));
           await refresh();
@@ -971,12 +985,15 @@
       }
 
       async function addLink() {
+        addAlert.value = null;
         if (!link.url) {
           linkError.value = linkRequired$();
+          addAlert.value = { kind: 'error', text: linkRequired$() };
           return;
         }
         if (!/^https?:\/\/\S+\.\S+/.test(link.url)) {
           linkError.value = linkInvalid$();
+          addAlert.value = { kind: 'error', text: linkInvalid$() };
           return;
         }
         linkError.value = '';
@@ -988,7 +1005,13 @@
             url: link.url,
           });
         } catch (e) {
-          linkError.value = linkInvalid$();
+          // 400: the server refused the address; anything else: it could not save it.
+          if (e && e.response && e.response.status === 400) {
+            linkError.value = linkInvalid$();
+            addAlert.value = { kind: 'error', text: linkInvalid$() };
+          } else {
+            addAlert.value = { kind: 'error', text: saveError$() };
+          }
           return;
         } finally {
           uploading.value = false;
@@ -1106,6 +1129,7 @@
       });
 
       async function openEnrollPanel() {
+        enrollAlert.value = null;
         selectedLearners.value = [];
         enrollPanelOpen.value = true;
         facilityLearners.value = await FacilityUserResource.fetchCollection({
@@ -1127,10 +1151,19 @@
         );
         enrolling.value = false;
         const enrolled = results.filter(result => result.status === 'fulfilled').length;
+        const failed = results.length - enrolled;
         if (enrolled) {
           createSnackbar(learnersEnrolled$({ count: enrolled }));
         }
-        enrollPanelOpen.value = false;
+        if (failed) {
+          // Keep the panel open with the learners still to enroll.
+          selectedLearners.value = selectedLearners.value.filter(
+            (learner, index) => results[index].status !== 'fulfilled',
+          );
+          enrollAlert.value = { kind: 'error', text: learnersEnrollFailed$({ count: failed }) };
+        } else {
+          enrollPanelOpen.value = false;
+        }
         await refresh();
       }
 
@@ -1198,6 +1231,8 @@
         readyFiles,
         link,
         linkError,
+        addAlert,
+        enrollAlert,
         linkIsYoutube,
         closeAddPanel,
         uploadFiles,

@@ -96,6 +96,7 @@
 <script>
 
   import { computed, onMounted, ref } from 'vue';
+  import { useRouter } from 'vue-router/composables';
   import urls from 'kolibri/urls';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
@@ -110,6 +111,7 @@
     name: 'AeAdminContentPage',
     components: { AeListPage, AeAvatar, AeRowActions },
     setup() {
+      const router = useRouter();
       const {
         contentManageTitle$,
         channelsCount$,
@@ -140,7 +142,6 @@
       const channels = ref([]);
 
       const deviceHref = urls['kolibri:kolibri.plugins.device:device_management']();
-      const learnHref = urls['kolibri:kolibri.plugins.learn:learn']();
 
       const rows = computed(() =>
         channels.value.map(channel => ({
@@ -150,7 +151,8 @@
           language: channel.lang_name || '',
           resources: channel.total_resource_count || 0,
           sizeLabel: channel.published_size ? bytesForHumans(channel.published_size) : '',
-          browseHref: `${learnHref}#/topics/${channel.id}`,
+          browseHref: router.resolve({ name: 'AeAdminResource', params: { nodeId: channel.root } })
+            .href,
           manageHref: `${deviceHref}#/content/manage_channel/${channel.id}`,
         })),
       );

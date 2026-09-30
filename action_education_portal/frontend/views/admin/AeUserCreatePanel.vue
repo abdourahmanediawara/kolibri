@@ -6,6 +6,7 @@
     :subtitle="isStaffPanel ? addCoachSubtitle$() : createUserSubtitle$()"
     icon="userPlus"
     titleId="ae-create-user-title"
+    :alert="panelAlert"
     @close="close"
   >
     <form
@@ -61,6 +62,7 @@
             :placeholder="usernamePlaceholder$()"
             :aria-invalid="errors.username ? 'true' : 'false'"
             aria-describedby="ae-cu-username-error"
+            @blur="onUsernameBlur"
           >
           <p
             v-if="errors.username"
@@ -68,6 +70,20 @@
             class="ae-side-panel-error"
           >
             {{ errors.username }}
+          </p>
+          <p
+            v-else-if="usernameStatus === 'available'"
+            id="ae-cu-username-error"
+            class="ae-side-panel-ok"
+          >
+            {{ usernameAvailable$() }}
+          </p>
+          <p
+            v-else-if="usernameStatus === 'checking'"
+            id="ae-cu-username-error"
+            class="ae-side-panel-hint"
+          >
+            {{ usernameChecking$() }}
           </p>
         </div>
       </div>
@@ -276,14 +292,6 @@
         </div>
       </div>
 
-      <p
-        v-if="formError"
-        class="ae-side-panel-form-error"
-        role="alert"
-      >
-        {{ formError }}
-      </p>
-
       <!-- Lets Enter submit the form ("save and close"). -->
       <button
         type="submit"
@@ -343,6 +351,7 @@
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
   import { portalStrings } from '../../strings';
+  import { useUsernameCheck } from '../../composables/useUsernameCheck';
   import AeIcon from '../AeIcon';
   import AeSidePanel from '../AeSidePanel';
 
@@ -412,6 +421,11 @@
         createUserError$,
         assignmentError$,
         userCreated$,
+        usernameAvailable$,
+        usernameChecking$,
+        usernameTakenAlert$,
+        formHasErrors$,
+        userCreatedAddAnother$,
         signInShowPassword$,
         signInHidePassword$,
         spaceLearner$,
@@ -423,7 +437,9 @@
 
       const form = reactive(emptyForm(props.defaultKind));
       const errors = reactive({ fullName: '', username: '', password: '', confirm: '' });
-      const formError = ref('');
+      // Outcome of the last save, shown at the top of the panel.
+      const panelAlert = ref(null);
+      const { usernameStatus, checkUsernameAvailable, resetUsernameStatus } = useUsernameCheck();
       const saving = ref(false);
       const showPassword = ref(false);
       const showConfirm = ref(false);
@@ -450,7 +466,8 @@
         Object.keys(errors).forEach(key => {
           errors[key] = '';
         });
-        formError.value = '';
+        panelAlert.value = null;
+        resetUsernameStatus();
         showPassword.value = false;
         showConfirm.value = false;
       }
@@ -496,11 +513,39 @@
         }
         const invalid = FIELD_IDS.find(([key]) => errors[key]);
         if (invalid) {
+          panelAlert.value = { kind: 'error', text: formHasErrors$() };
           formElement.value.querySelector(`#ae-cu-${invalid[1]}`).focus();
           return false;
         }
         return true;
       }
+
+      function showUsernameTaken() {
+        errors.username = usernameTaken$();
+        panelAlert.value = {
+          kind: 'error',
+          text: usernameTakenAlert$({ username: form.username }),
+        };
+        formElement.value.querySelector('#ae-cu-username').focus();
+      }
+
+      // Checked as soon as the field is left, then again by the server on save.
+      async function onUsernameBlur() {
+        if (!form.username || !validateUsername(form.username)) {
+          return;
+        }
+        const status = await checkUsernameAvailable(form.username);
+        if (status === 'taken') {
+          errors.username = usernameTaken$();
+        } else if (errors.username === usernameTaken$()) {
+          errors.username = '';
+        }
+      }
+
+      watch(
+        () => form.username,
+        () => resetUsernameStatus(),
+      );
 
       // Class enrollment: learners join the class, staff coach it.
       function assignToClass(user) {
@@ -518,7 +563,7 @@
       }
 
       async function save(closeAfter) {
-        formError.value = '';
+        panelAlert.value = null;
         if (!validate()) {
           return;
         }
@@ -543,11 +588,12 @@
             ERROR_CONSTANTS.INVALID_USERNAME,
           ]);
           if (caught && caught.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
-            errors.username = usernameTaken$();
+            showUsernameTaken();
           } else if (caught) {
             errors.username = usernameInvalid$();
+            panelAlert.value = { kind: 'error', text: usernameInvalid$() };
           } else {
-            formError.value = createUserError$();
+            panelAlert.value = { kind: 'error', text: createUserError$() };
           }
           return;
         }
@@ -568,14 +614,16 @@
         // The account exists either way; refresh the list once its roles are saved.
         emit('created', user);
         if (assignmentFailed) {
-          formError.value = assignmentError$();
+          panelAlert.value = { kind: 'error', text: assignmentError$() };
           return;
         }
-        createSnackbar(userCreated$({ name: user.full_name || user.username }));
+        const name = user.full_name || user.username;
+        createSnackbar(userCreated$({ name }));
         if (closeAfter) {
           close();
         } else {
           resetForm();
+          panelAlert.value = { kind: 'success', text: userCreatedAddAnother$({ name }) };
           focusFirstField();
         }
       }
@@ -610,6 +658,8 @@
         saveAndClose$,
         signInShowPassword$,
         signInHidePassword$,
+        usernameAvailable$,
+        usernameChecking$,
         cancelAction$,
         NOT_SPECIFIED: DemographicConstants.NOT_SPECIFIED,
         FEMALE: FacilityUserGender.FEMALE,
@@ -620,7 +670,9 @@
         birthYears,
         form,
         errors,
-        formError,
+        panelAlert,
+        usernameStatus,
+        onUsernameBlur,
         saving,
         showPassword,
         showConfirm,

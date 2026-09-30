@@ -2,7 +2,7 @@
   "name": "action-education-portal",
   "description": "AE Apprendre learner portal for Kolibri",
   "private": true,
-  "version": "0.1.16",
+  "version": "0.1.19",
   "dependencies": {
     "kolibri": "workspace:*",
     "kolibri-app": "workspace:*",

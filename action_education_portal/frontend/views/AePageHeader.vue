@@ -20,9 +20,27 @@
       </ol>
     </nav>
 
+    <router-link
+      v-if="back"
+      :to="back.to"
+      class="ae-page-header-back"
+    >
+      <AeIcon
+        name="arrowLeft"
+        :size="18"
+      />
+      <span>{{ back.label }}</span>
+    </router-link>
+
     <header class="ae-page-header-main">
       <div class="ae-page-header-text">
         <div class="ae-page-header-title-row">
+          <AeIcon
+            v-if="icon"
+            :name="icon"
+            class="ae-page-header-icon"
+            :size="34"
+          />
           <h1 class="ae-page-header-title">
             {{ title }}
           </h1>
@@ -146,6 +164,16 @@
         type: Object,
         default: null,
       },
+      /** Link back to the parent list: { label, to }. */
+      back: {
+        type: Object,
+        default: null,
+      },
+      /** AeIcon name shown before the title. */
+      icon: {
+        type: String,
+        default: '',
+      },
     },
   };
 
@@ -159,6 +187,26 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .ae-page-header-back {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    align-self: flex-start;
+    margin-top: -6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ae-orange-ink);
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .ae-page-header-icon {
+    flex-shrink: 0;
+    color: var(--ae-orange);
   }
 
   .ae-page-header-crumbs ol {

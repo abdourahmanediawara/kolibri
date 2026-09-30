@@ -95,6 +95,7 @@
         :subtitle="addLearnerSubtitle$()"
         icon="userPlus"
         titleId="ae-add-learner-title"
+        :alert="formError ? { kind: 'error', text: formError } : null"
         @close="closeCreatePanel"
       >
         <form
@@ -171,6 +172,7 @@
                 :placeholder="usernamePlaceholder$()"
                 :aria-invalid="errors.username ? 'true' : 'false'"
                 aria-describedby="ae-al-username-error"
+                @blur="onUsernameBlur"
               >
               <p
                 v-if="errors.username"
@@ -178,6 +180,20 @@
                 class="ae-side-panel-error"
               >
                 {{ errors.username }}
+              </p>
+              <p
+                v-else-if="usernameStatus === 'available'"
+                id="ae-al-username-error"
+                class="ae-side-panel-ok"
+              >
+                {{ usernameAvailable$() }}
+              </p>
+              <p
+                v-else-if="usernameStatus === 'checking'"
+                id="ae-al-username-error"
+                class="ae-side-panel-hint"
+              >
+                {{ usernameChecking$() }}
               </p>
             </div>
             <div class="ae-side-panel-field">
@@ -214,13 +230,6 @@
             </div>
           </div>
 
-          <p
-            v-if="formError"
-            class="ae-side-panel-form-error"
-            role="alert"
-          >
-            {{ formError }}
-          </p>
 
           <!-- Lets Enter submit the form. -->
           <button
@@ -264,9 +273,11 @@
   import urls from 'kolibri/urls';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { validateUsername } from 'kolibri/utils/validators';
   import { portalStrings } from '../../strings';
   import { useAePermissions } from '../../composables/useAePermissions';
   import { useClassroomApi } from '../../composables/useClassroomApi';
+  import { useUsernameCheck } from '../../composables/useUsernameCheck';
   import { useAsyncPageLoad } from '../../composables/useAsyncPageLoad';
   import AeAvatar from '../AeAvatar';
   import AeIcon from '../AeIcon';
@@ -319,6 +330,11 @@
         signInHidePassword$,
         fieldRequired$,
         usernameTaken$,
+        usernameInvalid$,
+        usernameTakenAlert$,
+        usernameAvailable$,
+        usernameChecking$,
+        formHasErrors$,
         learnerCreated$,
         cancelAction$,
         saveError$,
@@ -344,6 +360,7 @@
       const isSaving = ref(false);
       const showPassword = ref(false);
       const formError = ref('');
+      const { usernameStatus, checkUsernameAvailable, resetUsernameStatus } = useUsernameCheck();
       const formElement = ref(null);
       const form = reactive({ classId: '', fullName: '', username: '', password: '' });
       const errors = reactive({ classId: '', fullName: '', username: '', password: '' });
@@ -450,6 +467,7 @@
 
       function openCreatePanel() {
         resetForm();
+        resetUsernameStatus();
         createPanelOpen.value = true;
         focusField(form.classId ? 'fullname' : 'class');
       }
@@ -461,15 +479,38 @@
       function validate() {
         errors.classId = form.classId ? '' : fieldRequired$();
         errors.fullName = form.fullName.trim() ? '' : fieldRequired$();
-        errors.username = form.username ? '' : fieldRequired$();
+        if (!form.username) {
+          errors.username = fieldRequired$();
+        } else {
+          errors.username = validateUsername(form.username) ? '' : usernameInvalid$();
+        }
         errors.password = form.password ? '' : fieldRequired$();
         const invalid = FIELD_IDS.find(([key]) => errors[key]);
         if (invalid) {
+          formError.value = formHasErrors$();
           focusField(invalid[1]);
           return false;
         }
         return true;
       }
+
+      // Checked as soon as the field is left, then again by the server on save.
+      async function onUsernameBlur() {
+        if (!form.username || !validateUsername(form.username)) {
+          return;
+        }
+        const status = await checkUsernameAvailable(form.username);
+        if (status === 'taken') {
+          errors.username = usernameTaken$();
+        } else if (errors.username === usernameTaken$()) {
+          errors.username = '';
+        }
+      }
+
+      watch(
+        () => form.username,
+        () => resetUsernameStatus(),
+      );
 
       async function addLearner() {
         formError.value = '';
@@ -490,6 +531,11 @@
           const code = Array.isArray(data) && data[0] && data[0].id;
           if (code === 'USERNAME_ALREADY_EXISTS') {
             errors.username = usernameTaken$();
+            formError.value = usernameTakenAlert$({ username: form.username });
+            focusField('username');
+          } else if (code === 'INVALID_USERNAME') {
+            errors.username = usernameInvalid$();
+            formError.value = usernameInvalid$();
             focusField('username');
           } else {
             formError.value = saveError$();
@@ -562,6 +608,10 @@
         form,
         errors,
         formError,
+        usernameStatus,
+        onUsernameBlur,
+        usernameAvailable$,
+        usernameChecking$,
         formElement,
         onClassChange,
         openCreatePanel,

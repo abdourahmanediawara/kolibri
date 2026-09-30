@@ -86,6 +86,7 @@
         :subtitle="createSessionSubtitle$()"
         icon="plus"
         titleId="ae-create-session-title"
+        :alert="formError ? { kind: 'error', text: formError } : null"
         @close="closeCreatePanel"
       >
         <form
@@ -174,13 +175,6 @@
             {{ fieldErrors.dateTime }}
           </p>
 
-          <p
-            v-if="formError"
-            class="ae-side-panel-form-error"
-            role="alert"
-          >
-            {{ formError }}
-          </p>
         </form>
 
         <template #footer>
@@ -275,6 +269,7 @@
         sessionsSearchPlaceholder$,
         sessionsEmpty$,
         sessionsNoMatch$,
+        formHasErrors$,
         columnCourse$,
         columnWhen$,
         locationLabel$,
@@ -425,6 +420,7 @@
         const startIso = parseDateTimeToIso(form.date, form.time);
         fieldErrors.dateTime = startIso ? '' : sessionDateRequired$();
         if (fieldErrors.training || fieldErrors.dateTime) {
+          formError.value = formHasErrors$();
           return;
         }
         const end = new Date(startIso);

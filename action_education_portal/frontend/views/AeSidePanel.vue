@@ -53,6 +53,20 @@
           </button>
         </header>
 
+        <!-- Outcome of the last action: always in sight, above the scrolling form. -->
+        <div
+          v-if="alert && alert.text"
+          class="ae-side-panel-alert"
+          :class="`ae-side-panel-alert-${alert.kind}`"
+          :role="alert.kind === 'error' ? 'alert' : 'status'"
+        >
+          <AeIcon
+            :name="alert.kind === 'error' ? 'circleAlert' : 'circleCheck'"
+            :size="24"
+          />
+          <p>{{ alert.text }}</p>
+        </div>
+
         <div class="ae-side-panel-body">
           <slot></slot>
         </div>
@@ -74,7 +88,8 @@
 
   /**
    * Right-hand side panel (drawer) for AE forms: header, scrollable body, footer buttons.
-   * Content can use the helper classes ae-side-panel-section / -row (-row-3) / -field / -error.
+   * Content can use the helper classes ae-side-panel-section / -row (-row-3) / -field /
+   * -error (field not valid) / -ok (field valid).
    */
   export default {
     name: 'AeSidePanel',
@@ -105,6 +120,11 @@
       titleId: {
         type: String,
         required: true,
+      },
+      /** Outcome shown under the header: { kind: 'error' | 'success', text }, or null. */
+      alert: {
+        type: Object,
+        default: null,
       },
     },
     data() {
@@ -353,11 +373,31 @@
       }
     }
 
-    /deep/ .ae-side-panel-error {
+    /deep/ .ae-side-panel-error,
+    /deep/ .ae-side-panel-ok {
       margin: 6px 0 0;
       font-size: 14px;
       font-weight: 600;
       color: var(--ae-danger);
+
+      &::before {
+        margin-inline-end: 6px;
+        content: '✕';
+      }
+    }
+
+    /deep/ .ae-side-panel-ok {
+      color: #1b6e3c;
+
+      &::before {
+        content: '✓';
+      }
+    }
+
+    /deep/ .ae-side-panel-hint {
+      margin: 6px 0 0;
+      font-size: 14px;
+      color: var(--ae-text-muted);
     }
 
     /deep/ .ae-side-panel-form-error {
@@ -369,6 +409,38 @@
       background: var(--ae-danger-soft);
       border-radius: var(--ae-radius-md);
     }
+  }
+
+  .ae-side-panel-alert {
+    display: flex;
+    flex-shrink: 0;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 18px;
+    margin: 14px 32px 0 36px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: var(--ae-radius-md);
+
+    p {
+      margin: 0;
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
+  .ae-side-panel-alert-error {
+    color: var(--ae-danger);
+    background: var(--ae-danger-soft);
+    border: 1.5px solid var(--ae-danger);
+  }
+
+  .ae-side-panel-alert-success {
+    color: #1b6e3c;
+    background: var(--ae-kpi-green);
+    border: 1.5px solid #2e8b57;
   }
 
   /* ---------- Footer and its buttons (slot content) ---------- */

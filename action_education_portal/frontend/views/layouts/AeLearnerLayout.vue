@@ -3,6 +3,7 @@
   <AeSpaceLayout
     :spaceLabel="spaceHeadingLearner$()"
     :items="items"
+    :profileTo="{ name: 'AeLearnProfile' }"
     :activeId="activeId"
     :previewLinks="previewLinks"
     :promoText="learnSidebarTagline$()"

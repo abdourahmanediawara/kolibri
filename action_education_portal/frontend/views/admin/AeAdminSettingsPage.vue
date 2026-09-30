@@ -49,10 +49,6 @@
           </div>
         </dl>
 
-        <a
-          :href="facilitySettingsHref"
-          class="ae-settings-outline"
-        >{{ facilitySettingsAction$() }}</a>
       </section>
 
       <section
@@ -97,6 +93,7 @@
         </div>
       </section>
     </div>
+    <AeFacilityRulesCard />
   </div>
 
 </template>
@@ -111,10 +108,11 @@
   import { portalStrings } from '../../strings';
   import { useAePermissions } from '../../composables/useAePermissions';
   import AePageHeader from '../AePageHeader';
+  import AeFacilityRulesCard from './AeFacilityRulesCard';
 
   export default {
     name: 'AeAdminSettingsPage',
-    components: { AePageHeader },
+    components: { AeFacilityRulesCard, AePageHeader },
     setup() {
       const {
         settingsTitle$,
@@ -125,7 +123,6 @@
         organizationLabel$,
         footerOrgName$,
         facilityAdminSettingsHint$,
-        facilitySettingsAction$,
         technicalAdmin$,
         settingsDeviceHint$,
         openDeviceSettingsAction$,
@@ -134,9 +131,8 @@
       const { languageLabel$ } = coreStrings;
 
       // Device settings are for Kolibri superusers only.
-      const { isSuperuser, userFacilityId } = useAePermissions();
+      const { isSuperuser } = useAePermissions();
       const language = availableLanguages[currentLanguage];
-      const facilityHref = urls['kolibri:kolibri.plugins.facility:facility_management']();
 
       return {
         settingsTitle$,
@@ -147,7 +143,6 @@
         organizationLabel$,
         footerOrgName$,
         facilityAdminSettingsHint$,
-        facilitySettingsAction$,
         technicalAdmin$,
         settingsDeviceHint$,
         openDeviceSettingsAction$,
@@ -156,7 +151,6 @@
         isSuperuser,
         platformName: themeConfig.siteTitle,
         languageName: (language && language.lang_name) || currentLanguage,
-        facilitySettingsHref: `${facilityHref}#/${userFacilityId.value}/settings`,
         deviceHref: urls['kolibri:kolibri.plugins.device:device_management'](),
       };
     },

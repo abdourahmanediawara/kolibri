@@ -1,4 +1,5 @@
 import urls from 'kolibri/urls';
+import plugin_data from 'kolibri-plugin-data';
 import { useAePermissions } from './composables/useAePermissions';
 
 function portalAbsoluteUrl(hashPath = '') {
@@ -37,6 +38,22 @@ export function requirePerm(getterName) {
       return;
     }
     next({ name: 'AeForbidden' });
+  };
+}
+
+/**
+ * Learner pages open to visitors ("Explorer sans compte") when the device allows guests:
+ * the library and the help. Other learner pages send visitors to the library.
+ */
+export function allowGuests(getterName, { guestPage = true } = {}) {
+  const signedIn = requirePerm(getterName);
+  return (to, from, next) => {
+    const perms = useAePermissions();
+    if (!perms.isUserLoggedIn.value && plugin_data.allowGuestAccess) {
+      next(guestPage ? undefined : { name: 'AeLearnLibrary' });
+      return;
+    }
+    signedIn(to, from, next);
   };
 }
 

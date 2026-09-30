@@ -22,7 +22,10 @@ function activeIdFromItems(items, route) {
 
 export function useAeLearnerNav() {
   const route = useRoute();
-  const items = computed(() => [
+  const { isUserLoggedIn } = useAePermissions();
+  // Visitors browsing without an account only see the library and the help.
+  const GUEST_ITEMS = ['learn-library', 'learn-help'];
+  const allItems = computed(() => [
     {
       id: 'learn-home',
       label: portalStrings.$tr('homeNavLabel'),
@@ -73,6 +76,11 @@ export function useAeLearnerNav() {
       name: 'AeLearnHelp',
     },
   ]);
+  const items = computed(() =>
+    isUserLoggedIn.value
+      ? allItems.value
+      : allItems.value.filter(item => GUEST_ITEMS.includes(item.id)),
+  );
   const activeId = computed(() => activeIdFromItems(items.value, route));
   return { items, activeId };
 }

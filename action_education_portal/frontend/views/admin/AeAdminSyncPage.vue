@@ -159,7 +159,8 @@
         isSuperuser,
         facilityName,
         lastSync,
-        facilitySyncHref: `${facilityHref}#/${userFacilityId.value}/data`,
+        // Data sync still runs in Kolibri facility management (kept open by the flag).
+        facilitySyncHref: `${facilityHref}?ae_advanced=1#/${userFacilityId.value}/data`,
         deviceHref: urls['kolibri:kolibri.plugins.device:device_management'](),
       };
     },

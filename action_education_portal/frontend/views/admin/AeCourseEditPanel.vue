@@ -6,6 +6,7 @@
     :subtitle="editCourseSubtitle$()"
     icon="bookOpen"
     titleId="ae-edit-course-title"
+    :alert="formError ? { kind: 'error', text: formError } : null"
     @close="$emit('close')"
   >
     <form
@@ -87,13 +88,6 @@
       <p class="ae-edit-course-hint">
         {{ courseStatusHint$() }}
       </p>
-      <p
-        v-if="formError"
-        class="ae-side-panel-form-error"
-        role="alert"
-      >
-        {{ formError }}
-      </p>
     </form>
 
     <template #footer>
@@ -151,6 +145,7 @@
         courseSaved$,
         cancelAction$,
         saveError$,
+        formHasErrors$,
       } = portalStrings;
       const { createSnackbar } = useSnackbar();
       const api = useTrainingApi();
@@ -184,6 +179,7 @@
       async function save() {
         titleError.value = form.title.trim() ? '' : courseTitleRequired$();
         if (titleError.value) {
+          formError.value = formHasErrors$();
           titleField.value.focus();
           return;
         }

@@ -65,17 +65,19 @@
         <AeRowActions
           :primaryLabel="viewProfile$()"
           :primaryAriaLabel="viewProfileOf$({ name: item.fullName })"
-          :primaryHref="item.href"
           :moreLabel="moreActionsFor$({ name: item.fullName })"
-          :menuItems="[
-            { label: editAccount$(), href: item.href },
-            { label: manageAllAccounts$(), href: `${facilityUsersPath}/` },
-          ]"
+          :menuItems="[{ label: editAccount$(), onClick: () => (editing = item.user) }]"
           :openUp="openUp"
+          @primary="editing = item.user"
         />
       </td>
     </template>
     <template #extra>
+      <AeUserEditPanel
+        :user="editing"
+        @close="editing = null"
+        @saved="onAccountSaved"
+      />
       <AeUserCreatePanel
         :open="createPanelOpen"
         :facilityId="userFacilityId"
@@ -104,12 +106,13 @@
   import AeRowActions from '../AeRowActions';
   import AeListPage from '../AeListPage';
   import AeUserCreatePanel from './AeUserCreatePanel';
+  import AeUserEditPanel from './AeUserEditPanel';
 
   const COACH_KINDS = [UserKinds.COACH, UserKinds.ASSIGNABLE_COACH, UserKinds.ADMIN];
 
   export default {
     name: 'AeAdminCoachesPage',
-    components: { AeListPage, AeAvatar, AeRowActions, AeUserCreatePanel },
+    components: { AeListPage, AeAvatar, AeRowActions, AeUserCreatePanel, AeUserEditPanel },
     setup() {
       const {
         coachesTitle$,
@@ -131,7 +134,6 @@
         viewProfileOf$,
         moreActionsFor$,
         editAccount$,
-        manageAllAccounts$,
         coachesEmpty$,
         coachesNoMatch$,
         spaceAdmin$,
@@ -150,11 +152,8 @@
         createPanelOpen.value = true;
       }
 
-      // Accounts are created and edited in Kolibri facility management.
-      const facilityUsersPath = computed(
-        () =>
-          `${urls['kolibri:kolibri.plugins.facility:facility_management']()}#/${userFacilityId.value}/users`,
-      );
+      // The account being changed in the edit panel.
+      const editing = ref(null);
 
       const groupCounts = computed(() => {
         const counts = {};
@@ -177,7 +176,7 @@
               username: user.username,
               role: isAdmin ? spaceAdmin$() : spaceCoach$(),
               groupCount: groupCounts.value[user.id] || 0,
-              href: `${facilityUsersPath.value}/${user.id}`,
+          user,
             };
           }),
       );
@@ -191,6 +190,11 @@
         },
         { value: 'groups', label: sortByGroups$(), compare: (a, b) => b.groupCount - a.groupCount },
       ];
+
+      function onAccountSaved() {
+        editing.value = null;
+        fetchUsers();
+      }
 
       function fetchUsers() {
         return Promise.allSettled([
@@ -237,11 +241,11 @@
         viewProfileOf$,
         moreActionsFor$,
         editAccount$,
-        manageAllAccounts$,
         coachesEmpty$,
         coachesNoMatch$,
         bannerArt: urls.static('action_education_portal/ae-users-banner.jpg'),
-        facilityUsersPath,
+        editing,
+        onAccountSaved,
         userFacilityId,
         coachKind: UserKinds.COACH,
         createPanelOpen,

@@ -45,7 +45,8 @@ jest.mock('../composables/useTrainingApi', () => {
       fetchEnrollments: (...args) => mockFetchEnrollments(...args),
       fetchAttendances: (...args) => mockFetchAttendances(...args),
       fetchResources: () => Promise.resolve([]),
-      createTraining: jest.fn(),
+      fetchQuizzes: () => Promise.resolve([]),
+      fetchProgressOverview: () => Promise.resolve([]),
     }),
   };
 });
@@ -56,7 +57,7 @@ jest.mock('../composables/useClassroomApi', () => ({
   }),
 }));
 
-const { myCourses$, dashAttendanceLabel$, loadError$, retryAction$, emptyFormationsStaff$ } =
+const { myCourses$, dashAttendanceLabel$, loadError$, retryAction$, coachNoAssignedCourse$ } =
   portalStrings;
 
 const Blank = { render: h => h('div') };
@@ -93,7 +94,10 @@ describe('coach page loaders', () => {
   it('shows the dashboard cards once empty lists are loaded', async () => {
     render(AeCoachHomePage, { routes: ROUTES });
 
-    await waitFor(() => expect(screen.getByText(myCourses$())).toBeInTheDocument());
+    // "Mes cours" is both a dashboard card and a quick action.
+    await waitFor(() =>
+      expect(screen.getByText(myCourses$(), { selector: '.ae-dash-kpi-label' })).toBeInTheDocument(),
+    );
     expect(screen.getByText(dashAttendanceLabel$())).toBeInTheDocument();
   });
 
@@ -123,9 +127,10 @@ describe('coach page loaders', () => {
     consoleError.mockRestore();
   });
 
-  it('shows the empty courses message', async () => {
+  it('lists only the courses assigned to the trainer', async () => {
     render(AeCoachFormationsPage, { routes: ROUTES });
 
-    await waitFor(() => expect(screen.getByText(emptyFormationsStaff$())).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(coachNoAssignedCourse$())).toBeInTheDocument());
+    expect(mockFetchTrainings).toHaveBeenCalledWith({ responsible: expect.any(String) });
   });
 });

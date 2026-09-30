@@ -109,6 +109,7 @@
         :subtitle="enrollLearnersSubtitle$()"
         icon="userPlus"
         titleId="ae-enroll-title"
+        :alert="enrollError ? { kind: 'error', text: enrollError } : null"
         @close="closeEnrollPanel"
       >
         <div class="ae-session-enroll">
@@ -139,13 +140,6 @@
                 : allLearnersEnrolled$()
             "
           />
-          <p
-            v-if="enrollError"
-            class="ae-side-panel-form-error"
-            role="alert"
-          >
-            {{ enrollError }}
-          </p>
         </div>
 
         <template #footer>

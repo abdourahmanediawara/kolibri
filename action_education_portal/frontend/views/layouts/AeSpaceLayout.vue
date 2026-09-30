@@ -65,7 +65,19 @@
           aria-hidden="true"
         ></span>
 
+        <router-link
+          v-if="!isUserLoggedIn"
+          :to="{ name: 'AeSignIn' }"
+          class="ae-space-signin"
+        >
+          <AeIcon
+            name="user"
+            :size="20"
+          />
+          <span>{{ signInAction$() }}</span>
+        </router-link>
         <div
+          v-else
           ref="accountRoot"
           class="ae-space-account"
         >
@@ -100,10 +112,11 @@
             role="menu"
           >
             <li role="none">
-              <a
+              <router-link
                 role="menuitem"
                 class="ae-space-account-item"
-                :href="profileHref"
+                :to="profileTo"
+                @click.native="accountOpen = false"
               >
                 <KIcon
                   icon="person"
@@ -111,7 +124,7 @@
                   color="var(--ae-text-muted)"
                 />
                 <span>{{ myProfile$() }}</span>
-              </a>
+              </router-link>
             </li>
             <li
               v-if="showDeviceLink"
@@ -287,13 +300,14 @@
         accountMenuLabel$,
         myProfile$,
         signOut$,
+        signInAction$,
         footerOrgName$,
         footerPoweredBy$,
         spaceLearner$,
         spaceCoach$,
         spaceAdmin$,
       } = portalStrings;
-      const { full_name, username, logout } = useUser();
+      const { full_name, username, logout, isUserLoggedIn } = useUser();
       const { isAdmin, isCoach, defaultLandingPath } = useAePermissions();
 
       const drawerOpen = ref(false);
@@ -360,6 +374,8 @@
         accountMenuLabel$,
         myProfile$,
         signOut$,
+        signInAction$,
+        isUserLoggedIn,
         footerOrgName$,
         footerPoweredBy$,
         drawerOpen,
@@ -377,12 +393,16 @@
         closeOverlays,
         logoSrc: urls.static('action_education_portal/action-education-logo.png'),
         promoArtSrc: urls.static('action_education_portal/ae-sidebar-books.png'),
-        profileHref: urls['kolibri:kolibri.plugins.user_profile:user_profile'](),
         deviceHref: urls['kolibri:kolibri.plugins.device:device_management'](),
       };
     },
     props: {
       /** Small uppercase heading at the top of the sidebar. */
+      /** Route of the "Mon profil" page of this space. */
+      profileTo: {
+        type: Object,
+        required: true,
+      },
       spaceLabel: {
         type: String,
         required: true,
@@ -437,6 +457,7 @@
 <style lang="scss" scoped>
 
   @import '../../styles/tokens';
+  @import '../../styles/components';
 
   $header-height: 80px;
 
@@ -556,6 +577,13 @@
     height: 40px;
     margin-inline: 8px;
     background: var(--ae-line);
+  }
+
+  .ae-space-signin {
+    @include ae-button-primary;
+
+    min-height: 44px;
+    font-size: 16px;
   }
 
   .ae-space-account {
